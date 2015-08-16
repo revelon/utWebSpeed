@@ -11,12 +11,12 @@
 </style>
 <hr>
 
-<span id="fileSize">2:58:08 | 18 GB</span>
+<span id="fileSize">1:44:49 | 10.3 GB</span>
 <div id="download">
   <div class="content">
     <div class="left_dialog">
       <ul class="true">
-        <li class="highlight">Předpokládaná doba stažení: 293 minut</li>
+        <li class="highlight">Předpokládaná doba stažení: 167 minut</li>
       </ul>
       <p class="info">
         <a href="/rwrwerwerwerwregist">Zaregistruj se</a> | 
@@ -37,70 +37,94 @@
 <hr>
 
 <script src="http://img5.uloz.to/ul3/js2/ulozto.min.js?v=3.300.97-1"></script>
-
 <script>
 
 (function() {
-function Measure() {
-  this.vipTextSelector = "div#download div.content div.left_dialog ul.true li.highlight";
-  this.run = true;
-  this.startDownload = function(obj) {
-    if (!obj.run) return;
-    console.log("Downwload initiated...");
-    $.ajax({
-      type: 'GET',
-      url: 'http://storage1.cdn.int.nds/1m.bin',
-      timeout: 8000,
-      cache: false,
-      beforeSend: function(xhr, settings) {
-        this.start = new Date();
-      },
-      success: function(data, status, xhr){
-      var newVipTime = Math.floor((obj.fileAttrs.size * (new Date() - this.start))/1000/60);
-        console.log(newVipTime, obj.vipEstimate.time);
-        if (newVipTime < obj.vipEstimate.time) {
-          obj.run = false;
-          console.log("Condition positive, " + newVipTime + " < " + obj.vipEstimate.time + ", doing text and link replacing...");
-          $(obj.vipTextSelector).fadeOut(1000, function() {
-            $(this).text( function() {
-              return $(this).text().replace(obj.vipEstimate.time, newVipTime);
+  // measurement object for download speed bench and boost
+  function Measure() {
+    this.vipTextSelector = "div#download div.content div.left_dialog ul.true li.highlight";
+    this.run = true;
+    this.servers = [{url:"http://storage1.cdn.int.nds/50k.bin", speed:9999},
+                    {url:'http://storage1.cdn.int.nds/50k.bin?limit=70k', speed:9999},
+                    {url:"http://storage1.cdn.int.nds/50k.bin", speed:9999},
+                    {url:"http://storage1.cdn.int.nds/50k.bin", speed:9999}];
+    // method selecting fastest server from available ones
+    this.selectServer = function(obj) {
+      console.log("Server select initiated...");
+      $.each(obj.servers, function (i, server) {
+        $.ajax({
+          type: 'GET',
+          url: server.url,
+          timeout: 2000,
+          cache: false,
+          beforeSend: function(xhr, settings) {
+            this.start = new Date();
+          },
+          success: function(data, status, xhr){
+            obj.servers[i].speed = new Date() - this.start;
+          }
+        });
+      });
+    }
+    // method doing real benchmark and replace in-page data, eventually
+    this.startDownload = function(obj) {
+      obj.servers.sort(function(a, b) {return a.speed < b.speed ? 0 : 1;}); // sort current speed results
+      console.log("Test servers", obj.servers);
+      if (!obj.run) return;
+      console.log("Downwload initiated...");
+      $.ajax({
+        type: 'GET',
+        url: obj.servers[0].url.replace('50k\.bin', '1m\.bin'), // replace tiny testing file with a bigger one
+        timeout: 8000,
+        cache: false,
+        beforeSend: function(xhr, settings) {
+          this.start = new Date();
+        },
+        success: function(data, status, xhr){
+        var newVipTime = Math.floor((obj.fileAttrs.size * (new Date() - this.start))/1000/60);
+          console.log(newVipTime, obj.vipEstimate.time);
+          if (newVipTime < obj.vipEstimate.time) {
+            obj.run = false;
+            console.log("Condition positive, " + newVipTime + " < " + obj.vipEstimate.time + ", doing text and link replacing...");
+            $(obj.vipTextSelector).fadeOut(1000, function() {
+              $(this).text( function() {
+                return $(this).text().replace(obj.vipEstimate.time, newVipTime);
+              });
+              $(this).fadeIn(1500);
             });
-            $(this).fadeIn(1500);
-          });
-
-          //$(obj.vipTextSelector).replaceWith(function() {
-          //  return $(this).text().replace(obj.vipEstimate.time, newVipTime);
-          //});
-          $("#go_to_credit").attr("href", function() { return $(this).attr("href") + "&tweakedLink";});
-          $("form#frm-downloadDialog-loginForm").attr("action", function() { return $(this).attr("action") + "?tweakedLink";});
-          $("div#download div.content div.left_dialog p.info a").attr("href", function() { return $(this).attr("href") + "?tweakedLink";});
+            $("#go_to_credit").attr("href", function() { return $(this).attr("href") + "&tweakedLink";});
+            $("form#frm-downloadDialog-loginForm").attr("action", function() { return $(this).attr("action") + "?tweakedLink";});
+            $("div#download div.content div.left_dialog p.info a").attr("href", function() { return $(this).attr("href") + "?tweakedLink";});
+          }
+        },
+        error: function(xhr, errorType, error) {
+          console.log('chyba ' + errorType);
         }
-      },
-      error: function(xhr, errorType, error) {
-        console.log('chyba ' + errorType);
-      }
-    });    
+      });    
+    }
+    // main initialization
+    this.init = function() {
+      var txt = $(this.vipTextSelector).text().split(" ");
+    var sz = $("span#fileSize").text().split(" ");
+    // existing CS units: vteřina vteřin minuta minut minuty sek sec 
+    // existing units: GB MB kB B
+    this.fileAttrs = {size:1*sz[sz.length-2], unit:sz[sz.length-1]};
+    // convert GB to MB
+    this.fileAttrs = (this.fileAttrs.unit == 'GB') ? {size:1000*this.fileAttrs.size, unit:'MB'} : this.fileAttrs;
+    this.vipEstimate = {time:1*txt[txt.length-2], unit:txt[txt.length-1]}
+    if (this.vipEstimate.unit.substr(0, 3) !== 'min') {
+      return; // do nothing for seconds, as it is file far too small
+    }
+    if (this.fileAttrs.unit == 'B' || this.fileAttrs.unit == 'kB') {
+      return; // do nothing for Bytes or kiloBytes, as it is file far too small
+    }
+    console.log('results ', this.fileAttrs, this.vipEstimate);
+    this.selectServer(this);
+    $(".jsShowDownload").on("click", this.startDownload.bind(this, this));
+    }
   }
-  this.init = function() {
-    var txt = $(this.vipTextSelector).text().split(" ");
-  var sz = $("span#fileSize").text().split(" ");
-  // existing CS units: vteřina vteřin minuta minut minuty sek sec 
-  // existing units: GB MB kB B
-  this.fileAttrs = {size:1*sz[sz.length-2], unit:sz[sz.length-1]};
-  // convert GB to MB
-  this.fileAttrs = (this.fileAttrs.unit == 'GB') ? {size:1000*this.fileAttrs.size, unit:'MB'} : this.fileAttrs;
-  this.vipEstimate = {time:1*txt[txt.length-2], unit:txt[txt.length-1]}
-  if (this.vipEstimate.unit.substr(0, 3) !== 'min') {
-    return; // do nothing for seconds, as it is file far too small
-  }
-  if (this.fileAttrs.unit == 'B' || this.fileAttrs.unit == 'kB') {
-    return; // do nothing for Bytes or kiloBytes, as it is file far too small
-  }
-  console.log('result ', this.fileAttrs, this.vipEstimate);
-  $(".jsShowDownload").on("click", this.startDownload.bind(this, this));
-  }
-}
-var x = new Measure()
-x.init();
+  var x = new Measure()
+  x.init();
 }());
+
 </script>
