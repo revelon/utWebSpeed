@@ -38,10 +38,11 @@ Some data structures mimicking our detail page different cases
 <a id="go_to_credit" href="/kredit?fileId=xHWKj2fL">Credit Top-Up</a>
 <hr>
 
-
+sss
 
 
 <script src="http://img5.uloz.to/ul3/js2/ulozto.min.js?v=3.300.97-1"></script>
+
 <script>
 
 (function() {
@@ -49,12 +50,12 @@ Some data structures mimicking our detail page different cases
   var vipTextSelector = "div#download div.content div.left_dialog ul.true li.highlight";
   var run = true;
   var fileAttrs, vipEstimate;
-  var handicap = 20; // what to substract from download: DNS + Connect + Send + Wait, approx. 20ms
+  var handicap = 25; // what to substract from download: DNS + Connect + Send + Wait, approx. 20ms
   // could be acquired dynamically from http://uploader.uloz.to/testfiles.txt
-  var servers = [ {url:"http://storage1.cdn.int.nds/50k.bin", speed:9999},
-                  {url:'http://storage1.cdn.int.nds/50k.bin?limit=32k', speed:9999},
-                  {url:"http://storage1.cdn.int.nds/50k.bin", speed:9999},
-                  {url:"http://storage1.cdn.int.nds/50k.bin", speed:9999}];
+  var servers = [ {url:"http://storage13.uloz.to/50k.bin", speed:9999},
+                  {url:"http://freecache5.uloz.to/50k.bin", speed:9999},
+                  {url:"http://vipcache27.uloz.to/50k.bin", speed:9999},
+                  {url:"http://storage38.uloz.to/50k.bin", speed:9999}];
 
   // helper function, adding params object to the url
   function addParamToUrl (url, paramsObject) {
@@ -77,8 +78,11 @@ Some data structures mimicking our detail page different cases
           beforeSend: function(xhr, settings) {
             this.start = new Date();
           },
-          success: function(data, status, xhr) {
-            servers[i].speed = new Date() - this.start;
+          complete: function(response, textStatus) {
+            if (response.status === 200) {
+              servers[i].speed = new Date() - this.start;
+              if (dbg) console.log("Speed for ", server, servers[i].speed);
+            }
           }
         });
       });
@@ -90,18 +94,21 @@ Some data structures mimicking our detail page different cases
 
       // sort current server speed test results, first to be the fastest one
       servers.sort(function(a, b) {return a.speed < b.speed ? 0 : 1;});
-      if (dbg) console.log("Test servers sorted: ", servers);
+      if (dbg) console.log("Main download phase, test servers sorted: ", servers);
 
-      if (dbg) console.log("Downwload phase initiated...");
       $.ajax({
         type: 'GET',
         url: servers[0].url.replace('50k\.bin', '1m\.bin'), // replace tiny testing file with a bigger one
-        timeout: 10000,
+        timeout: 15000,
         cache: false,
         beforeSend: function(xhr, settings) {
           this.start = new Date();
+          if (dbg) console.log("Main measurement file download starting at: " + this.start);
         },
-        success: function(data, status, xhr) {
+        complete: function(response, textStatus) {
+          if (dbg) console.log('Downloaded completed with status: ' + textStatus);
+          if (response.status !== 200) return console.log('Error occured');
+          
           // compute the real speed (times one = depends on size of used test file: 1x = 1m, 4x=250k, 10x=100k)
           var newVipTime = Math.floor((fileAttrs.size * 1 * (new Date() - this.start - handicap))/1000/60);
           if (dbg) console.log('Times detected. New: ', newVipTime, ' Old:', vipEstimate.time);
@@ -164,7 +171,7 @@ Some data structures mimicking our detail page different cases
     }
   }
 
-  if ($('download')) { // instantiate the worker on detail page only
+  if ($('span#fileSize').length) { // instantiate the worker on detail page only
     new Measure().init();
   }
 }());
