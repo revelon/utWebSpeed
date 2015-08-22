@@ -13,12 +13,12 @@
 Some data structures mimicking our detail page different cases
 <hr>
 
-<span id="fileSize">1:44:49 | 10.3 GB</span>
+<span id="fileSize">1:44:49 | 111 MB</span>
 <div id="download">
   <div class="content">
     <div class="left_dialog">
       <ul class="true">
-        <li class="highlight">Předpokládaná doba stažení: 167 minut</li>
+        <li class="highlight">Předpokládaná doba stažení: 32 minut</li>
       </ul>
       <p class="info">
         <a href="/register">Zaregistruj se</a> | 
@@ -108,9 +108,10 @@ sss
         complete: function(response, textStatus) {
           if (dbg) console.log('Downloaded completed with status: ' + textStatus);
           if (response.status !== 200) return console.log('Error occured');
-          
+
           // compute the real speed (times one = depends on size of used test file: 1x = 1m, 4x=250k, 10x=100k)
           var newVipTime = Math.floor((fileAttrs.size * 1 * (new Date() - this.start - handicap))/1000/60);
+          newVipTime += (newVipTime) ? 0 : 1; // increase case of 0 minutes to at least 1 minute always
           if (dbg) console.log('Times detected. New: ', newVipTime, ' Old:', vipEstimate.time);
 
           // let's go modify page the page with new values and tracking codes
@@ -119,7 +120,7 @@ sss
             if (dbg) console.log("Condition positive, " + newVipTime + " < " + vipEstimate.time + ", doing text and link replacing...");
 
             // fancy eye-catching transitions for replacing old estimate with a new (better) one
-            $(vipTextSelector).fadeOut(1000, function() {
+            $(vipTextSelector).fadeOut(1500, function() {
               $(this).text( function() {
                 return $(this).text().replace(vipEstimate.time, newVipTime);
               });
@@ -160,8 +161,8 @@ sss
       if (vipEstimate.unit.substr(0, 3) !== 'min') {
         return; // do nothing for seconds, as the file is far too small
       }
-      if (fileAttrs.unit !== 'MB') {
-        return; // do nothing for Bytes or kiloBytes, as the file is far too small
+      if (fileAttrs.unit !== 'MB' || fileAttrs.size < 10) {
+        return; // do nothing for Bytes or kiloBytes or small file, as the file is far too small for tweaking
       }
       
       // detect fastest server available
