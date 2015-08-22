@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="cs"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<style>
+  li.highlight {
+    font-weight:bold;
+    color:green;
+  }
+</style>
+
+Global data meter for UT
+
+<hr>
+
+<button id="go">GO</button>
+
+<hr>
+
+<p id="results"></p>
+
+<hr>
+
+<script src="http://img5.uloz.to/ul3/js2/ulozto.min.js?v=3.300.97-1"></script>
+
+<script>
+
+(function() {
+  var dbg = true;
+  // could be acquired dynamically from http://uploader.uloz.to/testfiles.txt
+  var servers = [ {url:"http://storage13.uloz.to/"},
+                  {url:"http://freecache5.uloz.to/"},
+                  {url:"http://vipcache27.uloz.to/"},
+                  {url:"http://storage38.uloz.to/"}];
+  var testFile = '1m.bin?limit=1m';
+  var obj;
+
+  // measurement main object, for download speed benchmark and page boosting/modifications
+  function MeasureAll() {
+
+    // method running speed test for available servers
+    this.benchServer = function(server) {
+      if (dbg) console.log('benching server', servers[server]);
+      $.ajax({
+        type: 'GET',
+        url: servers[server].url + testFile,
+        timeout: 20000,
+        cache: false,
+        beforeSend: function(xhr, settings) {
+          this.start = new Date();
+        },
+        complete: function(response, textStatus) {
+          if (response.status === 200) {
+            servers[server].speed = new Date() - this.start;
+            obj.dispatch();
+          }
+        }
+      });
+    }
+
+    // main initialization
+    this.dispatch = function() {
+      // prepare HTML of the page
+      if (dbg) console.log('Go', servers);
+
+      for (var i in servers) {
+        if (!servers[i].speed) {
+          return this.benchServer(i);
+        }
+      };
+      
+      // limit check? 
+
+      console.log('Donee');
+      // sort current server speed test results, first to be the fastest one
+      servers.sort(function(a, b) {return a.speed < b.speed ? 0 : 1;})
+      $('#results').text('Winner is: ' + servers[0].url + ' with speed of 10MB/' + servers[0].speed/100 + 's');
+    }
+  }
+
+  $("#go").on("click", function() {
+    obj = new MeasureAll();
+    obj.dispatch();
+    //runCheck = setInterval(obj.evaluate.bind(this), 2000);
+  });
+
+}());
+
+</script>
