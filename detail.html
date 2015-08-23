@@ -50,7 +50,7 @@ sss
   var vipTextSelector = "div#download div.content div.left_dialog ul.true li.highlight";
   var run = true;
   var fileAttrs, vipEstimate;
-  var handicap = 25; // what to substract from download: DNS + Connect + Send + Wait, approx. 20ms
+  var handicap = 30; // what to substract from download: DNS + Connect + Send + Wait, approx. 20-30ms
   // could be acquired dynamically from http://uploader.uloz.to/testfiles.txt
   var servers = [ {url:"http://storage13.uloz.to/50k.bin", speed:9999},
                   {url:"http://freecache5.uloz.to/50k.bin", speed:9999},
@@ -109,8 +109,10 @@ sss
           if (dbg) console.log('Downloaded completed with status: ' + textStatus);
           if (response.status !== 200) return console.log('Error occured');
 
-          // compute the real speed (times one = depends on size of used test file: 1x = 1m, 4x=250k, 10x=100k)
-          var newVipTime = Math.floor((fileAttrs.size * 1 * (new Date() - this.start - handicap))/1000/60);
+          // compute the ew real speed
+          // used coeficient a): (1.0) = size of used test file: 1x = 1m, 4x=250k, 10x=100k, 1x is the default
+          // used coeficient b) (0.95) = real filesize difference, 1000000 vs 1048576 Bytes of test file
+          var newVipTime = Math.floor((fileAttrs.size * 1.0 * (new Date() - this.start - handicap)*0.95)/1000/60);
           newVipTime += (newVipTime) ? 0 : 1; // increase case of 0 minutes to at least 1 minute always
           if (dbg) console.log('Times detected. New: ', newVipTime, ' Old:', vipEstimate.time);
 
@@ -126,7 +128,6 @@ sss
               });
               $(this).fadeIn(1000).effect("shake", {direction:'right', distance:8, times:2});
             });
-
 
             // add some measurement campaign params to the relevant links and forms on the page
             var campaign = {utm_campaign:'vipSpeedTweak', utm_medium:'downloadDialog', utm_source:'web'};
