@@ -118,10 +118,11 @@
   
   
   <style>
-    li.hp-nav-download a {font-size: 14px !important;}
-    li.hp-nav-gift a {font-size: 14px !important; color: darkgreen !important; width: 482px !important;}
+    li.hp-nav-download a {font-size: 10px !important; height: 30px !important; line-height: 30px !important;}
+    li.hp-nav-gift a {font-size: 12px !important; color: darkgreen !important; width: 482px !important;}
     fieldset {margin-bottom: 8px; font-weight: bold;}
     fieldset label {padding-right: 6px;}
+    fieldset fieldset {width: 44%; float: left;}
   </style>
   
 
@@ -131,11 +132,17 @@
   <div id="hp-claim" class="clearfix">
     <h1><strong>Ulož.to Web Bench</strong> pro overeni rychlosti stahovani z ruznych nasich uzasnych (proxy) serveru...</h1>
     <fieldset>
-      <legend>Druhy testu:</legend>
-      <input type="radio" id="fileSmall" name="fileSize" value="1m.bin" checked="checked"> <label for="fileSmall">VIP zrychleny</label> | 
-      <input type="radio" id="fileLarge" name="fileSize" value="10m.bin"> <label for="fileLarge">VIP</label> | 
-      <input type="radio" id="fileSmallFree" name="fileSize" value="1m.bin?limit=300k"> <label for="fileSmallFree">ZDARMA zrychleny</label> | 
-      <input type="radio" id="fileLargeFree" name="fileSize" value="10m.bin?lmit=300k"> <label for="fileLargeFree">ZDARMA</label>
+      <legend>Druhy testu</legend>
+      <fieldset>
+        <legend>Orientacni (rychle)</legend>
+        <input type="radio" id="fileSmall" name="fileSize" value="1m.bin" checked="checked"> <label for="fileSmall">VIP</label> | 
+        <input type="radio" id="fileSmallFree" name="fileSize" value="1m.bin?limit=300k"> <label for="fileSmallFree">ZDARMA</label>
+        </fieldset>
+      <fieldset>
+        <legend>Presne (pomale)</legend>
+        <input type="radio" id="fileLarge" name="fileSize" value="10m.bin"> <label for="fileLarge">VIP</label> | 
+        <input type="radio" id="fileLargeFree" name="fileSize" value="10m.bin?lmit=300k"> <label for="fileLargeFree">ZDARMA</label>
+      </fieldset>
     </fieldset>
     <a id="upload-button" class="button button-xxl"><i class="fa fa-upload"></i> Spustit Mereni</a>
     <br><progress max="6" value="0" id="progressBar"></progress>
@@ -300,10 +307,25 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   var dbg = true;
   var run = true;
   // could be acquired dynamically from http://uploader.uloz.to/testfiles.txt, but we need Settings mapping!!
-  var servers = [ {url:"http://storage13.uloz.to/"},
-                  {url:"http://freecache5.uloz.to/"},
-                  {url:"http://vipcache27.uloz.to/"},
-                  {url:"http://storage38.uloz.to/"}];
+  var servers = [ 
+                  {url:"http://storage13.uloz.to/", option:"Automaticky vybrat"},
+                  {url:"http://freecache5.uloz.to/", option:"Automaticky vybrat"},
+                  {url:"http://vipcache27.uloz.to/", option:"Automaticky vybrat"},
+
+                  {url:"http://freecache5.sloane-cdn.uloz.to/", option:"Sloane"},
+                  {url:"http://vipcache27.sloane-cdn.uloz.to/", option:"Sloane"},
+
+                  {url:"http://storage13.superhosting-cdn.uloz.to/", option:"Superhosting"},
+                  {url:"http://vipcache27.superhosting-cdn.uloz.to/", option:"Superhosting"},
+
+                  {url:"http://storage13.ovh-cdn.uloz.to/", option:"Ovh #1"},
+                  {url:"http://freecache5.ovh-cdn.uloz.to/", option:"Ovh #1"},
+                  {url:"http://vipcache27.ovh-cdn.uloz.to/", option:"Ovh #1"},
+
+                  {url:"http://storage13.dial-cdn.uloz.to/", option:"Dial telecom"},
+                  {url:"http://freecache5.dial-cdn.uloz.to/", option:"Dial telecom"},
+                  {url:"http://vipcache27.dial-cdn.uloz.to/", option:"Dial telecom"}
+                ];
   var testFile, obj;
   var container = $("#hp-nav ul");
   var progress = $("#progressBar");
@@ -333,7 +355,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           if (response.status === 200) {
             servers[server].speed = new Date() - this.start - (parseInt(testFile) === 1 ? 100 : 0); // small file correction
             container.append('<li class="hp-nav-download"><a>' + displayServer(servers[server].url) + ', 10MB/' 
-              + ((servers[server].speed/parseInt(testFile))/100).toFixed(2) + 's<span></span></a></li>');
+              + ((servers[server].speed/parseInt(testFile))/100).toFixed(2) + 's</a></li>');
           } else {
             servers[server].speed = 9999999;
             container.append('<li class="hp-nav-download"><a>' + displayServer(servers[server].url) + ', (time-out)<span></span></a></li>');
@@ -376,14 +398,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       // sort current server speed test results, first to be the fastest one
       servers.sort(function(a, b) {return a.speed < b.speed ? 0 : 1;})
       setTimeout(function() {
-        progress.attr("value", 6);
-        container.append('<li class="hp-nav-gift"><a href="/nastaveni">Vitezem je: ' + displayServer(servers[0].url) + ', nastav si preferovany server Sloan!<span></span></a></li>');
+        progress.attr("value", servers.length + 2);
+        container.append('<li class="hp-nav-gift"><a href="/nastaveni">Vitez je: ' + displayServer(servers[0].url) + ', nastav si preferovany server na: "' + servers[0].option + '"<span></span></a></li>');
         $("#upload-button").css('opacity', 1);
       }, 1000);
     }
   }
 
   $("#upload-button").on("click", function() {
+    $('progress').attr('max', servers.length + 2); // set-up progress bar, servers plus init and finish phases
     obj = new MeasureAll();
     obj.action();
   });

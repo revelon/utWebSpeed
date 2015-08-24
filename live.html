@@ -796,23 +796,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <script>
 (function() {
+	var dbg = true;
 	// initiate HTML5 fallback for supported cases and browsers only
 	$(document).ready(function() {
 		var video = document.createElement('video');
-		// a#player>h2 exists for no-flash warning message only
+		// a#player>h2 exists for no-flash warning message case only
 		if ($("a#player h2").length && video && video.canPlayType('video/mp4')) {
-			var plr2 = $("a#player").replaceWith('<video controls id="mediaSource" src="' + $("a#player").attr("href") + '"/>');
-			if (console) console.log("New HTML5 player element initiated: ", plr2);
+			// replace link to Flash with html5 player instead
+			var plr2 = $("a#player").replaceWith('<video src="' + $("a#player").attr("href").replace(/\?fileId=.+/, '') + '" controls/>');
+			if (dbg) console.log("New HTML5 player element initiated: ", plr2);
 			$("span#videoQualityButtons span").click(videoQualityChng); // add another listener to existing controls
-			$('video')[0].play();
-			$('video').css("width", "633px");
+			var vid = $('video');
+			vid[0].play(); // autoplay video is corrupt, run it manually plus prepare embeddable HTML of player
+			var embeddable = vid[0].outerHTML.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+			vid.css("width", "633px"); // force fixed size of video regardless of its real size
+			// add long needed embeddable basic player
+			$('#textFileLink').append('<label for="embedLink">Embed:</label><input id="embedLink" class="shareInput jsSelectThis" value="' + embeddable + '" type="text">');
+			// and add some GA monitoring
+			if (_gaq) _gaq.push(['_trackEvent', 'html5livePlayer', 'initialized']);
+			else if (ga) ga('send', 'event', 'html5livePlayer', 'initialized');
 		}
 	});
 	// method for manual change of video quality by user
 	function videoQualityChng(e) {
-		if (console) console.log('Quality click event for value: ', parseInt(e.target.textContent));
-		var vd = $('video'); // the only one on page, supposedly
-		vd[0].pause();
+		if (dbg) console.log('Quality click event for value: ', parseInt(e.target.textContent));
+		var vd = $('video'); // the only one on page video is supported, supposedly
+		vd[0].pause(); // stop it without replacing source always
 		vd.attr('src', vd[0].src.replace(/\.\d+\.mp4/, '.' + parseInt(e.target.textContent) + '.mp4'));
 		vd[0].play();
 		vd.css("width", "633px");
