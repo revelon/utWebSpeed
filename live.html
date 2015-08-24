@@ -130,7 +130,7 @@
 
 				
 
-	<a href="http://thv1.uloz.to/4/4/e/44e4588c98e7b91a5f7678cd1cb481dd.360.mp4?fileId=78140101" style="width: 640px; height: 360px; text-align: center;" id="player"></a>
+	<a href="http://thv1.uloz.to/e/1/d/e1db75804006e1b5374c86639748a664.480.mp4?fileId=78035983" style="width: 640px; height: 360px; text-align: center;" id="player"></a>
 </div>
 
 <script>
@@ -805,6 +805,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 			if (console) console.log("New HTML5 player element initiated: ", plr2);
 			$("span#videoQualityButtons span").click(videoQualityChng); // add another listener to existing controls
 			$('video')[0].play();
+			$('video').css("width", "633px");
 		}
 	});
 	// method for manual change of video quality by user
@@ -814,6 +815,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		vd[0].pause();
 		vd.attr('src', vd[0].src.replace(/\.\d+\.mp4/, '.' + parseInt(e.target.textContent) + '.mp4'));
 		vd[0].play();
+		vd.css("width", "633px");
 	}
 })();
 </script>
