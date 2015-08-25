@@ -44,13 +44,12 @@ sss
 <script src="http://img5.uloz.to/ul3/js2/ulozto.min.js?v=3.300.97-1"></script>
 
 <script>
-
 (function() {
-  var dbg = true;
+  var dbg = false;
   var vipTextSelector = "div#download div.content div.left_dialog ul.true li.highlight";
   var run = true;
   var fileAttrs, vipEstimate;
-  var handicap = 30; // what to substract from download: DNS + Connect + Send + Wait, approx. 20-30ms
+  var handicap = 35; // what to substract from download: DNS + Connect + Send + Wait, approx. 20-40ms
   // could be acquired dynamically from http://uploader.uloz.to/testfiles.txt
   var servers = [ {url:"http://storage13.uloz.to/50k.bin", speed:9999},
                   {url:"http://freecache5.uloz.to/50k.bin", speed:9999},
@@ -123,7 +122,7 @@ sss
             // fancy eye-catching transitions for replacing old estimate with a new (better) one
             $(vipTextSelector).fadeOut(1500, function() {
               $(this).text( function() {
-                return $(this).text().replace(vipEstimate.time, newVipTime);
+                return $(this).text().replace(new RegExp(vipEstimate.time + ' .*$', 'gi'), newVipTime + ' min.');
               });
               $(this).fadeIn(1000).effect("shake", {direction:'right', distance:8, times:2});
             });
@@ -176,5 +175,4 @@ sss
     new Measure().init();
   }
 }());
-
 </script>

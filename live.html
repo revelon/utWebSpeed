@@ -796,26 +796,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <script>
 (function() {
-	var dbg = true;
+	var dbg = false;
 	// initiate HTML5 fallback for supported cases and browsers only
 	$(document).ready(function() {
-		var video = document.createElement('video');
+		var testVid = document.createElement('video');
+		var videoHtml = '<video src="' + $("a#player").attr("href").replace(/fileId=.+/, 'embdv') + '" controls/>';
 		// a#player>h2 exists for no-flash warning message case only
-		if ($("a#player h2").length && video && video.canPlayType('video/mp4')) {
-			// replace link to Flash with html5 player instead
-			var plr2 = $("a#player").replaceWith('<video src="' + $("a#player").attr("href").replace(/\?fileId=.+/, '') + '" controls/>');
+		if ($("a#player h2").length && testVid && testVid.canPlayType('video/mp4')) {
+			// replace link to Flash with new HTML5 player instead
+			var plr2 = $("a#player").replaceWith(videoHtml);
 			if (dbg) console.log("New HTML5 player element initiated: ", plr2);
 			$("span#videoQualityButtons span").click(videoQualityChng); // add another listener to existing controls
 			var vid = $('video');
-			vid[0].play(); // autoplay video is corrupt, run it manually plus prepare embeddable HTML of player
-			var embeddable = vid[0].outerHTML.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-			vid.css("width", "633px"); // force fixed size of video regardless of its real size
-			// add long needed embeddable basic player
-			$('#textFileLink').append('<label for="embedLink">Embed:</label><input id="embedLink" class="shareInput jsSelectThis" value="' + embeddable + '" type="text">');
+			vid[0].play(); // autoplay video is corrupt, so run it manually
+			 // enforce fixed size of video regardless of its real size (aspect ratio), well, except of MSIE/Edge, though
+			vid.css("width", 640).css("height", 360).css("object-fit", "fill");
 			// and add some GA monitoring
 			if (_gaq) _gaq.push(['_trackEvent', 'html5livePlayer', 'initialized']);
 			else if (ga) ga('send', 'event', 'html5livePlayer', 'initialized');
 		}
+		// add long needed embeddable basic HTML5 player
+		$('#textFileLink').append('<label for="embedLink">Embed:</label><input id="embedLink" class="shareInput jsSelectThis" value="' + videoHtml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') + '" type="text">');
 	});
 	// method for manual change of video quality by user
 	function videoQualityChng(e) {
@@ -824,7 +825,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		vd[0].pause(); // stop it without replacing source always
 		vd.attr('src', vd[0].src.replace(/\.\d+\.mp4/, '.' + parseInt(e.target.textContent) + '.mp4'));
 		vd[0].play();
-		vd.css("width", "633px");
 	}
 })();
 </script>
