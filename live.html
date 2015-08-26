@@ -796,7 +796,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <script>
 (function() {
-	var dbg = false;
 	// initiate HTML5 fallback for supported cases and browsers only
 	$(document).ready(function() {
 		var testVid = document.createElement('video');
@@ -804,13 +803,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		// a#player>h2 exists for no-flash warning message case only
 		if ($("a#player h2").length && testVid && testVid.canPlayType('video/mp4')) {
 			// replace link to Flash with new HTML5 player instead
-			var plr2 = $("a#player").replaceWith(videoHtml);
-			if (dbg) console.log("New HTML5 player element initiated: ", plr2);
+			$("a#player").replaceWith(videoHtml);
 			$("span#videoQualityButtons span").click(videoQualityChng); // add another listener to existing controls
-			var vid = $('video');
-			vid[0].play(); // autoplay video is corrupt, so run it manually
-			 // enforce fixed size of video regardless of its real size (aspect ratio), well, except of MSIE/Edge, though
+			var vid = $('div#flashplayer video');
+			// enforce fixed size of video regardless of its real size (aspect ratio), well, except of MSIE/Edge, though
 			vid.css("width", 640).css("height", 360).css("object-fit", "fill");
+			vid[0].play(); // autoplay video is corrupt in many browsers, so run it manually
 			// and add some GA monitoring
 			if (_gaq) _gaq.push(['_trackEvent', 'html5livePlayer', 'initialized']);
 			else if (ga) ga('send', 'event', 'html5livePlayer', 'initialized');
@@ -820,9 +818,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 	});
 	// method for manual change of video quality by user
 	function videoQualityChng(e) {
-		if (dbg) console.log('Quality click event for value: ', parseInt(e.target.textContent));
-		var vd = $('video'); // the only one on page video is supported, supposedly
-		vd[0].pause(); // stop it without replacing source always
+		var vd = $('div#flashplayer video');
+		vd[0].pause(); // stop it before replacing stream source always
 		vd.attr('src', vd[0].src.replace(/\.\d+\.mp4/, '.' + parseInt(e.target.textContent) + '.mp4'));
 		vd[0].play();
 	}
