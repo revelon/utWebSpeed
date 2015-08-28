@@ -739,19 +739,15 @@ Technicky zaji&scaron;ťuje Airtoy a. s., Infolinka 602 777 555, <a href="http:/
 	})();
 
 
-$(document).ready(function() {
-	$('span.smsTextWrap span.smsText').each(function() {
-		var parent = this.closest('td');
-		var body = encodeURIComponent(this.textContent);
-		var separator = (navigator.userAgent.match(/iPhone|iPad/)) ? "&" : "?"; // iOS is always special
-		parent.innerHTML = '<a style="text-decoration:none !important" href="#">' + parent.innerHTML + '</a>';
-		$(parent).find('a').on('click', function() {
-			if (_gaq) _gaq.push(['_trackEvent', 'smsPriceListClicked', 'initialized']);
-			else if (ga) ga('send', 'event', 'smsPriceListClicked', 'initialized');
-			window.location = 'sms:' + $(parent).find('big').last().text().trim() + separator +'body=' + body;
-		}).bind(this);
+$('span.smsTextWrap span.smsText').each(function() {
+	var parent = this.closest('td');
+	parent.innerHTML = '<a style="text-decoration:none !important" href="sms:' + $(parent).find('big').last().text().trim() + (navigator.userAgent.match(/iPhone|iPad/) ? '&' : '?') + 'body=' + this.textContent + '">' + parent.innerHTML + '</a>';
+	$(parent).find('a').on('click', function() {
+		if (_gaq) _gaq.push(['_trackEvent', 'smsPriceListClicked', 'initialized']);
+		else if (ga) ga('send', 'event', 'smsPriceListClicked', 'initialized');
 	});
 });
+
 </script>
 
 
