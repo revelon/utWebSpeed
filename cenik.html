@@ -738,16 +738,30 @@ Technicky zaji&scaron;ťuje Airtoy a. s., Infolinka 602 777 555, <a href="http:/
 		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 	})();
 
-
-$('span.smsTextWrap span.smsText').each(function() {
-	var parent = this.closest('td');
-	parent.innerHTML = '<a style="text-decoration:none !important" href="sms:' + $(parent).find('big').last().text().trim() + (navigator.userAgent.match(/iPhone|iPad/) ? '&' : '?') + 'body=' + this.textContent + '">' + parent.innerHTML + '</a>';
-	$(parent).find('a').on('click', function() {
-		if (_gaq) _gaq.push(['_trackEvent', 'smsPriceListClicked', 'initialized']);
-		else if (ga) ga('send', 'event', 'smsPriceListClicked', 'initialized');
+/*
+$(document).ready(function() {
+	$('span.smsTextWrap span.smsText').each(function() {
+		var parent = this.closest('td');
+		parent.innerHTML = '<a style="text-decoration:none !important" href="sms:' + $(parent).find('big').last().text().trim() + (navigator.userAgent.match(/iPhone|iPad/) ? '&' : '?') + 'body=' + this.textContent + '">' + parent.innerHTML + '</a>';
+		$(parent).find('a').on('click', function() {
+			if (_gaq) _gaq.push(['_trackEvent', 'smsPriceListClicked', 'initialized']);
+			else if (ga) ga('send', 'event', 'smsPriceListClicked', 'initialized');
+		});
 	});
 });
+*/
 
+$(document).ready(function() {
+	$('td.cenik_sms_method').each(function() {
+		var text = $(this).find('span.smsText').text();
+		this.innerHTML = '<a style="text-decoration:none !important" href="sms:' + $(this).find('big').last().text().trim() + (navigator.userAgent.match(/iPhone|iPad/) ? '&' : '?') + 'body=' + text + '">' + this.innerHTML + '</a>';
+		$(this).find('a').on('click', function() {
+			if (_gaq) _gaq.push(['_trackEvent', 'smsPriceListClicked', 'initialized']);
+			else if (ga) ga('send', 'event', 'smsPriceListClicked', 'initialized');
+		});
+	});
+});
+// Nefunkcni Peta: Windows Phone 8.1, IEMobile/11.0
 </script>
 
 
