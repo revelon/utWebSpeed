@@ -780,7 +780,7 @@ $(document).ready(function() {
 		if (!parseInt(numberToSend)) return; // skip not logged in user case
 		var lnk = 'sms:' + numberToSend + (navigator.userAgent.match(/iPhone|iPad/) ? '&' : '?') + 'body=' + encodeURIComponent($(this).find('span.smsText').text());
 		this.innerHTML = '<a style="text-decoration:none !important" href="javascript:return false">' + this.innerHTML + '</a>';
-		$(this).find('a').on('click', function() {
+		$(this).find('a').on('tap', function() {
 			if (_gaq) _gaq.push(['_trackEvent', 'smsPriceListClicked', 'initialized']);
 			else if (ga) ga('send', 'event', 'smsPriceListClicked', 'initialized');
  			window.setTimeout(function() {window.location = lnk;}, 70);

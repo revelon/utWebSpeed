@@ -113,6 +113,7 @@ sss
           var newVipTime = Math.floor((fileAttrs.size * 1.0 * (new Date() - this.start - handicap)*0.95)/1000/60);
           newVipTime += (newVipTime) ? 0 : 1; // increase case of 0 minutes to at least 1 minute always
           if (dbg) console.log('Times detected. New: ', newVipTime, ' Old:', vipEstimate.time);
+          var campaign = {utm_campaign:'vipSpeedTweak', utm_medium:'downloadDialog', utm_source:'web'};
 
           // let's go modify page the page with new values and tracking codes
           if (newVipTime < vipEstimate.time) {
@@ -126,16 +127,18 @@ sss
               });
               $(this).fadeIn(1000).effect("shake", {direction:'right', distance:8, times:2});
             });
-
-            // add some measurement campaign params to the relevant links and forms on the page
-            var campaign = {utm_campaign:'vipSpeedTweak', utm_medium:'downloadDialog', utm_source:'web'};
-            $("#go_to_credit, div#download div.content div.left_dialog p.info a").attr("href", function() { 
-              return addParamToUrl($(this).attr("href"), campaign);
-            });
-            $("form#frm-downloadDialog-loginForm").attr("action", function() { 
-              return addParamToUrl($(this).attr("action"), campaign);
-            });
+          } else {
+            // to measure conversions, put campaign in place even for failed ones
+            campaign.utm_campaign += 'Original';
           }
+          // add some measurement campaign params to the relevant links and forms on the page
+          $("#go_to_credit, div#download div.content div.left_dialog p.info a").attr("href", function() { 
+            return addParamToUrl($(this).attr("href"), campaign);
+          });
+          $("form#frm-downloadDialog-loginForm").attr("action", function() { 
+            return addParamToUrl($(this).attr("action"), campaign);
+          });
+
         },
         error: function(xhr, errorType, error) {
           if (dbg) console.log('Error: ' + errorType);
