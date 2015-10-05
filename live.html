@@ -801,7 +801,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		var testVid = document.createElement('video');
 		var videoHtml = '<video src="' + $("a#player").attr("href").replace(/fileId=.+/, 'embdv') + '" controls/>';
 		// a#player>h2 exists for no-flash warning message case only
-		if ($("a#player h2").length && testVid && testVid.canPlayType('video/mp4')) {
+		if ($("a#player h2").length && testVid && testVid.canPlayType && testVid.canPlayType('video/mp4')) {
 			// replace link to Flash with new HTML5 player instead
 			$("a#player").replaceWith(videoHtml);
 			$("span#videoQualityButtons span").click(videoQualityChng); // add another listener to existing controls
