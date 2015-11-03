@@ -6,14 +6,15 @@ ini_set('memory_limit', '128M');
 
 $jdsToGet = 9;
 $howMany = 10;
+$template = "jobs-banner.xsl"; // "jobs-banner.xsl" full HTML ... "jobs-banner-fragment.xsl" ... fragment only
 $dataSource = "http://exporter.lmc.cz/jobs-all-uloz-to.xml"; // jobs-all-uloz-to.xml
 
 echo "\n\nBeginning JD preparations...\n";
 
 $xslDoc = new DOMDocument();
-$xslDoc->load("jobs-banner.xsl");
+$xslDoc->load($template);
 
-echo "Template loaded...\n";
+echo "Template {$template} loaded...\n";
 
 $xmlDoc = new DOMDocument();
 $xmlDoc->load($dataSource);
