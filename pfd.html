@@ -744,14 +744,16 @@ $(function () {
 <style>
 
 div.streamPlayer {
-	background-color: rgba(255, 0, 255, .5);
-	border-radius: 3px;
+	background: #D90B83 url(http://web.screendy.com/wp-content/uploads/2015/09/video-play-3-256.png) -10px -20px;
+	background-position: contain;
+	border-radius: 2px;
+	opacity: .66;
 	padding: 4px;
 	display: block;
 	position: absolute;
 	top: 7%;
 	left: 5%;
-	width:220px;
+	width:230px;
 	cursor: wait;
 }
 
@@ -770,8 +772,8 @@ video#streamPlayerHTML5 {
 <script>
 $(document).ready(function () {
 	console.log(666);
-	$('div#fileDownload').append('&nbsp;<a href="#view" id="watch" class="commonBigButton mu7"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Mentor_Eye.svg/120px-Mentor_Eye.svg.png" width="24">&nbsp;Zkouknout video<span></span></a>');
-	$('div#fileVideo').append('<video id="streamPlayerHTML5" src="http://thv1.uloz.to/1/6/2/162c1364b16ac85081f2df0aa4fef606.360.mp4?embdv" controls style="visibility:hidden"></video><div class="streamPlayer"><strong>!! Experimenálně přehrát video nyní!!</strong><hr>Za přehrání nejsou odečteny kredity ihned, ale až po nějaké chvíli (konkrétně při průchodu přes 25%, 50%, 75% nebo 95% délky videa)<br>Po odečtu kreditů můžete video sledovat či stahovat už volně, po dalších 24 hodin...</div>');
+	$('div#fileDownload').append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Mentor_Eye.svg/120px-Mentor_Eye.svg.png" width="24">&nbsp;Zkouknout video<span></span></a>');
+	$('div#fileVideo').append('<video id="streamPlayerHTML5" src="http://thv1.uloz.to/1/6/2/162c1364b16ac85081f2df0aa4fef606.360.mp4?embdv" controls style="visibility:hidden"></video><div class="streamPlayer"><strong>!! Experimenálně přehrát video nyní!!</strong><hr>Za přehrání nejsou odečteny kredity ihned, ale až po nějaké chvíli (konkrétně při průchodu přes 25%, 50%, 75% nebo 95% délky videa)<br>Po odečtu kreditů můžete video sledovat či stahovat už volně, po dalších 24 hodin...<hr>Objevil/a jsi problém? &nbsp; &nbsp; &nbsp; &nbsp;<a style="color:black" href="#">Řekni nám to!</a></div>');
 	var vid = $('video#streamPlayerHTML5');
 	vid[0].volume = 0;
 	var butt = $('a#watch');
@@ -806,7 +808,7 @@ $(document).ready(function () {
 			butt.html('<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Mentor_Eye.svg/120px-Mentor_Eye.svg.png" width="24">&nbsp;Zkouknout video<span></span>');
 		} else {
 			vid[0].play();
-			butt.html('<img src="http://dev.bowdenweb.com/a/fonts/symbols/elusive/dev/svg/eye-close.svg" width="24">&nbsp;Stopnout video&nbsp;<span></span>');
+			butt.html('<img src="http://dev.bowdenweb.com/a/fonts/symbols/elusive/dev/svg/eye-close.svg" width="24">&nbsp;&nbsp;&nbsp;Stopnout video&nbsp;&nbsp;<span></span>');
 		}
 	}
 });
