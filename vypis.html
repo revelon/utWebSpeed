@@ -95,7 +95,8 @@ $(document).ready(function () {
       ufmFootNew = $('li a.foot-box-filemanager'),
       footNew = $('li a.foot-box-tools'),
       ufmFootOld = $('footer#footer ul.fb li a.fim'),
-      footOld = $('footer#footer ul.fb li a.fin');
+      footOld = $('footer#footer ul.fb li a.fin'),
+      sheet = document.createElement('style');
 
   if (hpBox.length) { // modify homepage only
     hpBox.html(trans.a[lng] + '<span></span>').attr('href', '/aplikace');
@@ -105,7 +106,6 @@ $(document).ready(function () {
   }
   if (footNew.length) { // modify new footer tools
     footNew.html(trans.b[lng] + '<span></span>').attr('href', playstore);
-    var sheet = document.createElement('style');
     sheet.innerHTML = 'ul.foot-box li a.foot-box-tools {' + droidTpl(36, '#6AB344', 17) + '}';
 	sheet.innerHTML += 'ul.foot-box li a.foot-box-tools:hover {' + droidTpl(36, '#333', 17) + '}';
 	document.body.appendChild(sheet);
@@ -115,7 +115,6 @@ $(document).ready(function () {
   }
   if (footOld.length) { // modify old footer tools
     footOld.html(trans.b[lng] + '<span></span>').attr('href', playstore);
-    var sheet = document.createElement('style');
     sheet.innerHTML = 'footer#footer div.wa ul.fb li a.fin {' + droidTpl(25, '#E0FA00', -2) + '}';
 	document.body.appendChild(sheet);
   }
