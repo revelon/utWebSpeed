@@ -1,4 +1,3 @@
-<pre>
 <?php
 
 error_reporting(E_ALL);
@@ -6,16 +5,15 @@ ini_set('display_errors', 1);
 ini_set('memory_limit', '128M');
 
 $jdsToGet = 9;
-$howMany = 20;
-$template = "jobs-banner.xsl"; // "jobs-banner.xsl" full HTML ... "jobs-banner-fragment.xsl" ... fragment only
+$howMany = 10;
 $dataSource = "http://exporter.lmc.cz/jobs-all-uloz-to.xml"; // jobs-all-uloz-to.xml
 
-echo "\nBeginning JD preparations...\n";
+echo "\n\nBeginning JD preparations...\n";
 
 $xslDoc = new DOMDocument();
-$xslDoc->load($template);
+$xslDoc->load("jobs-banner.xsl");
 
-echo "Template {$template} loaded...\n";
+echo "Template loaded...\n";
 
 $xmlDoc = new DOMDocument();
 $xmlDoc->load($dataSource);
@@ -42,7 +40,6 @@ for ($i = 0; $i < $howMany; $i++) {
 }
 
 echo "Ending generation...\n\n";
-echo "<a href='download.php'>Download them all...</a>";
 
 
 
@@ -59,7 +56,7 @@ function generateJobsBanner($offset, $proc, $xmlDoc, $run) {
 	if ($output) {
 		$file = "jobs-positions{$run}.html";
 
-		echo "Saving to <a href='{$file}'>{$file}</a> file...\n";
+		echo "Saving to {$file} file...\n";
 
 		file_put_contents($file, $output);
 	} else {
