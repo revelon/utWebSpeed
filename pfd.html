@@ -757,7 +757,18 @@ div.streamPlayer {
 	cursor: wait;
 }
 
-video#streamPlayerHTML5 {
+div#inPlayerAd {
+	background: #gray;
+	opacity: .5;
+	padding: 0px;
+	display: block;
+	position: absolute;
+	top: 80%;
+	left: 5%;
+	width:80%;
+}
+
+#video-container, #video-container video {
 	display: block;
 	position: absolute;
 	top: 0;
@@ -767,22 +778,105 @@ video#streamPlayerHTML5 {
 	object-fit: fill;
 	margin: auto;
 }
+
+#video-controls {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 5px;
+	opacity: 0;
+	-webkit-transition: opacity .3s;
+	-moz-transition: opacity .3s;
+	-o-transition: opacity .3s;
+	-ms-transition: opacity .3s;
+	transition: opacity .3s;
+	background-color: #2D062A;
+}
+
+#video-container:hover #video-controls {
+	opacity: .9;
+}
+
+#remaining-time {
+	padding-left: 4px;
+}
+button {
+	background: rgba(0,0,0,.5);
+	border: 0;
+	color: #EEE;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	-o-border-radius: 3px;
+	border-radius: 3px;
+	margin: 0 1%;
+}
+
+button:hover {
+	cursor: pointer;
+}
+
+#seek-bar {
+	width: 40%;
+}
+
+#volume-bar {
+	width: 8%;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    background-color: white;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]::-moz-range-track {
+    background-color: white;
+    border: none;
+    border-radius: 3px;
+}
+
+input[type=range]::-ms-track {
+    background-color: white;
+    border: none;
+    border-radius: 3px;
+}
+
+
 </style>
 
 <script>
+
+var dataLayer = [{
+   'videoData': { 'userHasEnoughCredit': true,
+                  'isStreamable': true, 
+                  'streamUri': 'http://thv1.uloz.to/1/6/2/162c1364b16ac85081f2df0aa4fef606.360.mp4?embdv', 
+                  'videoCodec': 'H264',
+                  'bitRate': 326
+                }
+}];
+
 $(document).ready(function () {
-	console.log(666);
+
+	// test if we can initialize the streaming player or not
+	var vData = dataLayer[0].videoData;
+	var myVid = document.createElement('video');
+	if (!vData.isStreamable || !vData.userHasEnoughCredit || !vData.streamUri || !myVid.canPlayType('video/mp4')) return console.log('Skipping stream init...');
+
+	console.log('We are going to try the stream player for URI', vData.streamUri);
 	$('div#fileDownload').append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Mentor_Eye.svg/120px-Mentor_Eye.svg.png" width="24">&nbsp;Zkouknout video<span></span></a>');
-	$('div#fileVideo').append('<video id="streamPlayerHTML5" src="http://thv1.uloz.to/1/6/2/162c1364b16ac85081f2df0aa4fef606.360.mp4?embdv" controls style="visibility:hidden"></video><div class="streamPlayer"><strong>!! Experimenálně přehrát video nyní!!</strong><hr>Za přehrání nejsou odečteny kredity ihned, ale až po nějaké chvíli (konkrétně při průchodu přes 25%, 50%, 75% nebo 95% délky videa)<br>Po odečtu kreditů můžete video sledovat či stahovat už volně, po dalších 24 hodin...<hr>Objevil/a jsi problém? &nbsp; &nbsp; &nbsp; &nbsp;<a style="color:black" href="#">Řekni nám to!</a></div>');
-	var vid = $('video#streamPlayerHTML5');
-	vid[0].volume = 0;
+	$('div#fileVideo').append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata style="visibility:hidden"></video><div id="inPlayerAd">reklama reklama reklama reklama reklama</div><div class="streamPlayer"><strong>!! Experimenálně přehrát video nyní!!</strong><hr>Za přehrání nejsou odečteny kredity ihned, ale až po nějaké chvíli (konkrétně při průchodu přes 25%, 50%, 75% nebo 95% délky videa)<br>Po odečtu kreditů můžete video sledovat či stahovat už volně, po dalších 24 hodin...<hr>Objevil/a jsi problém? &nbsp; &nbsp; &nbsp; &nbsp;<a style="color:black" href="#">Řekni nám to!</a></div><div id="video-controls"><button type="button" id="play-pause">Přehrát</button><input type="range" id="seek-bar" value="0"><span id="remaining-time">123</span><button type="button" id="mute">Ztišit</button><input type="range" id="volume-bar" min="0" max="1" step="0.1" value="1"><button type="button" id="full-screen">Celá obrazovka</button></div></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
+	var vid = $('div#video-container video');
+	var video = vid[0];
+	video.volume = 0;
+	video.controls = false;
 	var butt = $('a#watch');
 	var hint = $('div.streamPlayer');
 
-	vid[0].addEventListener('playing', playing);
-	vid[0].addEventListener('pause', pausePlay);
-	vid[0].addEventListener('ended', pausePlay);
-	vid[0].addEventListener('click', checkPlay);
+	video.addEventListener('playing', playing);
+	video.addEventListener('pause', pausePlay);
+	video.addEventListener('ended', pausePlay);
+	video.addEventListener('click', checkPlay);
 	butt[0].addEventListener('click', checkPlay);
 	hint[0].addEventListener('click', checkPlay);
 	var state = 0;
@@ -811,5 +905,125 @@ $(document).ready(function () {
 			butt.html('<img src="http://dev.bowdenweb.com/a/fonts/symbols/elusive/dev/svg/eye-close.svg" width="24">&nbsp;&nbsp;&nbsp;Stopnout video&nbsp;&nbsp;<span></span>');
 		}
 	}
+
+
+	var wholePlayer = document.getElementById("video-container");
+	var remainingTime = document.getElementById("remaining-time");
+
+	// Buttons
+	var playButton = document.getElementById("play-pause");
+	var muteButton = document.getElementById("mute");
+	var fullScreenButton = document.getElementById("full-screen");
+
+	// Sliders
+	var seekBar = document.getElementById("seek-bar");
+	var volumeBar = document.getElementById("volume-bar");
+	volumeBar.value = video.volume;
+
+	video.addEventListener("durationchange", function() {
+		console.log('cas', video.duration, video.duration/60, video.duration/3600);
+		remainingTime.textContent = getTimeToShow(video.duration);
+	});
+
+	// Event listener for the play/pause button
+	playButton.addEventListener("click", function() {
+		if (video.paused == true) {
+			// Play the video
+			video.play();
+
+			// Update the button text to 'Pause'
+			playButton.innerHTML = "Zastavit";
+		} else {
+			// Pause the video
+			video.pause();
+
+			// Update the button text to 'Play'
+			playButton.innerHTML = "Přehrát";
+		}
+	});
+
+
+	// Event listener for the mute button
+	muteButton.addEventListener("click", function() {
+		if (video.muted == false) {
+			// Mute the video
+			video.muted = true;
+
+			// Update the button text
+			muteButton.innerHTML = "Ozvučit";
+		} else {
+			// Unmute the video
+			video.muted = false;
+
+			// Update the button text
+			muteButton.innerHTML = "Ztišit";
+		}
+	});
+
+
+	// Event listener for the full-screen button
+	fullScreenButton.addEventListener("click", function() {
+		if (wholePlayer.requestFullscreen) {
+			wholePlayer.requestFullscreen();
+		} else if (wholePlayer.mozRequestFullScreen) {
+			wholePlayer.mozRequestFullScreen(); // Firefox
+		} else if (wholePlayer.webkitRequestFullscreen) {
+			wholePlayer.webkitRequestFullscreen(); // Chrome and Safari
+		}
+	});
+
+
+	// Event listener for the seek bar
+	seekBar.addEventListener("change", function() {
+		// Calculate the new time
+		var time = video.duration * (seekBar.value / 100);
+
+		// Update the video time
+		video.currentTime = time;
+		remainingTime.textContent = getTimeToShow(video.duration - video.currentTime);
+	});
+
+	
+	// Update the seek bar as the video plays
+	video.addEventListener("timeupdate", function() {
+		// Calculate the slider value
+		var value = (100 / video.duration) * video.currentTime;
+
+		// Update the slider value
+		seekBar.value = value;
+		remainingTime.textContent = getTimeToShow(video.duration - video.currentTime);
+	});
+
+	// Pause the video when the seek handle is being dragged
+	seekBar.addEventListener("mousedown", function() {
+		video.pause();
+	});
+
+	// Play the video when the seek handle is dropped
+	seekBar.addEventListener("mouseup", function() {
+		video.play();
+	});
+
+	// Event listener for the volume bar
+	volumeBar.addEventListener("change", function() {
+		// Update the video volume
+		video.volume = volumeBar.value;
+	});
+
+	function getTimeToShow(seconds) {
+		//var hrd = seconds % (60 * 60);
+		var hours = Math.floor(seconds / (60 * 60));
+
+		//var mind = hrd % 60;
+		var minutes = Math.floor((seconds - (hours * 60 * 60)) / 60);
+
+		//var secd = mind % 60;
+		var seconds = Math.ceil(seconds - (hours * 60 * 60) - (minutes * 60));
+
+		if (hours) return -1 * hours + "h " + minutes + "m " + seconds + "s";
+		else if (minutes) return -1  * minutes + "m " + seconds + "s";
+		else return -1 * seconds + "s";
+	}
+
 });
 </script>
