@@ -23,7 +23,7 @@ $xmlDoc->load($dataSource);
 echo "Data loaded...\n";
 
 $xPath = new DOMXPath($xmlDoc);
-$jds = $xPath->query('/positionList/@count')->item(0)->nodeValue;
+$jds = $xPath->query('/positionList/position')->length;
 
 if (!$jds) {
 	exit("Ending, no proper data on input...\n\n");
@@ -42,7 +42,7 @@ for ($i = 0; $i < $howMany; $i++) {
 }
 
 echo "Ending generation...\n\n";
-echo "<a href='download.php'>Download them all...</a>";
+echo "<a href='download.php'>Download them all...</a>\n";
 
 
 
