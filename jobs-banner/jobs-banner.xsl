@@ -22,10 +22,10 @@
 			<div id="jobs">
 				<div class="jobs-ad-box">
 					<div class="jobs-ad-header">
-						<div style="display: block;" id="jobs-ad-logo"><a href="%%__REDIRECT%%http://www.jobs.cz/" target="_blank" class="jobs-ad-logo" title="Jobs.cz - aktuální nabídka práce"><img src="http://i.lmc.cz/title/images/logo-jobs.svg" alt="Jobs.cz - Inspirujeme k úspěchu - nabídka práce" height="23" width="55"/></a>
+						<div style="display: block;" id="jobs-ad-logo"><a href="%%__REDIRECT%%http://www.jobs.cz/?rps=320" target="_blank" class="jobs-ad-logo" title="Jobs.cz - aktuální nabídka práce"><img src="http://i.lmc.cz/title/images/logo-jobs.svg" alt="Jobs.cz - Inspirujeme k úspěchu - nabídka práce" height="23" width="55"/></a>
 						</div>
 						<div class="jobs-ad-tabs">
-							<div id="jobs-ad-t2" class="jobs-ad-tab"><a href="%%__REDIRECT%%http://www.jobs.cz/prace/" target="_blank">Další nabídky</a></div>
+							<div id="jobs-ad-t2" class="jobs-ad-tab"><a href="%%__REDIRECT%%http://www.jobs.cz/prace/?rps=320" target="_blank">Další nabídky</a></div>
 						</div>
 					</div>
 					<div class="jobs-ad-content">
