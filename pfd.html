@@ -785,6 +785,7 @@ div.streamPlayer h5 {
 	height: 100%;
 	object-fit: fill;
 	margin: auto;
+	pointer-events: none;
 }
 
 #watch {
@@ -834,7 +835,7 @@ $(document).ready(function () {
 
 	console.log('We are going to try the stream player for URI', vData.streamUri);
 	$('div#fileDownload').append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7">Přehrát video<span></span></a>');
-	$('div#fileVideo').append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video><div class="streamPlayer"><h4>Sleduj video online!! (beta)</h4>První čtvrtinu dat máš zdarma, aby ses mohl přesvědčit, že je to video, které hledáš. Po zaúčtování jej můžeš 24 hodin stahovat nebo sledovat neomezeně.<h5><a href="/faq#streaming" style="color:white">Více informací...</a></h5></div></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
+	$('div#fileVideo').append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><div class="streamPlayer"><h4>Sleduj video online!! (beta)</h4>První čtvrtinu dat máš zdarma, aby ses mohl přesvědčit, že je to video, které hledáš. Po zaúčtování jej můžeš 24 hodin stahovat nebo sledovat neomezeně.<h5><a href="/faq#streaming" style="color:white">Více informací...</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
 	var vid = $('div#video-container video');
 	var video = vid[0];
 	video.volume = 0;
@@ -854,12 +855,13 @@ $(document).ready(function () {
 		console.log('playing');
 		vid.css('visibility', 'visible');
 		hint.css('visibility', 'hidden');
+		vid.css('pointer-events', 'auto');
 	}
 	function pausePlay(evt) {
 		evt.preventDefault();
 		state = 0;
 		console.log('paused');
-		hint.css('visibility', 'visible');
+		hint.css('visibility', 'visible');		
 	}
 	function checkPlay(evt) {
 		evt.preventDefault();
