@@ -747,17 +747,34 @@ $(function () {
 
 div.streamPlayer {
 	border-radius: 3px;
-	opacity: .8;
 	padding: 4px;
 	display: block;
 	position: absolute;
-	top: 7%;
-	left: 5%;
-	width: 180px;
-	height: 180px;
-	font-size: 13px;
+	opacity: 0;
+	visibility: visible;
+	top: 5%;
+	left: 3%;
+	width: 177px;
+	height: 170px;
+	font-size: 12px;
 	cursor: e-resize;
-	background: #D90B83 url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".3"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.5" stroke="gray" fill-opacity=".88" stroke-opacity=".5" fill="black"/></svg>') no-repeat;
+	background: rgba(217,11,131,0.7);
+}
+
+div.streamPlayer.showBox {
+	visibility: visible;
+	opacity: 1;
+	-webkit-transition: opacity 2s ease 500ms;
+	transition: opacity 2s ease 500ms;
+}
+
+svg#icoPlay {
+	display: block;
+	position: absolute;
+	top: 35%;
+	left: 45%;
+	pointer-events: painted;
+	cursor: e-resize;
 }
 
 div.streamPlayer h4 {
@@ -835,36 +852,40 @@ $(document).ready(function () {
 
 	console.log('We are going to try the stream player for URI', vData.streamUri);
 	$('div#fileDownload').append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7">Přehrát video<span></span></a>');
-	$('div#fileVideo').append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><div class="streamPlayer"><h4>Sleduj video online!! (beta)</h4>První čtvrtinu dat máš zdarma, aby ses mohl přesvědčit, že je to video, které hledáš. Po zaúčtování jej můžeš 24 hodin stahovat nebo sledovat neomezeně.<h5><a href="/faq#streaming" style="color:white">Více informací...</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
+	$('div#fileVideo').append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><svg id="icoPlay" width="100" height="100" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".25"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.5" stroke="gray" fill-opacity=".6" stroke-opacity=".5" fill="white"/></svg><div class="streamPlayer showBox"><h4>Sleduj video online!! (beta)</h4>První čtvrtinu dat máš zdarma, aby ses mohl přesvědčit, že je to video, které hledáš. Po zaúčtování jej můžeš 24 hodin stahovat nebo sledovat neomezeně.<h5><a href="/faq#streaming" style="color:white">Více informací...</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
 	var vid = $('div#video-container video');
 	var video = vid[0];
-	video.volume = 0;
+	//video.volume = 0;
 	var butt = $('a#watch');
 	var hint = $('div.streamPlayer');
+	var ico = $('svg#icoPlay');
 
 	video.addEventListener('playing', playing);
 	video.addEventListener('pause', pausePlay);
 	video.addEventListener('ended', pausePlay);
-	video.addEventListener('click', checkPlay);
+	//video.addEventListener('click', checkPlay);
 	butt[0].addEventListener('click', checkPlay);
 	hint[0].addEventListener('click', checkPlay);
+	ico[0].addEventListener('click', checkPlay);
 	var state = 0;
 	function playing(evt) {
-		evt.preventDefault();
+		//evt.preventDefault();
 		state = 1;
 		console.log('playing');
 		vid.css('visibility', 'visible');
-		hint.css('visibility', 'hidden');
+		hint.toggleClass('showBox');
+		ico.css('visibility', 'hidden');
 		vid.css('pointer-events', 'auto');
 	}
 	function pausePlay(evt) {
-		evt.preventDefault();
+		//evt.preventDefault();
 		state = 0;
 		console.log('paused');
-		hint.css('visibility', 'visible');		
+		hint.toggleClass('showBox');
+		classList.add('didLoad');
 	}
 	function checkPlay(evt) {
-		evt.preventDefault();
+		//evt.preventDefault();
 		console.log('checkPlay');
 		if (state) {
 			vid[0].pause();
