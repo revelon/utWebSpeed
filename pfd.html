@@ -756,7 +756,7 @@ div.streamPlayer {
 	width: 177px;
 	height: 170px;
 	font-size: 12px;
-	cursor: e-resize;
+	cursor: default;
 	background: rgba(217,11,131,0.7);
 	pointer-events: none;
 }
@@ -772,10 +772,10 @@ div.streamPlayer.showBox {
 svg#icoPlay {
 	display: block;
 	position: absolute;
-	top: 35%;
-	left: 45%;
+	top: 34%;
+	left: 41%;
 	pointer-events: painted;
-	cursor: e-resize;
+	cursor: default;
 }
 
 div.streamPlayer h4 {
@@ -853,7 +853,7 @@ $(document).ready(function () {
 
 	console.log('We are going to try the stream player for URI', vData.streamUri);
 	$('div#fileDownload').append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7">Přehrát video<span></span></a>');
-	$('div#fileVideo').append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><svg id="icoPlay" width="100" height="100" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".25"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.5" stroke="gray" fill-opacity=".6" stroke-opacity=".5" fill="white"/></svg><div class="streamPlayer showBox"><h4>Sleduj video online!! (beta)</h4>První čtvrtinu dat máš zdarma, aby ses mohl přesvědčit, že je to video, které hledáš. Po zaúčtování jej můžeš 24 hodin stahovat nebo sledovat neomezeně.<h5><a href="/faq#streaming" style="color:white">Více informací...</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
+	$('div#fileVideo').append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><svg id="icoPlay" width="150" height="150" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".4"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.2" stroke="white" opacity=".66" fill="rgb(217,11,131)"/></svg><div class="streamPlayer showBox"><h4>Sleduj video online!! (beta)</h4>První čtvrtinu dat máš zdarma, aby ses mohl přesvědčit, že je to video, které hledáš. Po zaúčtování jej můžeš 24 hodin stahovat nebo sledovat neomezeně.<h5><a href="/faq#streaming" style="color:white">Více informací...</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
 	var vid = $('div#video-container video'),
 		video = vid[0],
 		butt = $('a#watch'),
