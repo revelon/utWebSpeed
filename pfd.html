@@ -748,7 +748,6 @@ $(function () {
 div.streamPlayer {
 	border-radius: 3px;
 	padding: 4px;
-	display: block;
 	position: absolute;
 	opacity: 0;
 	visibility: visible;
@@ -759,11 +758,13 @@ div.streamPlayer {
 	font-size: 12px;
 	cursor: e-resize;
 	background: rgba(217,11,131,0.7);
+	pointer-events: none;
 }
 
 div.streamPlayer.showBox {
 	visibility: visible;
 	opacity: 1;
+	pointer-events: auto;
 	-webkit-transition: opacity 2s ease 500ms;
 	transition: opacity 2s ease 500ms;
 }
@@ -846,46 +847,40 @@ var dataLayer = [{
 $(document).ready(function () {
 
 	// test if we can initialize the streaming player or not
-	var vData = dataLayer[0].videoData;
+	var vData = (dataLayer && dataLayer[0] && dataLayer[0].videoData) ? dataLayer[0].videoData : {};
 	var myVid = document.createElement('video');
 	if (!vData.isStreamable || !vData.userCanStream || !vData.streamUri || !myVid.canPlayType('video/mp4')) return console.log('Skipping stream init...');
 
 	console.log('We are going to try the stream player for URI', vData.streamUri);
 	$('div#fileDownload').append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7">Přehrát video<span></span></a>');
 	$('div#fileVideo').append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><svg id="icoPlay" width="100" height="100" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".25"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.5" stroke="gray" fill-opacity=".6" stroke-opacity=".5" fill="white"/></svg><div class="streamPlayer showBox"><h4>Sleduj video online!! (beta)</h4>První čtvrtinu dat máš zdarma, aby ses mohl přesvědčit, že je to video, které hledáš. Po zaúčtování jej můžeš 24 hodin stahovat nebo sledovat neomezeně.<h5><a href="/faq#streaming" style="color:white">Více informací...</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
-	var vid = $('div#video-container video');
-	var video = vid[0];
-	//video.volume = 0;
-	var butt = $('a#watch');
-	var hint = $('div.streamPlayer');
-	var ico = $('svg#icoPlay');
+	var vid = $('div#video-container video'),
+		video = vid[0],
+		butt = $('a#watch'),
+		hint = $('div.streamPlayer'),
+		ico = $('svg#icoPlay');
 
 	video.addEventListener('playing', playing);
 	video.addEventListener('pause', pausePlay);
 	video.addEventListener('ended', pausePlay);
-	//video.addEventListener('click', checkPlay);
 	butt[0].addEventListener('click', checkPlay);
 	hint[0].addEventListener('click', checkPlay);
 	ico[0].addEventListener('click', checkPlay);
 	var state = 0;
 	function playing(evt) {
-		//evt.preventDefault();
 		state = 1;
 		console.log('playing');
 		vid.css('visibility', 'visible');
-		hint.toggleClass('showBox');
-		ico.css('visibility', 'hidden');
+		hint.removeClass('showBox');
+		ico.css('display', 'none');
 		vid.css('pointer-events', 'auto');
 	}
 	function pausePlay(evt) {
-		//evt.preventDefault();
 		state = 0;
 		console.log('paused');
-		hint.toggleClass('showBox');
-		classList.add('didLoad');
+		hint.addClass('showBox');
 	}
 	function checkPlay(evt) {
-		//evt.preventDefault();
 		console.log('checkPlay');
 		if (state) {
 			vid[0].pause();
