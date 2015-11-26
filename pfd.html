@@ -761,6 +761,10 @@ div.streamPlayer {
 	pointer-events: none;
 }
 
+div.streamPlayer:hover {
+	background: rgba(144,238,144,0.7);
+}
+
 div.streamPlayer.showBox {
 	visibility: visible;
 	opacity: 1;
@@ -772,10 +776,19 @@ div.streamPlayer.showBox {
 svg#icoPlay {
 	display: block;
 	position: absolute;
-	top: 34%;
-	left: 41%;
+	top: 32%;
+	left: 40%;
 	pointer-events: painted;
 	cursor: default;
+}
+
+svg#icoPlay:hover circle {
+	fill-opacity: .6;
+}
+
+svg#icoPlay:hover path {
+	fill: lightgreen;
+	opacity: .8;
 }
 
 div.streamPlayer h4 {
