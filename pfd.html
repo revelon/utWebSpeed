@@ -735,6 +735,17 @@ $(function () {
 
 <script src="http://img5.uloz.to/pornfile/js2/nodus/dialog.js?v=3.300.103"></script>
 
+<script>
+var dataLayer = [{
+   'videoData': { 'userCanStream': true,
+                  'isStreamable': true, 
+                  'streamUri': 'http://thv1.uloz.to/1/6/2/162c1364b16ac85081f2df0aa4fef606.360.mp4?embdv', 
+                  'videoCodec': 'H264',
+                  'bitRate': 326
+                }
+}];
+</script>
+
 </body>
 <!-- Monitoring OK -->
 <!-- http7 -->
@@ -742,6 +753,12 @@ $(function () {
 </html>
 
 
+
+
+
+
+
+<!-- this will be, more or less, part of the GTM tag -->
 
 <style>
 
@@ -762,7 +779,7 @@ div.streamPlayer {
 }
 
 div.streamPlayer:hover {
-	background: rgba(144,238,144,0.7);
+	background: rgba(100,200,100,0.7);
 }
 
 div.streamPlayer.showBox {
@@ -787,7 +804,7 @@ svg#icoPlay:hover circle {
 }
 
 svg#icoPlay:hover path {
-	fill: lightgreen;
+	fill: rgb(100,200,100);
 	opacity: .8;
 }
 
@@ -831,7 +848,7 @@ div.streamPlayer h5 {
 	left: 12px;
 	width: 30px;
 	height: 30px;
-	background: transparent url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".3"/><path d="M10,10 20,10 20,20 10,20z" stroke-linejoin="round" stroke-width="1.5" stroke="gray" fill-opacity=".88" stroke-opacity=".5" fill="white"/></svg>') no-repeat;
+	background: transparent url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".28"/><path d="M10,10 20,10 20,20 10,20z" stroke-linejoin="round" stroke-width="1.5" stroke="gray" fill-opacity=".88" stroke-opacity=".5" fill="white"/></svg>') no-repeat;
 }
 
 #watch span {
@@ -841,60 +858,66 @@ div.streamPlayer h5 {
 	left: 12px;
 	width: 30px;
 	height: 30px;
-	background: transparent url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".3"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.5" stroke="gray" fill-opacity=".88" stroke-opacity=".5" fill="white"/></svg>') no-repeat;
+	background: transparent url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".28"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.5" stroke="gray" fill-opacity=".88" stroke-opacity=".5" fill="white"/></svg>') no-repeat;
 }
 
 </style>
 
 <script>
-
-var dataLayer = [{
-   'videoData': { 'userCanStream': true,
-                  'isStreamable': true, 
-                  'streamUri': 'http://thv1.uloz.to/1/6/2/162c1364b16ac85081f2df0aa4fef606.360.mp4?embdv', 
-                  'videoCodec': 'H264',
-                  'bitRate': 326
-                }
-}];
+var videoData = dataLayer[0].videoData; // magic, which will GTM do for us...
 
 $(document).ready(function () {
 
-	// test if we can initialize the streaming player or not
-	var vData = (dataLayer && dataLayer[0] && dataLayer[0].videoData) ? dataLayer[0].videoData : {};
-	var myVid = document.createElement('video');
-	if (!vData.isStreamable || !vData.userCanStream || !vData.streamUri || !myVid.canPlayType('video/mp4')) return console.log('Skipping stream init...');
+	// prepare data to test, if we can initialize the streaming player or not
+	var vData = videoData ? videoData : {},
+		myVid = document.createElement('video'),
+		buttonHolder = $('div#fileDownload'),
+		thumbHolder = $('div#fileVideo');
 
-	console.log('We are going to try the stream player for URI', vData.streamUri);
-	$('div#fileDownload').append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7">Přehrát video<span></span></a>');
-	$('div#fileVideo').append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><svg id="icoPlay" width="150" height="150" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".4"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.2" stroke="white" opacity=".66" fill="rgb(217,11,131)"/></svg><div class="streamPlayer showBox"><h4>Sleduj video online!! (beta)</h4>První čtvrtinu dat máš zdarma, aby ses mohl přesvědčit, že je to video, které hledáš. Po zaúčtování jej můžeš 24 hodin stahovat nebo sledovat neomezeně.<h5><a href="/faq#streaming" style="color:white">Více informací...</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
+	if (!vData.isStreamable || !vData.userCanStream || !vData.streamUri || 
+		!myVid.canPlayType('video/mp4') || !buttonHolder.length || !thumbHolder.length) {
+		return; // skip player initialization, conditions are not met
+	}
+
+	// PF is CZ-CS only, so we can put text directly in
+	// benchmark for user connection speed vs bitrate etc. will come later, we are being optimistic for now
+
+	// add new button
+	buttonHolder.append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7">Přehrát video<span></span></a>');
+	// add video, info box and icon to the image thumbnails area
+	thumbHolder.append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><svg id="icoPlay" width="150" height="150" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".4"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.2" stroke="white" opacity=".66" fill="rgb(217,11,131)"/></svg><div class="streamPlayer showBox"><h4>Sleduj video online!! (beta)</h4>První čtvrtinu dat máš zdarma, aby ses mohl přesvědčit, že je to video, které hledáš. Po zaúčtování jej můžeš 24 hodin stahovat nebo sledovat neomezeně.<h5><a href="/faq#streaming" style="color:white">Více informací...</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
+
+	// prepare necessary elements and variables
 	var vid = $('div#video-container video'),
 		video = vid[0],
 		butt = $('a#watch'),
 		hint = $('div.streamPlayer'),
-		ico = $('svg#icoPlay');
+		ico = $('svg#icoPlay'),
+		state = 0;
 
+	// set several listeners
 	video.addEventListener('playing', playing);
 	video.addEventListener('pause', pausePlay);
 	video.addEventListener('ended', pausePlay);
 	butt[0].addEventListener('click', checkPlay);
 	hint[0].addEventListener('click', checkPlay);
 	ico[0].addEventListener('click', checkPlay);
-	var state = 0;
+
+	// method run when video playback is turn on
 	function playing(evt) {
 		state = 1;
-		console.log('playing');
 		vid.css('visibility', 'visible');
 		hint.removeClass('showBox');
 		ico.css('display', 'none');
 		vid.css('pointer-events', 'auto');
 	}
+	// method run when video is paused od ended
 	function pausePlay(evt) {
 		state = 0;
-		console.log('paused');
 		hint.addClass('showBox');
 	}
+	// method run used for custom video control elements
 	function checkPlay(evt) {
-		console.log('checkPlay');
 		if (state) {
 			vid[0].pause();
 			state = 0;
@@ -904,6 +927,5 @@ $(document).ready(function () {
 			butt.html('Zastavit video<span class="stop"></span>');
 		}
 	}
-
 });
 </script>
