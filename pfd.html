@@ -770,7 +770,7 @@ div.streamPlayer {
 	visibility: visible;
 	top: 5%;
 	left: 3%;
-	width: 177px;
+	width: 202px;
 	height: 150px;
 	font-size: 12px;
 	cursor: default;
@@ -827,7 +827,7 @@ div.streamPlayer h5 {
 div.streamPlayer ul {
 	list-style-type: square;
 	list-style-position: inside;
-	line-height: 166%;
+	line-height: 172%;
 }
 
 #video-container, #video-container video {
@@ -891,7 +891,7 @@ $(document).ready(function () {
 	// add new button
 	buttonHolder.append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7">Přehrát video<span></span></a>');
 	// add video, info box and icon to the image thumbnails area
-	thumbHolder.append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><svg id="icoPlay" width="150" height="150" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".4"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.2" stroke="white" opacity=".66" fill="rgb(217,11,131)"/></svg><div class="streamPlayer showBox"><h4>Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>až čtvrtina dat je zdarma</li><li>zkus si video bezpečně</li><li>po stažení kreditu sleduj či stahuj po 24h již neomezeně</li></ul><h5><a href="/faq#streaming" style="color:white">Více informací</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
+	thumbHolder.append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><svg id="icoPlay" width="150" height="150" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".4"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.2" stroke="white" opacity=".66" fill="rgb(217,11,131)"/></svg><div class="streamPlayer showBox"><h4>Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>až čtvrtinu dat máš zdarma</li><li>zjisti, zda je to video, které hledáš</li><li>po odečtení kreditu sleduj či stahuj video po 24h neomezeně</li></ul><h5><a href="/faq?videostreaming#videostreaming" style="color:white">Více informací</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
 
 	// prepare necessary elements and variables
 	var vid = $('div#video-container video'),
@@ -916,6 +916,7 @@ $(document).ready(function () {
 		hint.removeClass('showBox');
 		ico.css('display', 'none');
 		vid.css('pointer-events', 'auto');
+		dataLayer.push({'event':'ga.event', 'eCategory':'Videostreaming', 'eAction': 'Play', 'eLabel': undefined, 'eValue': undefined });
 	}
 	// method run when video is paused od ended
 	function pausePlay(evt) {
