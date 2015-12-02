@@ -770,7 +770,7 @@ div.streamPlayer {
 	visibility: visible;
 	top: 5%;
 	left: 3%;
-	width: 202px;
+	width: 210px;
 	height: 150px;
 	font-size: 12px;
 	cursor: default;
@@ -786,8 +786,8 @@ div.streamPlayer.showBox {
 	visibility: visible;
 	opacity: 1;
 	pointer-events: auto;
-	-webkit-transition: opacity 2s ease 500ms;
-	transition: opacity 2s ease 500ms;
+	-webkit-transition: opacity 2.5s ease 999ms;
+	transition: opacity 2.5s ease 999ms;
 }
 
 svg#icoPlay {
@@ -880,8 +880,8 @@ $(document).ready(function () {
 		buttonHolder = $('div#fileDownload'),
 		thumbHolder = $('div#fileVideo');
 
-	if (!vData.isStreamable || !vData.userCanStream || !vData.streamUri || 
-		!myVid.canPlayType('video/mp4') || !buttonHolder.length || !thumbHolder.length) {
+	if (location.hostname.indexOf('pornfile') === -1 || !vData.isStreamable || !vData.userCanStream || 
+		!vData.streamUri || !myVid.canPlayType('video/mp4') || !buttonHolder.length || !thumbHolder.length) {
 		return; // skip player initialization, conditions are not met
 	}
 
