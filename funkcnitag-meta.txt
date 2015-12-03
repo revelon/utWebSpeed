@@ -24,8 +24,8 @@ div.streamPlayer.showBox {
 	visibility: visible;
 	opacity: 1;
 	pointer-events: auto;
-	-webkit-transition: opacity 2.5s ease 999ms;
-	transition: opacity 2.5s ease 999ms;
+	-webkit-transition: opacity 2s ease 400ms;
+	transition: opacity 2s ease 400ms;
 }
 
 svg#icoPlay {
@@ -47,7 +47,7 @@ svg#icoPlay:hover path {
 
 div.streamPlayer h4 {
 	font-size: 14px;
-	font-weight: 900px;
+	font-weight: 700;
 	text-align: center;
 	margin-top: 5px;
 	margin-bottom: 10px;
@@ -117,7 +117,7 @@ $(document).ready(function () {
 		thumbHolder = $('div#fileVideo');
 
 	if (location.hostname.indexOf('pornfile') === -1 || !vData.isStreamable || !vData.userCanStream || 
-		!vData.streamUri || !myVid.canPlayType('video/mp4') || !buttonHolder.length || !thumbHolder.length) {
+		!vData.streamUri || !myVid || !myVid.canPlayType || !myVid.canPlayType('video/mp4') || !buttonHolder.length || !thumbHolder.length) {
 		return; // skip player initialization, conditions are not met
 	}
 
@@ -125,7 +125,7 @@ $(document).ready(function () {
 	// benchmark for user connection speed vs bitrate etc. will come later, we are being optimistic for now
 
 	// add video, info box and icon to the image thumbnails area
-	thumbHolder.append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><svg id="icoPlay" width="150" height="150" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".4"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.2" stroke="white" opacity=".66" fill="rgb(217,11,131)"/></svg><div class="streamPlayer"><h4>Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>až čtvrtinu dat máš zdarma</li><li>zjisti, zda je to video, které hledáš</li><li>po odečtení kreditu sleduj či stahuj video po 24h neomezeně</li></ul><h5><a href="/faq?videostreaming#videostreaming" style="color:white">Více informací</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
+	thumbHolder.append('<div id="video-container"><video src="[[STREAMDATAURI]]" preload="metadata" controls style="visibility:hidden"></video></div><svg id="icoPlay" width="150" height="150" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".4"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.2" stroke="white" opacity=".66" fill="rgb(217,11,131)"/></svg><div class="streamPlayer"><h4>Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>až čtvrtinu dat máš zdarma</li><li>zjisti, zda je to video, které hledáš</li><li>po odečtení kreditu sleduj či stahuj video po 24h neomezeně</li></ul><h5><a href="/faq?videostreaming#videostreaming" style="color:white">Více informací</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
 
 	// prepare necessary elements and variables
 	var vid = $('div#video-container video'),
@@ -151,7 +151,7 @@ $(document).ready(function () {
 		buttonHolder.append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7" style="visibility:hidden">Přehrát video<span></span></a>');      
    		butt = $('a#watch');
 		butt.css('visibility', 'visible');
-		butt[0].addEventListener('click', checkPlay);
+		butt[0].addEventListener('click', checkPlay);      
 	}
 	// method run when video playback is turn on
 	function playing(evt) {
