@@ -791,7 +791,7 @@ div.streamPlayer.showBox {
 }
 
 svg#icoPlay {
-	display: block;
+	display: none;
 	position: absolute;
 	top: 32%;
 	left: 40%;
@@ -889,9 +889,9 @@ $(document).ready(function () {
 	// benchmark for user connection speed vs bitrate etc. will come later, we are being optimistic for now
 
 	// add new button
-	buttonHolder.append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7">Přehrát video<span></span></a>');
+	buttonHolder.append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7" style="visibility:hidden">Přehrát video<span></span></a>');
 	// add video, info box and icon to the image thumbnails area
-	thumbHolder.append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls style="visibility:hidden"></video></div><svg id="icoPlay" width="150" height="150" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".4"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.2" stroke="white" opacity=".66" fill="rgb(217,11,131)"/></svg><div class="streamPlayer showBox"><h4>Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>až čtvrtinu dat máš zdarma</li><li>zjisti, zda je to video, které hledáš</li><li>po odečtení kreditu sleduj či stahuj video po 24h neomezeně</li></ul><h5><a href="/faq?videostreaming#videostreaming" style="color:white">Více informací</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
+	thumbHolder.append('<div id="video-container"><video src="[[STREAMDATAURI]]" metadata controls muted style="visibility:hidden"></video></div><svg id="icoPlay" width="150" height="150" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".4"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.2" stroke="white" opacity=".66" fill="rgb(217,11,131)"/></svg><div class="streamPlayer"><h4>Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>až čtvrtinu dat máš zdarma</li><li>zjisti, zda je to video, které hledáš</li><li>po odečtení kreditu sleduj či stahuj video po 24h neomezeně</li></ul><h5><a href="/faq?videostreaming#videostreaming" style="color:white">Více informací</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
 
 	// prepare necessary elements and variables
 	var vid = $('div#video-container video'),
@@ -902,6 +902,7 @@ $(document).ready(function () {
 		state = 0;
 
 	// set several listeners
+	video.addEventListener('canplay', initPlayer);
 	video.addEventListener('playing', playing);
 	video.addEventListener('pause', pausePlay);
 	video.addEventListener('ended', pausePlay);
@@ -910,18 +911,29 @@ $(document).ready(function () {
 	ico[0].addEventListener('click', checkPlay);
 
 	// method run when video playback is turn on
+	function initPlayer(evt) {
+		hint.addClass('showBox');
+		ico.css('display', 'block');
+		butt.css('visibility', 'visible');
+	}
+
+	// method run when video playback is turn on
 	function playing(evt) {
 		state = 1;
 		vid.css('visibility', 'visible');
 		hint.removeClass('showBox');
 		ico.css('display', 'none');
 		vid.css('pointer-events', 'auto');
+		butt.html('Zastavit video<span class="stop"></span>');
 		dataLayer.push({'event':'ga.event', 'eCategory':'Videostreaming', 'eAction': 'Play', 'eLabel': undefined, 'eValue': undefined });
 	}
 	// method run when video is paused od ended
 	function pausePlay(evt) {
-		state = 0;
-		hint.addClass('showBox');
+		if (!video.seeking) {
+			state = 0;
+			hint.addClass('showBox');
+			butt.html('Přehrát video<span></span>');
+		}
 	}
 	// method run used for custom video control elements
 	function checkPlay(evt) {
