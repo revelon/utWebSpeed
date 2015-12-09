@@ -888,8 +888,9 @@ div.streamPlayer ul {
 		myVid = document.createElement('video'),
 		buttonHolder = $('div#fileDownload'),
 		thumbHolder = $('div#fileVideo');
-	// limit bitrate a bit to prevent too costly data stream
-	if (!vData.isStreamable || !vData.userCanStream || vData.bitRate > 8000000 || 
+	// limit bitrate a bit to prevent too costly data stream + clumsy safari solution :-(
+	if ((navigator.userAgent.toLowerCase().indexOf('safari/') > -1 && navigator.userAgent.toLowerCase().indexOf('chrome/') === -1) || 
+		!vData.isStreamable || !vData.userCanStream || vData.bitRate > 8000000 || 
 		!vData.streamUri || !myVid || !myVid.canPlayType || !myVid.canPlayType('video/mp4') || !buttonHolder.length || !thumbHolder.length) {
 		return; // skip player initialization, conditions are not met
 	}
