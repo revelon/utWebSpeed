@@ -889,7 +889,7 @@ div.streamPlayer ul {
 		buttonHolder = $('div#fileDownload'),
 		thumbHolder = $('div#fileVideo');
 	// limit bitrate a bit to prevent too costly data stream
-	if (!vData.isStreamable || !vData.userCanStream || vData.bitRate < 6000000
+	if (!vData.isStreamable || !vData.userCanStream || vData.bitRate > 8000000 || 
 		!vData.streamUri || !myVid || !myVid.canPlayType || !myVid.canPlayType('video/mp4') || !buttonHolder.length || !thumbHolder.length) {
 		return; // skip player initialization, conditions are not met
 	}
@@ -936,9 +936,6 @@ div.streamPlayer ul {
 		vid.css('visibility', 'visible');
 		hint.removeClass('showBox');
 		vid.css('pointer-events', 'auto');
-		//ico.removeClass('initer');
-		ico.attr('class', ''); // jQuery limitation for SVG
-		console.log('removing class', ico);
 		buttStop();
 		// send monitoring event to the GA
 		dataLayer.push({'event': 'ga.event', 'eCategory': 'Videostreaming', 'eAction': 'Play', 'eLabel': undefined, 'eValue': undefined });
@@ -960,6 +957,7 @@ div.streamPlayer ul {
 		} else {
 			vid[0].play();
 			buttStop();
+			ico.attr('class', ''); // jQuery limitation for SVG
 		}
 	}
 })();
