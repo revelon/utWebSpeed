@@ -781,10 +781,6 @@ div.streamPlayer {
 	pointer-events: none;
 }
 
-div.streamPlayer:hover {
-	background: rgba(217,11,131,1);
-}
-
 div.streamPlayer.showBox {
 	visibility: visible;
 	opacity: 1;
@@ -877,6 +873,10 @@ div.streamPlayer ul {
 	background: transparent url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2230%22%20height%3D%2230%22%20viewBox%3D%220%200%2030%2030%22%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2215%22%20r%3D%2214%22%20stroke-width%3D%220%22%20fill%3D%22black%22%20fill-opacity%3D%22.28%22%2F%3E%3Cpath%20d%3D%22M10%2C7%2023%2C15%2010%2C23z%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20stroke%3D%22gray%22%20fill-opacity%3D%22.88%22%20stroke-opacity%3D%22.5%22%20fill%3D%22white%22%2F%3E%3C%2Fsvg%3E') no-repeat;
 }
 
+/* overridable properties */
+div.streamPlayer {background: rgba(217,11,131,0.7);}
+div.streamPlayer:hover {background: rgba(217,11,131,1);}
+
 </style>
 
 <script>
@@ -888,12 +888,18 @@ div.streamPlayer ul {
 		myVid = document.createElement('video'),
 		buttonHolder = $('div#fileDownload'),
 		thumbHolder = $('div#fileVideo');
-	// limit bitrate a bit to prevent too costly data stream + clumsy safari solution :-(
-	if ((navigator.userAgent.toLowerCase().indexOf('safari/') > -1 && navigator.userAgent.toLowerCase().indexOf('chrome/') === -1) || 
-		!vData.isStreamable || !vData.userCanStream || vData.bitRate > 8000000 || 
+
+	if (!vData.isStreamable || !vData.userCanStream || vData.bitRate > 8000000 || 
 		!vData.streamUri || !myVid || !myVid.canPlayType || !myVid.canPlayType('video/mp4') || !buttonHolder.length || !thumbHolder.length) {
 		return; // skip player initialization, conditions are not met
 	}
+
+	// solve different colors for UT
+	/*if (window.location.host.indexOf('pornfile') == -1) {
+		var style = document.createElement("style");
+		style.innerHTML = 'div.streamPlayer {background: rgba(213,155,0,0.7)}; div.streamPlayer:hover {background: rgba(213,155,0,1)} ';
+		document.body.appendChild(style);
+	}*/
 
 	// PF is CZ-CS only, so we can put text directly in
 	// benchmark for user connection speed vs bitrate etc. will come later, we are being optimistic for now
@@ -958,9 +964,9 @@ div.streamPlayer ul {
 		} else {
 			vid[0].play();
 			buttStop();
-			ico.attr('class', ''); // jQuery limitation for SVG
+            ico.attr('class', ''); // jQuery limitation for SVG
+
 		}
 	}
 })();
 </script>
-
