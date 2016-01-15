@@ -963,6 +963,8 @@ div.streamPlayer ul {
 			buttStop();
             ico.attr('class', ''); // jQuery limitation for SVG
 
+			vid.css('visibility', 'visible'); // stupid Chromes autoplay extension clumsy workaround
+			vid.css('pointer-events', 'auto');
 		}
 	}
 })();
