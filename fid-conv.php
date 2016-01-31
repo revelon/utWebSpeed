@@ -6,7 +6,7 @@ require ('/Users/xrevelon/cnf.php');
 echo "\n\n\n";
 
 // directories where hashes are stored
-$dir = '/Users/xrevelon/Documents/NudityFails4';
+//$dir = '/Users/xrevelon/Documents/NudityFails4';
 //$dir = '/Users/xrevelon/Documents/nudity-algorithm';
 //$dir = '/Users/xrevelon/Documents/NudityFails3';
 //$dir = '/Users/xrevelon/Documents/NudityFails5';
@@ -14,6 +14,7 @@ $dir = '/Users/xrevelon/Documents/NudityFails4';
 //$dir = '/Users/xrevelon/Documents/NudityFails8';
 //$dir = '/Users/xrevelon/Documents/NudityFails9';
 //$dir = '/Users/xrevelon/Documents/NudityFails10-11';
+$dir = '/Users/xrevelon/Documents/NudityFails11.5';
 
 $files  = scandir($dir);
 $md5s   = [];
