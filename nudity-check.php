@@ -15,20 +15,22 @@ if ($mysqli->connect_errno) {
 
 /* Select queries return a resultset */
 if ($result = $mysqli->query("
-select lower(hex(hash)) hsh from file_hashflags left join file_hash using (hashid) left join file using (hashid) 
+select distinct hashid, lower(hex(hash)) hsh from file_hashflags left join file_hash using (hashid) left join file using (hashid) 
 where contentType='image' and pornProbability=1 and status='ok' and public='public' and displayStatus='maybe_safe' 
-and cdnStatus='ok'
-order by hashid desc limit 10000
+and cdnStatus='ok' and hashid < 57381632 
+order by hashid desc limit 5000
 							 ")) {
 
 	echo "Number of files: " . mysqli_num_rows($result) . 
-		"<style>img {display:inline-block;width:244px;max-height:244px;}</style><hr>";
+		"<style>img {display:inline-block;width:244px;max-height:244px;border:1px dashed gray;}</style><hr>";
     /* fetch associative array */
+    $lastid = 0;
     while ($row = $result->fetch_assoc()) {
     	//var_dump($row);
         echo "<a href=http://imageth.uloz.to/{$row['hsh'][0]}/{$row['hsh'][1]}/{$row['hsh'][2]}/{$row['hsh']}.640x360.jpg 
-                 download={$row['hsh']}.640x360.jpg>
+                 download={$row['hsh']}.640x360.jpg title=hashid-{$row['hashid']}>
         <img src=http://imageth.uloz.to/{$row['hsh'][0]}/{$row['hsh'][1]}/{$row['hsh'][2]}/{$row['hsh']}.640x360.jpg></a>";
+        $lastid = $row['hashid'];
     }
 
     /* free result set */
@@ -41,6 +43,6 @@ order by hashid desc limit 10000
 
 $mysqli->close();
 
-echo "\n\nFinished\n";
+echo "\n\nFinished, last hashid={$lastid}\n";
 
 
