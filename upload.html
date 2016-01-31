@@ -303,10 +303,10 @@ $(document).ready(function () {
 			break;
 	}
 	$( "<p><strong>" + txt +  "</strong></p>" ).insertAfter( "h1" );
-	$('form#form_upload_nginx input.uploadfile').last().attr('multiple', 'multiple');
+	$('form#form_upload_nginx input.uploadfile').last().attr('multiple', 'multiple').attr('webkitdirectory', 'webkitdirectory');
 	$('form#form_upload_nginx').change(function() {
   		setTimeout(function() {
-  			$('form#form_upload_nginx input.uploadfile').last().attr('multiple', 'multiple');
+  			$('form#form_upload_nginx input.uploadfile').last().attr('multiple', 'multiple').attr('webkitdirectory', 'webkitdirectory');
   		}, 100);
 	});
 });
