@@ -20,8 +20,8 @@ FROM file_hashflags fh
 LEFT JOIN file f USING (hashid) 
 LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
 WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND fh.length>1 AND contentType='video' AND
-f.status='ok' AND displayStatus IN ('maybe_safe', 'maybe_porn') LIMIT 200;
-							 ")) {
+f.status='ok' ORDER BY hashid DESC LIMIT 200;
+							 ")) { // AND displayStatus IN ('maybe_safe', 'maybe_porn')
 
 	echo "Number of files: " . mysqli_num_rows($result) . "\n<style>img {display:inline-block}</style><hr>";
 
@@ -32,7 +32,9 @@ f.status='ok' AND displayStatus IN ('maybe_safe', 'maybe_porn') LIMIT 200;
         for ($i = 0; $i < 10; $i++) {
         	echo "<img src='{$thm}{$i}.jpg'>";
         }
-        echo "{$row['name']}<hr>";
+        echo "{$row['name']} <a href='{$thm}{$row['thumbSlideshowIndex']}.jpg' 
+            download='{$thm}{$row['thumbSlideshowIndex']}.jpg' crossorigin>
+            <img src='{$thm}{$row['thumbSlideshowIndex']}.jpg' border=2></a><hr>";
     }
 
     /* free result set */
