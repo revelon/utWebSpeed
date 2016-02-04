@@ -277,15 +277,33 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		position: relative;
 		cursor: pointer;
 	}
+	input[type='file']::before {
+		content: '';
+		position: absolute;
+		top: -5px; right: -5px;
+		bottom: -5px; left: -5px;
+	}
 	input[type='file']:hover {
 		background-color: #b4b4b4;
+	}
+	input[type='file'].pf {
+		background-color: #ae0e7b;
+	}
+	input[type='file'].pf:hover {
+		background-color: #e12d92;
+	}
+	@media (max-width: 640px) {
+	  	section div article.wp640 {
+	    	width: 100vw;
+	  }
 	}
 </style>
 
 <script>
 $(document).ready(function () {
-	var txt;
-	var ddSupport = ((navigator.userAgent.indexOf('EdgeHTML') > -1) || (navigator.userAgent.indexOf('Trident') > -1)) ? 0 : 1;
+	var txt, 
+		ddSupport = ((navigator.userAgent.indexOf('EdgeHTML') > -1) || (navigator.userAgent.indexOf('Trident') > -1)) ? 0 : 1,
+		pf = (window.location.hostname.indexOf('pornfile') > -1) ? 'pf' : '';
 	switch (location.hostname) {
 		case 'www.ulozto.net':
 		case 'www.uchowajto.pl':
@@ -298,14 +316,15 @@ $(document).ready(function () {
 			break;
 	}
 	$( "<p><strong>" + txt +  "</strong></p>" ).insertAfter( "h1" );
-	$('form#form_upload_nginx input.uploadfile').last().attr('multiple', 'multiple');
+
+	$('form#form_upload_nginx input.uploadfile').last().attr('multiple', 'multiple').addClass(pf);
 	$('form#form_upload_nginx').change(function(action) {
 		// remove empty input elements to avoid validation conflicts
 		if (action.target.value == '' && (action.target !== $('form#form_upload_nginx input.uploadfile').last()[0])) {
 			$(action.target).remove();
 		}
   		setTimeout(function() {
-  			$('form#form_upload_nginx input.uploadfile').last().attr('multiple', 'multiple');
+  			$('form#form_upload_nginx input.uploadfile').last().attr('multiple', 'multiple').addClass(pf);
   		}, 100);
 	});
 });

@@ -15,7 +15,7 @@ if ($mysqli->connect_errno) {
 
 /* Select queries return a resultset */
 if ($result = $mysqli->query("
-SELECT * 
+SELECT *
 FROM file_hashflags fh 
 LEFT JOIN file f USING (hashid) 
 LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
@@ -30,11 +30,14 @@ f.status='ok' ORDER BY hashid DESC LIMIT 200;
     	$tiny = Nodus\Security\IntEncrypt::encrypt($row['id'], 'Nodus');
         $thm = "http://videoth.uloz.to/{$tiny[0]}/{$tiny[1]}/{$tiny[2]}/x{$tiny}.160x120.";
         for ($i = 0; $i < 10; $i++) {
-        	echo "<img src='{$thm}{$i}.jpg'>";
+        	echo "<img src='{$thm}{$i}.jpg' width=100>";
         }
-        echo "{$row['name']} <a href='{$thm}{$row['thumbSlideshowIndex']}.jpg' 
-            download='{$thm}{$row['thumbSlideshowIndex']}.jpg' crossorigin>
-            <img src='{$thm}{$row['thumbSlideshowIndex']}.jpg' border=2></a><hr>";
+        echo "<br>{$row['name']}<br>OLD:<a href='{$thm}0.jpg' 
+            download='old_{$thm}0.jpg'>
+            <img src='{$thm}0.jpg' border=1></a> 
+            vs NEW:<a href='{$thm}{$row['thumbSlideshowIndex']}.jpg' 
+            download='new_{$thm}{$row['thumbSlideshowIndex']}.jpg'>
+            <img src='{$thm}{$row['thumbSlideshowIndex']}.jpg' border=1></a><hr>";
     }
 
     /* free result set */
