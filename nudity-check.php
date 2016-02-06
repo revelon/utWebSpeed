@@ -17,11 +17,10 @@ if ($mysqli->connect_errno) {
 if ($result = $mysqli->query("
 select distinct hashid, lower(hex(hash)) hsh from file_hashflags left join file_hash using (hashid) left join file using (hashid) 
 where contentType='image' and pornProbability=1 and status='ok' and public='public' and displayStatus='maybe_safe' 
-and cdnStatus='ok' and hashid < 54987216
+and cdnStatus='ok' and hashid < 54502470
 order by hashid desc limit 5000
 							 ")) {
 	// first hashID checked: 59024028
-	// last hashID to start checking from: and hashid < 54987216
 	echo "Number of files: " . mysqli_num_rows($result) . 
 		"<style>img {display:inline-block;width:244px;max-height:244px;border:1px dashed gray;}</style><hr>";
     /* fetch associative array */
