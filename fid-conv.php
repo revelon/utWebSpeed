@@ -17,7 +17,9 @@ echo "\n\n\n";
 //$dir = '/Users/xrevelon/Documents/NudityFails11.5';
 //$dir = '/Users/xrevelon/Documents/NudityFails11.9';
 //$dir = '/Users/xrevelon/Documents/NudityFails12';
-$dir = '/Users/xrevelon/Documents/NudityFailsUnsend12.5';
+//$dir = '/Users/xrevelon/Documents/NudityFailsUnsend12.5';
+//$dir = '/Users/xrevelon/Documents/NudityFails12.6';
+$dir = '/Users/xrevelon/Documents/NudityFails12.7';
 
 $files  = scandir($dir);
 $md5s   = [];
