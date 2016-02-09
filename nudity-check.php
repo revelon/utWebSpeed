@@ -17,7 +17,7 @@ if ($mysqli->connect_errno) {
 if ($result = $mysqli->query("
 select distinct hashid, lower(hex(hash)) hsh from file_hashflags left join file_hash using (hashid) left join file using (hashid) 
 where contentType='image' and pornProbability=1 and status='ok' and public='public' and displayStatus='maybe_safe' 
-and cdnStatus='ok' and hashid < 52946904
+and cdnStatus='ok' and hashid < 52570425
 order by hashid desc limit 5000
 							 ")) {
 	// first hashID checked: 59024028
