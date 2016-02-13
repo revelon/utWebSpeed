@@ -1,0 +1,67 @@
+<style>
+    /* search banner */
+    @media only screen and (max-width: 766px) {
+        iframe.o2nsdt {
+            display: none;
+        }
+    }
+    @media only screen and (min-width: 766px) and (max-width: 990px) {
+        div.head-search input#search-input.head-search-input {
+            width: 200px !important;
+        }
+    }
+    header input#search-input.searchSuggest {
+        width: 320px;
+    }
+    div.head-search input#search-input.head-search-input {
+        width: 380px;
+    }
+
+
+    /*  nav banner */
+    #head {
+        height: 188px;
+        background: url("http://img5.uloz.to/ul3/images/head_bg.png?v=3.300.108-1") 50% bottom repeat-x;
+        background-color: #5c0940;
+    }
+    #head #head-wrapper {
+        height: 188px;
+        background: url("http://img5.uloz.to/ul3/images/head_over.png?v=3.300.108-1") 50% bottom no-repeat;
+    }
+    #head #head-wrapper #menu li#menu-user {
+        background: none;
+    }
+    #head #head-wrapper #menu li#menu-user, #head #head-wrapper #menu li#menu-nav, #head #head-wrapper #menu li#menu-lang {
+        height: 44px;
+        line-height: 160%;
+    }
+ul#menu-user.menu-user li.menu-user-logged a {
+    width: 60px;
+}
+@media only screen and (min-width: 766px) and (max-width: 990px) {
+    ul.menu-service li { 
+        padding-left: 1px;
+        padding-right: 1px;
+    }
+    ul#menu-user.menu-user {
+        margin-right: 33px;
+    }
+    ul#menu-user.menu-user li.menu-user-logged a {
+        width: 48px;
+    }
+    ul#menu-user.menu-user li.menu-user-logged span {
+        margin-left: 1px;
+    }
+}
+</style>
+
+<script>
+    // nav banner
+    $('li#menu-user').before('<li style="padding-left:66px"><iframe class="adFrame o2nsdt" style="overflow:hidden;border-width:0;border-radius: 3px;" src="http://img5.uloz.to/content/banner/o2ban.html" scrolling="no" height="45" width="45"></iframe></li>');
+    $('ul#menu-user').before('<iframe class="adFrame o2nsdt" style="margin-left:25px;overflow:hidden;border-width:0;opacity:.8" src="http://img5.uloz.to/content/banner/o2ban.html" scrolling="no" height="45" width="45"></iframe>');
+
+  
+    // search banner
+    $('header form#search').after('<iframe class="adFrame o2nsdt" style="overflow:hidden;border-width:0;float:right;display:block;margin-top:14px;" src="http://img5.uloz.to/content/banner/o2ban2.html" scrolling="no" height="140" width="140"></iframe>');
+    $('div.head-content').before('<iframe class="adFrame o2nsdt" style="overflow:hidden;border-width:0;border-bottom-left-radius:5px;border-bottom-right-radius:2.5px;float:right;margin-left:20px;opacity:.8" src="http://img5.uloz.to/content/banner/o2ban2.html" scrolling="no" height="138" width="138"></iframe>');
+</script>
