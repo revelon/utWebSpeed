@@ -698,7 +698,7 @@ $(function () {
 
 <script>
 var dataLayer = [{
-   'videoData': { 'userCanStream': true,
+   'videoData': { 'userCanStream': false,
                   'isStreamable': true, 
                   'streamUri': 'http://thv1.uloz.to/1/6/2/162c1364b16ac85081f2df0aa4fef606.360.mp4?embdv', 
                   'videoCodec': 'H264',
@@ -712,7 +712,6 @@ var dataLayer = [{
 <!-- http12 -->
 <!-- 3.300.105- 1 -->
 </html>
-
 
 <style>
 
@@ -728,13 +727,11 @@ div.streamPlayer {
 	height: 150px;
 	font-size: 12px;
 	cursor: default;
-	background: rgba(217,11,131,0.7);
 	pointer-events: none;
+	background: rgba(255,223,5,0.85);
 }
 
-div.streamPlayer:hover {
-	background: rgba(217,11,131,1);
-}
+div.streamPlayer:hover {background: rgba(255,223,5,1);}
 
 div.streamPlayer.showBox {
 	visibility: visible;
@@ -775,6 +772,7 @@ div.streamPlayer h4 {
 	margin-top: 5px;
 	margin-bottom: 10px;
 	border-bottom: 1px solid white;
+	padding-bottom: 2px;
 }
 
 div.streamPlayer h5 {
@@ -803,65 +801,57 @@ div.streamPlayer ul {
 	pointer-events: none;
 }
 
-#watch {
-	width: 148px;
-	padding: 12px 25px 12px 50px;
-}
-
-#watch span.stop {
-	display: block;
-	position: absolute;
-	top: 15px;
-	left: 12px;
-	width: 30px;
-	height: 30px;
-}
-
-#watch span {
-	display: block;
-	position: absolute;
-	top: 15px;
-	left: 12px;
-	width: 30px;
-	height: 30px;
-}
-
 </style>
 
 <script>
 (function () {
 	// prepare data to test, if we can initialize the streaming player or not
 
-    var vData = {{dl.videoData}} ? {{dl.videoData}} : {},
-    //var vData = dataLayer[0].videoData,
+    //var vData = {{dl.videoData}} ? {{dl.videoData}} : {},
+    var vData = dataLayer[0].videoData,
 		myVid = document.createElement('video'),
-		buttonHolder = $('div#fileDownload'),
-		thumbHolder = $('div#fileVideo');
+		thumbHolder = $('div#fileVideo'),
+		message = null;
 
-	if (!vData.isStreamable || !vData.userCanStream || vData.bitRate > 8000000 || 
-		!vData.streamUri || !myVid || !myVid.canPlayType || !myVid.canPlayType('video/mp4') || !buttonHolder.length || !thumbHolder.length) {
+	switch (location.hostname) {
+		case 'www.ulozto.net':
+		case 'www.uchowajto.pl':
+		case 'ulozto.net':
+		case 'uchowajto.pl':
+			message = {
+				0:'<h4>EN Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>pouze pro přihlášené uživatele</li><li>přehrávání spotřebovává kredit</li><li>po odečtení kreditu sleduj či stahuj video po dalších 24h neomezeně</li></ul><h5><a href="/kredit">Chci přehrávat online</a></h5>',
+				1:'<h4>EN Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>až čtvrtinu dat máš zdarma</li><li>zjisti, zda je to video, které hledáš</li><li>po odečtení kreditu sleduj či stahuj video po 24h neomezeně</li></ul><h5><a href="/faq?videostreaming#videostreaming">Více informací</a></h5>'
+			};
+			break;
+		default:
+			message = {
+				0:'<h4>Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>pouze pro přihlášené uživatele</li><li>přehrávání spotřebovává kredit</li><li>po odečtení kreditu sleduj či stahuj video po dalších 24h neomezeně</li></ul><h5><a href="/kredit">Chci přehrávat online</a></h5>',
+				1:'<h4>Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>pouze pro přihlášené uživatele</li><li>přehrávání spotřebovává kredit</li><li>po odečtení kreditu sleduj či stahuj video po dalších 24h neomezeně</li></ul><h5><a href="/faq?videostreaming#videostreaming">Více informací</a></h5>'
+			};
+			break;
+	}
+
+	if (!vData.isStreamable || vData.bitRate > 8000000 || 
+		!myVid || !myVid.canPlayType || !myVid.canPlayType('video/mp4') || 
+		!thumbHolder.length) {
 		return; // skip player initialization, conditions are not met
 	}
 
-	// solve escaping of SVG for MSIE/FF
-	var style = document.createElement("style");
-	style.innerHTML = 'a#watch span { background: transparent url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".28"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.5" stroke="gray" fill-opacity=".88" stroke-opacity=".5" fill="white"/></svg>') + '") no-repeat} ' + "\n" + 
-		'a#watch span.stop { background: transparent url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".28"/><path d="M10,10 20,10 20,20 10,20z" stroke-linejoin="round" stroke-width="1.5" stroke="gray" fill-opacity=".88" stroke-opacity=".5" fill="white"/></svg>') + '") no-repeat} ';
-	document.body.appendChild(style);
-
-	// PF is CZ-CS only, so we can put text directly in
-	// benchmark for user connection speed vs bitrate etc. will come later, we are being optimistic for now
-
 	// add video, info box and icon to the image thumbnails area
-	thumbHolder.append('<div id="video-container"><video src="[[STREAMDATAURI]]" preload="none" controls style="visibility:hidden"></video></div><svg id="icoPlay" class="initer" width="150" height="150" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".4"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.2" stroke="white" opacity=".66" fill="rgb(217,11,131)"/></svg><div class="streamPlayer"><h4>Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>až čtvrtinu dat máš zdarma</li><li>zjisti, zda je to video, které hledáš</li><li>po odečtení kreditu sleduj či stahuj video po 24h neomezeně</li></ul><h5><a href="/faq?videostreaming#videostreaming" style="color:white">Více informací</a></h5></div>'.replace('[[STREAMDATAURI]]', vData.streamUri));
+	thumbHolder.append('<div id="video-container"><video src="[[STREAMDATAURI]]" preload="none" controls style="visibility:hidden"></video></div><svg id="icoPlay" class="initer" width="150" height="150" viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" stroke-width="0" fill="black" fill-opacity=".4"/><path d="M10,7 23,15 10,23z" stroke-linejoin="round" stroke-width="1.2" stroke="white" opacity=".66" fill="rgb(99,225,0)"/></svg><div class="streamPlayer">[[MESSAGE2SHOW]]</div>'.replace('[[STREAMDATAURI]]', vData.streamUri).replace('[[MESSAGE2SHOW]]', message[1*vData.userCanStream]));
 
 	// prepare necessary elements and variables
 	var vid = $('div#video-container video'),
 		video = vid[0],
-		//butt = null,
 		hint = $('div.streamPlayer'),
 		ico = $('svg#icoPlay'),
 		state = 0;
+
+	// video playback initialization
+	hint.addClass('showBox');
+	ico.css('display', 'block');
+
+	if (!vData.userCanStream || !vData.streamUri) return; // skip initialization for case of not enough of credit
 
 	// set several listeners
 	video.addEventListener('playing', playing);
@@ -870,28 +860,12 @@ div.streamPlayer ul {
 	hint[0].addEventListener('click', checkPlay);
 	ico[0].addEventListener('click', checkPlay);
 
-	// video playback initialization
-	hint.addClass('showBox');
-	ico.css('display', 'block');
-	// add new button
-	/*buttonHolder.append('&nbsp;&nbsp;&nbsp;<a href="#view" id="watch" class="commonBigButton mu7" style="visibility:hidden">Přehrát video<span></span></a>');      
-	butt = $('a#watch');
-	butt.css('visibility', 'visible');
-	butt[0].addEventListener('click', checkPlay);
-
-	function buttPlay() {
-		butt.html('Přehrát video<span></span>');
-	}
-	function buttStop() {
-		butt.html('Zastavit video<span class="stop"></span>');
-	}*/
 	// method run when video playback is turned on
 	function playing(evt) {
 		state = 1;
 		vid.css('visibility', 'visible');
 		hint.removeClass('showBox');
 		vid.css('pointer-events', 'auto');
-		//buttStop();
 		// send monitoring event to the GA
 		dataLayer.push({'event': 'ga.event', 'eCategory': 'Videostreaming', 'eAction': 'Play', 'eLabel': undefined, 'eValue': undefined });
 	}
@@ -900,7 +874,6 @@ div.streamPlayer ul {
 		if (!video.seeking) {
 			state = 0;
 			hint.addClass('showBox');
-			//buttPlay();
 		}
 	}
 	// method run used for custom video control elements
@@ -908,7 +881,6 @@ div.streamPlayer ul {
 		if (state) {
 			vid[0].pause();
 			state = 0;
-			//buttPlay();
 		} else {
 			vid[0].play();
             ico.attr('class', ''); // jQuery limitation for SVG
