@@ -152,7 +152,7 @@ $(document).ready(function() {
       var txt = $(vipTextSelector).text().split(" "); // current VIP estimate and split to words
       var sz = $("span#fileSize").text().split(" "); // file size data element + split
       // in all four languages supported, MINutes are used as the biggest time unit; for size - following exists: GB MB kB B
-      fileAttrs = {size:1*sz[sz.length-2], unit:sz[sz.length-1]};
+      fileAttrs = {size:1*sz[0], unit:sz[1].trim()};
       // convert GB to MB and work with them from now on
       fileAttrs = (fileAttrs.unit == 'GB') ? {size:1000*fileAttrs.size, unit:'MB'} : fileAttrs;
       vipEstimate = {time:1*txt[txt.length-2], unit:txt[txt.length-1]}
