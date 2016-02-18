@@ -836,7 +836,7 @@ div.streamPlayer ul {
 			break;
 	}
 
-	if (!vData.isStreamable || vData.bitRate > 8000000 || 
+	if (!vData.isStreamable || vData.bitRate > 8000000 || vData.videoCodec != 'AVC' || 
 		!myVid || !myVid.canPlayType || !myVid.canPlayType('video/mp4') || 
 		!thumbHolder.length) {
 		return; // skip player initialization, conditions are not met

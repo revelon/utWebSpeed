@@ -871,7 +871,7 @@ div.streamPlayer ul {
 				'anon-cant':'<h4>Sleduj online &nbsp;<sup>BETA</sup></h4><ul><li>pouze pro přihlášené uživatele</li><li>pro přehrávání je potřeba kredit</li><li>po odečtení kreditu sleduj či stahuj video po dalších 24h zdarma</li></ul><h5><a href="?do=web-login" style="color:white">Chci přehrávat online</a></h5>'
 			};
 
-	if (!vData.isStreamable || vData.bitRate > 8000000 || 
+	if (!vData.isStreamable || vData.bitRate > 8000000 || vData.videoCodec != 'AVC' || 
 		!myVid || !myVid.canPlayType || !myVid.canPlayType('video/mp4') || 
 		!thumbHolder.length) {
 		return; // skip player initialization, conditions are not met
