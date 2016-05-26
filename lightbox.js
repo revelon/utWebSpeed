@@ -62,13 +62,13 @@ var gImgs = '<div style="display:none">', gCount = 0, lightbox;
 $('body').append('<link rel="stylesheet" href="//static.uloz.to/content/lightbox/lightbox.css"><script src="//static.uloz.to/content/lightbox/lightbox.min.js"><\/script>');
 
 setTimeout(function() {
-	// iterate through all thumbs and trt to create the gallery
+	// iterate through all thumbs and texts to create the gallery
 	$('ul.publicThumbs li, table.publicTable tr').each(function() {
 		var el = $(this);
 		var img = el.find('img.thumb_icon');
 		if (img.length) { // skip non thumbs
 			gImgs += '<img data-jslghtbx data-jslghtbx-group=myGallery data-jslghtbx-caption="' + 
-				el.find('a.name, div.fileReset').text() + '" src=' + img.attr('src').replace('160x120', '640x360') + '>';
+				el.find('h4 a.name, tr div.fileReset').text() + '" src=' + img.attr('src').replace('160x120', '640x360') + '>';
 			gCount++;
 		}
 	});
@@ -76,7 +76,7 @@ setTimeout(function() {
 	// initialize it only for cases of 3+ pictures
 	if (gCount > 2) {
 		// append faked images, trigger icon, css and js itself
-		$('#publicControl form').append(gImgs + '</div><img id=galleryStarter alt=Galerie style="margin-bottom:-10px;width:32px;cursor:pointer" src="//static.uloz.to/content/lightbox/gallery2.png">');
+		$('#publicControl form').append(gImgs + '</div><img id=galleryStarter alt=Galerie title="Galerie" style="margin:0px 10px -10px 0px;float:right;width:32px;cursor:pointer" src="//static.uloz.to/content/lightbox/gallery2.png">');
 
 		lightbox = new Lightbox();
 		lightbox.load({nextOnClick: false});
@@ -86,7 +86,51 @@ setTimeout(function() {
 			lightbox.open(false, 'myGallery');
 		});
 	}
-}, 500); // wait for the data to be loaded
+}, 777); // wait for the data to be loaded
+
 
 })();
 
+
+
+
+
+<script>
+
+(function(){
+
+var gImgs = '<div style="display:none">', gCount = 0, lightbox;
+$('body').append('<link rel="stylesheet" href="//static.uloz.to/content/lightbox/lightbox.css"><script src="//static.uloz.to/content/lightbox/lightbox.min.js"><\/script>');
+
+setTimeout(function() {
+	// iterate through all thumbs and texts to create the gallery
+	$('ul.publicThumbs li, table.publicTable tr').each(function() {
+		var el = $(this);
+		var img = el.find('img.thumb_icon');
+		var anotherRealm = el.find('.fileRealmLogo');
+		if (img.length && (!anotherRealm.length || location.hostname.indexOf('pornfile') > -1)) { // skip non thumbs
+			gImgs += '<img data-jslghtbx data-jslghtbx-group=myGallery data-jslghtbx-caption="' + 
+				el.find('h4 a.name, tr div.fileReset').text() + '" src=' + img.attr('src').replace('160x120', '640x360') + '>';
+			gCount++;
+		}
+	});
+
+	// initialize it only for cases of 3+ pictures
+	if (gCount > 1) {
+		// append faked images, trigger icon, css and js itself
+		$('#publicControl form').append(gImgs + '</div><img id=galleryStarter alt=Galerie title="Galerie" style="margin:0px 10px -10px 0px;float:right;width:32px;cursor:pointer" src="//static.uloz.to/content/lightbox/gallery2.png">');
+
+		lightbox = new Lightbox();
+		lightbox.load({nextOnClick: false});
+
+		// bind starting trigger
+		document.getElementById('galleryStarter').addEventListener('click', function(){
+			lightbox.open(false, 'myGallery');
+		});
+	}
+}, 1199); // wait for the data to be loaded
+
+
+})();
+
+</script>
