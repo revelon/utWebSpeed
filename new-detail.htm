@@ -921,7 +921,8 @@ div.streamPlayer ul {
     //var vData = {{dl.videoData}} ? {{dl.videoData}} : {}, // GTM scope case
     var vData = dataLayer[1].videoData,
 		myVid = document.createElement('video'),
-		thumbHolder = $('div.media.m-Video'),
+		//thumbHolder = $('div.media.m-Video'),
+		thumbHolder = $('div.thumbVideo'),
 		userLoggedHlpr = $('a.menu-kredit').attr('title'),
 		userLogged = (userLoggedHlpr && userLoggedHlpr.indexOf('B') > -1) ? 'logged' : 'anon',
 		canStream = vData.userCanStream ? 'can' : 'cant',
