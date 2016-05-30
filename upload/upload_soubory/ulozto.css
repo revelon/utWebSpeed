@@ -6270,7 +6270,7 @@ div#serviceRedirDialog fieldset {
           padding-top: 110px;
           margin-top: 26px;
           margin-bottom: 10px;
-          background: url("../images/upload/drop-area.png") no-repeat center top; }
+          background: url("drop-area.png") no-repeat center top; }
         .pg-set-upload-new .drop .area .responsive {
           display: none; }
         .pg-set-upload-new .drop .area .file {
@@ -6315,11 +6315,11 @@ div#serviceRedirDialog fieldset {
         .pg-set-upload-new .pg-aside div:last-child {
           margin-bottom: 0px; }
         .pg-set-upload-new .pg-aside div:nth-child(1) {
-          background: #f2f2f2 url("../images/upload/box-1.png") no-repeat 10px center; }
+          background: #f2f2f2 url("box-1.png") no-repeat 10px center; }
         .pg-set-upload-new .pg-aside div:nth-child(2) {
-          background: #f2f2f2 url("../images/upload/box-2.png") no-repeat 10px center; }
+          background: #f2f2f2 url("box-2.png") no-repeat 10px center; }
         .pg-set-upload-new .pg-aside div:nth-child(3) {
-          background: #f2f2f2 url("../images/upload/box-3.png") no-repeat 10px center; }
+          background: #f2f2f2 url("box-3.png") no-repeat 10px center; }
         .pg-set-upload-new .pg-aside div h3 {
           color: #990f6b;
           text-align: left;

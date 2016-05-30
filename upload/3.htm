@@ -6,10 +6,10 @@
 		<meta name="robots" content="index,follow">
 		<meta name="googlebot" content="index,follow,snippet,archive">
 	<title>Ulož.to</title>
-
 	<link rel="stylesheet" href="upload_soubory/ulozto.css">
 
-<script       src="https://code.jquery.com/jquery-1.12.4.min.js"
+	<script src="https://raw.github.com/enyo/dropzone/master/dist/dropzone.js"></script>
+	<script src="https://code.jquery.com/jquery-1.12.4.min.js"
               integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
               crossorigin="anonymous"></script>
 
@@ -19,10 +19,10 @@
 	<link rel="shortcut icon" href="http://ulozto.lab.nds/favicon.ico?v=%25VERSION%25" type="image/x-icon">
 	<link rel="icon" href="http://ulozto.lab.nds/favicon.ico?v=%25VERSION%25" type="image/x-icon">
 
-	
-	
 </head>
 <body>
+
+
 
 <header class="pg-header">
 	<div class="head">
@@ -30,7 +30,7 @@
 			<div class="logo">
 				<a href="http://ulozto.lab.nds/">
 					<svg>
-						<image height="100%" width="100%" xlink:href="//static.ulozto.lab.nds/ul3/images/ulozto-logo.svg" src="//static.ulozto.lab.nds/ul3/images/ulozto-logo.png"></image>
+						<image height="100%" width="100%" xlink:href="http://static.uloz.to/ul3/images/ulozto-logo.svg" src="http://static.uloz.to/ul3/images/ulozto-logo.svg"></image>
 					</svg>
 				</a>
 			</div>
@@ -75,8 +75,54 @@
 <main class="pg-main" id="content">
 
 <section class="pg-section pg-set-upload-new">
+    <div id="abcde">
+    <article class="pg-article">
 
-    <article class="pg-article pg-uploading">
+        <div class="drop">
+            <!--h1>Nahraj soubory</h1-->
+            <div class="area">
+
+                <p>Chceš větší kontrolu nad soubory? <a href="">Přihlaš se</a>.</p>
+
+                <h2>Přetáhni soubory na&nbsp;obrazovku</h2>
+                <p>Nebo je vyber z počítače kliknutím na tlačítko "Vybrat soubor z disku"</p>
+                <p class="responsive">Vyber soubory z počítače kliknutím na tlačítko "Vybrat soubor z disku"</p>
+
+                <form>
+                    <div class="file">
+                        <select name="type">
+                            <option selected="selected" value="">Veřejné</option>
+                            <option value="">Soukromé</option>
+                        </select>
+                        <span class="fa fa-question-circle" rel="tooltip" title="Nápověda"></span>
+                        <div class="upload button button-l">
+                            <i class="fa fa-upload"></i> Vybrat soubor z disku
+                            <input type="file">
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </article>
+
+    <aside class="pg-aside pg-set-upload-aside" id="prvyapul" style="padding-top:20px">
+        <div class="box">
+            <h3>Nahráváš erotický obsah?</h3>
+            <p>Jdi na PORNfile.cz. Z Ulož.to jsou všechny erotické soubory smazány.</p>
+        </div>
+        <div class="box">
+            <h3>Nahráváš hodně souborů?</h3>
+            <p>Použij naší Windows aplikaci pro nahrávání více souborů najednou.</p>
+        </div>
+        <div class="box">
+            <h3>Chceš si na Ulož.to vydělat?</h3>
+            <p>Aktivuj si jeden z našich programů a získej peníze nebo kredit.</p>
+        </div>
+    </aside>
+    </div>
+
+    <article class="pg-article pg-uploading" id="druhy" style="display:none">
 
         <div class="add">
             <div class="type">
@@ -122,7 +168,7 @@
                     <div><i class="fa fa-database"></i> 2,68 MB</div>
                 </div>
             </div>
-            <div class="progress f1" id="f1">
+            <div class="progress" id="f1">
                 <span>&nbsp;</span>
             </div>
         </div>
@@ -149,7 +195,36 @@
         </div>
 
 
+
+        <div class="buttons fixed">
+            <div>
+                <span style="margin-right:0">Celkem souborů: 2 | Nahráno souborů: </span><span id="calc">0</span>
+                <input class="button button-l" value="Uložit soubory" type="submit">
+            </div>
+        </div>
+
+    </article>
+
+</section>
+
+</main>
+
+
 <script>
+    var myDropzone = new Dropzone("div.drop", { url: "/adminer.php"});
+    myDropzone.on("addedfile", function(file) {
+        //location.replace('2.htm');
+        $('#abcde').addClass('s1');
+        setTimeout(function() {
+            $('#abcde').css('display', 'none');
+            $('#druhy').css('display', 'block');
+            $('#f1').addClass('f1');
+            $('#f2').addClass('f2');
+        }, 500);
+        console.log('aaaaa');
+        return false;
+    });
+
     $("div.add").on("drop", function(event) {
         event.preventDefault();  
         event.stopPropagation();
@@ -165,7 +240,6 @@
         $('#ff2 div.stat').html('<i class="fa fa-check"></i> Dokončeno');
         $('#calc').html('2');
     });
-    setTimeout(function(){$('#f2').addClass('f2')}, 5000);
 </script>
 <style>
 div.thumb div.jpeg {
@@ -178,14 +252,16 @@ div.thumb div.zip {
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
+.s1 {
+  animation: shrink 0.5s 1;
+  animation-fill-mode: forwards;
+}
 .f1 {
   animation: prog1 1.5s 1;
-  animation-delay: 0.5s;
   animation-fill-mode: forwards;
 }
 .f2 {
-  animation: prog1 7s 1;
-  animation-delay: 0s;
+  animation: prog1 3.5s 1;
   animation-fill-mode: forwards;
 }
 
@@ -203,19 +279,26 @@ div.thumb div.zip {
     width: 100%;
   }
 }
+@keyframes shrink {
+  0% {
+    transform: scale(1, 1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1, .01);
+    opacity: 0;
+  }
+}
 </style>
 
-        <div class="buttons fixed">
-            <div>
-                <span style="margin-right:0">Celkem souborů: 2 | Nahráno souborů: </span><span id="calc">0</span>
-                <input class="button button-l" value="Uložit soubory" type="submit">
-            </div>
-        </div>
-
-</section>
 
 
-</main>
+
+
+
+
+
+
 
 <footer class="pg-footer">
 	<nav class="nav-foot">
