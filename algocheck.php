@@ -2,7 +2,7 @@
 
 echo "\n\n\n";
 
-$dir = '/Users/xrevelon/Documents/NudityFails12.9/safes';
+$dir = '/Users/xrevelon/Documents/NudityFails12.9/quick';
 
 $files  = scandir($dir);
 $res   = [];
@@ -13,9 +13,9 @@ foreach ($files as $f) {
     //if (sizeOf($ensemble['nude']) > 2) break; // debug option
 	if ($f[0] === '.') continue;
 	$md5 = substr($f, 0, 32);
-    $addr = "http://imageth.uloz.to/{$md5[0]}/{$md5[1]}/{$md5[2]}/{$md5}.640x360.jpg";
+    $addr = "https://imageth.uloz.to/{$md5[0]}/{$md5[1]}/{$md5[2]}/{$md5}.640x360.jpg";
     $addr = '"' . $addr . '"';
-
+/*
     $a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' -H 'Authorization: Simple simELXZ6Dab23/2W+KD+e3zA7cr1' https://api.algorithmia.com/v1/algo/sfw/NudityDetectionEnsemble/0.2.7");
     echo "ens ->" . $a;
     $reply = json_decode($a);
@@ -25,8 +25,8 @@ foreach ($files as $f) {
     } else {
         $ensemble['fails'] += 1;
     }
-
-    $a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' -H 'Authorization: Simple simELXZ6Dab23/2W+KD+e3zA7cr1' https://api.algorithmia.com/v1/algo/sfw/NudityDetectioni2v/0.1.2");
+*/
+    $a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' -H 'Authorization: Simple simELXZ6Dab23/2W+KD+e3zA7cr1' https://api.algorithmia.com/v1/algo/sfw/NudityDetectioni2v/0.1.x");
     echo "v2 ->" . $a;
     $reply = json_decode($a);
     if (isset($reply->result)) {
