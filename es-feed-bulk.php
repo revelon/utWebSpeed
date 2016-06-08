@@ -30,7 +30,7 @@ while ($lastFileId) {
     left join file_upload_data fud on (f.id=fud.file_id)
     where id < {$lastFileId} and status='ok' and public='public' and banned=0 
     and virusFound<2 and displayStatus not in ('illegal','maybe_illegal')
-    limit 5000;
+    limit 10000;
 
     							 ")) {
         $resultCount = mysqli_num_rows($result);
@@ -55,14 +55,15 @@ while ($lastFileId) {
         $rawResponse = shell_exec('curl -XPOST "http://localhost:9200/_bulk" --data-binary "@'.$temp.'"');
         $response = json_decode($rawResponse);
         if ($response->errors === false) {
-            echo "\nSuccess";
+            echo "\nSuccess ";
             $success++;
+            // tidy up the mess in current directory
+            unlink($temp);
         } else {
-            echo "\nFail with: " . $rawResponse;
+            echo "\nFail on {$temp} file with: " . $rawResponse;
             $fail++;
+            // do not unlink file to keep it for potential analysis
         }
-        // tidy up the mess in current directory
-        //unlink($temp);
 
         /* free result set */
         $result->close();
