@@ -1,5 +1,5 @@
 <?php
-ini_set('memory_limit', '512M');
+ini_set('memory_limit', '2048M');
 require ('/Users/xrevelon/git/ulozto-web/Nodus/Security/IntEncrypt.php');
 require ('/Users/xrevelon/cnf.php');
 
@@ -7,7 +7,6 @@ echo "\n\n\n";
 
 $mysqli = new mysqli($cnf['h'], $cnf['u'], $cnf['p'], $cnf['d']);
 
-/* check connection */
 if ($mysqli->connect_errno) {
     printf("Connect failed: %s\n", $mysqli->connect_error);
     exit();
@@ -17,6 +16,7 @@ $lastFileId = 110000000;
 $success = 0; $fail = 0; 
 $totalDocs = 0;
 $startAt = time();
+$fedingOffset = 100000;
 
 $result = $mysqli->query("select max(id) mx from file");
 $lastFileId = (int) $result->fetch_assoc()['mx'];
@@ -35,18 +35,21 @@ while ($lastFileId) {
     left join file_hashflags fh using (hashid)
     left join file_hash_multimedia fhm using (hashid)
     left join file_upload_data fud on (f.id=fud.file_id)
-    where id between ". ($lastFileId-100000) ." and {$lastFileId} and status='ok' and public='public' and banned=0 and flags2 not like '%searchable%'
+    where id between ". ($lastFileId-$fedingOffset) ." and {$lastFileId} and status='ok' and public='public' and banned=0 and flags2 not like '%searchable%'
     and virusFound<2 and displayStatus not in ('illegal','maybe_illegal') 
-    order by id desc limit 10000;
+    order by id desc limit 15000;
 
     							 ")) {
         $resultCount = mysqli_num_rows($result);
     	echo "\nNumber of files get: {$resultCount}, so far send OK {$totalDocs} documents...\n";
 
-        if (!$resultCount) {
+        if (!$resultCount && ($lastFileI <= $fedingOffset)) {
             echo ("\nNo more data to fetch, ending....");
             $lastFileId = 0;
             break;
+        } elseif (!$resultCount) {
+            $lastFileId -= $fedingOffset;
+            continue;
         }
 
         $command = "";
@@ -74,7 +77,6 @@ while ($lastFileId) {
             // do not unlink file to keep it for potential analysis
         }
 
-        /* free result set */
         $result->close();
 
         gc_collect_cycles();
