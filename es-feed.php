@@ -25,7 +25,7 @@ from file f
 left join file_hashflags fh using (hashid)
 left join file_hash_multimedia fhm using (hashid)
 left join file_upload_data fud on (f.id=fud.file_id)
-where id > 108774660 and status='ok' and public='public' and banned=0 
+where id > 108774660 and status='ok' and public='public' and banned=0 and flags2 not like '%searchable%'
 and virusFound<2 and displayStatus not in ('illegal','maybe_illegal')
 limit 100000;
 
@@ -246,15 +246,15 @@ select count(*) from file f
 left join file_hashflags fh using (hashid)
 left join file_hash_multimedia fhm using (hashid)
 left join file_upload_data fud on (f.id=fud.file_id)
-where status='ok' and public='public' and banned=0 and size!=0
+where status='ok' and public='public' and banned=0 and flags2 not like '%searchable%'
 and virusFound<2 and displayStatus not in ('illegal','maybe_illegal');
 
 +----------+
 | count(*) |
 +----------+
-| 18832293 |
+| 17688550 |
 +----------+
-1 row in set (11 min 30.66 sec)
+1 row in set (12 min 2.38 sec)
 
 select f.id, name, keywords_name as keywords, f.hashid, f.upload_date as uploaded, uploader_geoipcountry as geoipcountry, 
 contentType, fh.size as sizeInKB, if(displayStatus in ('safe', 'maybe_safe'),'UT','PF') as realm, rating_status as rating, 
@@ -268,3 +268,35 @@ left join file_upload_data fud on (f.id=fud.file_id)
 where id > 108774660 and status='ok' and public='public' and banned=0 and size!=0 
 and virusFound<2 and displayStatus not in ('illegal','maybe_illegal')
 limit 10;
+
+
+
+
+
+// relativne zajimava query vracejici uz neco jakz takz, co snad chceme
+POST /files3/_search
+{
+  "query": {
+        "query_string": {
+            "query": "mash avi",
+            "default_operator": "and",
+            "default_field": "keywords"
+        }
+  },
+  "size" : 0,
+  "aggs": {
+    "byHashid": {
+      "terms": {
+        "field": "hashid",
+        "size": 5
+      },
+      "aggs": {
+        "topFoundHits": {
+          "top_hits": {
+            "size": 1
+          }
+        }
+      }
+    }
+  }
+}

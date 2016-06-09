@@ -1,5 +1,5 @@
 <?php
-ini_set('memory_limit', '512M');
+ini_set('memory_limit', '2048M');
 require ('/Users/xrevelon/git/ulozto-web/Nodus/Security/IntEncrypt.php');
 require ('/Users/xrevelon/cnf.php');
 
@@ -35,7 +35,7 @@ function feedData($command) {
     }
 }
 
-echo "\nExecuting SQL query...";
+echo "\nExecuting SQL query... starting at " . date("H:i:s");
 if ($result = $mysqli->query("
     select f.id, name, keywords_name as keywords, f.hashid, f.upload_date as uploaded, uploader_geoipcountry as geoipcountry, 
     contentType, fh.size as sizeInKB, if(displayStatus in ('safe', 'maybe_safe'),'UT','PF') as realm, rating_status as rating, 
@@ -46,12 +46,12 @@ if ($result = $mysqli->query("
     left join file_hashflags fh using (hashid)
     left join file_hash_multimedia fhm using (hashid)
     left join file_upload_data fud on (f.id=fud.file_id)
-    where status='ok' and public='public' and banned=0 
+    where status='ok' and public='public' and banned=0 and flags2 not like '%searchable%'
     and virusFound<2 and displayStatus not in ('illegal','maybe_illegal')
 ")) {
 
     $resultCount = mysqli_num_rows($result);
-	echo "Query done, Number of files to index: " . $resultCount . "\n\n";
+	echo "Query done at " . date("H:i:s") . ", Number of files to index: " . $resultCount . "\n\n";
 
     while ($row = $result->fetch_assoc()) {
     	$command .= '{ "index" : { "_index" : "files3", "_type" : "public", "_id" : "' . $row['id'] . '" } }' . "\n";
@@ -88,7 +88,7 @@ if ($result = $mysqli->query("
 
 $mysqli->close();
 
-echo "\n\nFinished with OKs: {$success}   and   KOs: {$fail}  of batches... \n";
+echo "\n\nFinished at " . date("H:i:s") . " with OKs: {$success}   and   KOs: {$fail}  of batches... \n";
 
 
 exit();
