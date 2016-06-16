@@ -13,11 +13,11 @@ if ($mysqli->connect_errno) {
     exit();
 }
 
-/* Select queries return a resultset */
+/* Select queries return a resultset   and displayStatus in ('maybe_safe', 'safe')  */
 if ($result = $mysqli->query("
 select distinct hashid, lower(hex(hash)) hsh from file_hashflags left join file_hash using (hashid) left join file using (hashid) 
-where contentType='image' and pornProbability=2 and status='ok' and displayStatus in ('maybe_safe', 'safe') 
-and cdnStatus='ok' and hashid > 68096618 and cdnStatusChange > '2016-05-31 00:00:01'
+where contentType='image' and pornProbability=1 and status='ok' 
+and cdnStatus='ok' and hashid < 69170444 and cdnStatusChange > '2016-06-06 00:00:01'
 order by hashid desc limit 5000
 							 ")) {
 	echo "Number of files: " . mysqli_num_rows($result) . 

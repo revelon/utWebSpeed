@@ -8,7 +8,7 @@
 	<title>Ulož.to</title>
 	<link rel="stylesheet" href="upload_soubory/ulozto.css">
 
-	<script src="https://raw.github.com/enyo/dropzone/master/dist/dropzone.js"></script>
+	<script src="upload_soubory/dropzone.js"></script>
 	<script src="https://code.jquery.com/jquery-1.12.4.min.js"
               integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
               crossorigin="anonymous"></script>
@@ -92,12 +92,13 @@
                     <div class="file">
                         <select name="type">
                             <option selected="selected" value="">Veřejné</option>
+                            <option value="">Pro přátele</option>
                             <option value="">Soukromé</option>
                         </select>
                         <span class="fa fa-question-circle" rel="tooltip" title="Nápověda"></span>
                         <div class="upload button button-l">
                             <i class="fa fa-upload"></i> Vybrat soubor z disku
-                            <input type="file">
+                            <!--input type="file"-->
                         </div>
                     </div>
                 </form>
@@ -127,8 +128,9 @@
         <div class="add">
             <div class="type">
                 <select name="type">
-                    <option selected="selected" value="">Veřejné</option>
-                    <option value="">Soukromé</option>
+                    <option value="">Veřejné</option>
+                    <option value="">Pro přátele</option>
+                    <option selected="selected" value="">Soukromé</option>
                 </select>
                 <span class="fa fa-question-circle" rel="tooltip" title="Nápověda"></span>
             </div>
@@ -211,8 +213,7 @@
 
 
 <script>
-    var myDropzone = new Dropzone("div.drop", { url: "/adminer.php"});
-    myDropzone.on("addedfile", function(file) {
+    function nextStep(file) {
         //location.replace('2.htm');
         $('#abcde').addClass('s1');
         setTimeout(function() {
@@ -223,7 +224,10 @@
         }, 500);
         console.log('aaaaa');
         return false;
-    });
+    }
+    var myDropzone = new Dropzone("div.drop", { url: "/adminer.php"});
+    myDropzone.on("addedfile", nextStep);
+    $('div.button-l').click(nextStep);
 
     $("div.add").on("drop", function(event) {
         event.preventDefault();  

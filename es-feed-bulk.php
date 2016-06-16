@@ -23,10 +23,11 @@ $result = $mysqli->query("select max(id) mx from file");
 // we are indexing from most recent (most important) to eldest documents
 $lastFileId = (int) $result->fetch_assoc()['mx'];
 //$lastFileId = 67053067; // override for cases of unexpected crash... elder than 14.2M are much much slower to feed... also 39698776
+$lastFileId = 109006971;
 // to be able to use sorting without too much overhead, we should narrow the window
-$feedingOffset = 90000;
+$feedingOffset = 100;
 // limit of docs of one indexing batch call
-$limit = 20000;
+$limit = 10;
 
 // ES index name, ES type name and ES indexer node bulk api address
 $indexName = "files5";
@@ -54,7 +55,7 @@ while ($lastFileId > 0) {
         select f.id, name, keywords_name as keywords, f.hashid, f.upload_date as uploaded, uploader_geoipcountry as geoipcountry, 
         contentType, fh.size as sizeInKB, if(displayStatus in ('safe', 'maybe_safe'),'UT','PF') as realm, rating_status as rating, 
         if(fhm.width>=720 and fhm.height>=720,'HQ','LQ') as quality, length as lengthInSec, if(pornHumanCheck=2,1,0) as gayPorn, 
-        if(streamable,1,0) as streamable, if(thumbVideo='' and flags2 like '%videoshare%',false,true) as liveFreeStreaming, 
+        if(streamable,1,0) as streamable, if(thumbVideo!='' and flags2 like '%videoshare%',true,false) as liveFreeStreaming, 
         if(archiveProtected>0 and password is not null,true,false) as archiveProtected, if(password,true,false) as passwordProtected 
         from file f
         left join file_hashflags fh using (hashid)
