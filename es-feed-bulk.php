@@ -2,7 +2,7 @@
 // ElasticSearch data feeder for UT file data, experimental, by MR
 
 // script is quite resource demanding, so reserve enough RAM for it, just for the case...
-ini_set('memory_limit', '2018M');
+ini_set('memory_limit', '1024M');
 // read necessary DB credentials
 require ('/Users/xrevelon/cnf.php');
 
@@ -23,11 +23,11 @@ $result = $mysqli->query("select max(id) mx from file");
 // we are indexing from most recent (most important) to eldest documents
 $lastFileId = (int) $result->fetch_assoc()['mx'];
 //$lastFileId = 67053067; // override for cases of unexpected crash... elder than 14.2M are much much slower to feed... also 39698776
-$lastFileId = 109006971;
+//$lastFileId = 109006971;
 // to be able to use sorting without too much overhead, we should narrow the window
-$feedingOffset = 100;
+$feedingOffset = 50000;
 // limit of docs of one indexing batch call
-$limit = 10;
+$limit = 10000;
 
 // ES index name, ES type name and ES indexer node bulk api address
 $indexName = "files5";
