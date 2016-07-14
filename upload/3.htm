@@ -128,9 +128,9 @@
         <div class="add">
             <div class="type">
                 <select name="type">
-                    <option value="">Veřejné</option>
+                    <option selected="selected" value="">Veřejné</option>
                     <option value="">Pro přátele</option>
-                    <option selected="selected" value="">Soukromé</option>
+                    <option value="">Soukromé</option>
                 </select>
                 <span class="fa fa-question-circle" rel="tooltip" title="Nápověda"></span>
             </div>
@@ -201,7 +201,7 @@
         <div class="buttons fixed">
             <div>
                 <span style="margin-right:0">Celkem souborů: 2 | Nahráno souborů: </span><span id="calc">0</span>
-                <input class="button button-l" value="Uložit soubory" type="submit">
+                <input class="button button-l confrm" value="Uložit soubory" type="submit">
             </div>
         </div>
 
@@ -261,11 +261,11 @@ div.thumb div.zip {
   animation-fill-mode: forwards;
 }
 .f1 {
-  animation: prog1 1.5s 1;
+  animation: prog1 1s 1;
   animation-fill-mode: forwards;
 }
 .f2 {
-  animation: prog1 3.5s 1;
+  animation: prog1 2.5s 1;
   animation-fill-mode: forwards;
 }
 
@@ -293,6 +293,18 @@ div.thumb div.zip {
     opacity: 0;
   }
 }
+
+
+input.confrm {  
+    width: 150px;
+    transition: all .5s ease;
+}
+
+input.confrm:active {
+    width: 166px;
+    background-color: darkgreen;
+    background-image: none !important;
+} 
 </style>
 
 
