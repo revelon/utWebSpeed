@@ -25,7 +25,7 @@ $(function() {
 	}
 
 	// initialize when not Casper UA, avoid disclaimer and public folders
-	if (navigator.userAgent.indexOf('CasperJS') == -1 && $('#search-submit').length && window.location.pathname.indexOf('/soubory/') == -1) {
+	if (navigator.userAgent.indexOf('CasperJS') == -1 && $('#search-submit').length) {
 
 		if(!localStorage.getItem("wizard-msg-search")) {
 			setTimeout(function() {
@@ -46,8 +46,7 @@ $(function() {
 						wizardShowFilter();
 					}
 
-				});
-
+				});				
 			}, 500);
 		}
 
@@ -60,24 +59,27 @@ $(function() {
 		function wizardShowFilter() {
 			if(localStorage.getItem("wizard-msg-search") == 1) {
 				setTimeout(function() {
-					$("body").addClass("wizard");
+					if($('.search-result > div.item').length > 2) {
 
-					$("html, body").animate({
-						scrollTop: $(".sorting").offset().top - 60
-					}, 1500);
+						$("body").addClass("wizard");
+						$("html, body").animate({
+							scrollTop: $(".sorting").offset().top - 60
+						}, 1500);
 
-					$(".sorting, .sorting-mobile-toggle").addClass("wizard-msg-show-2").append("<div id='tooltip' class='wizard-msg top show wizard-msg-2'><a href='#' class='close'><i class='fa fa-close'></i></a>"+message_filter+"</div>");
-					$(".switches-sort a, .switches input, .switches label, .wizard-msg-2 a.close, .sorting-mobile-toggle").on( "click", function() {
-						localStorage.setItem("wizard-msg-search", 2);
+						$(".sorting, .sorting-mobile-toggle").addClass("wizard-msg-show-2");
+						$(".pg-section .pg-header").append("<div id='tooltip' class='wizard-msg top show wizard-msg-2'><a href='#' class='close'><i class='fa fa-close'></i></a>"+message_filter+"</div>");
+						$(".switches-sort a, .switches input, .switches label, .wizard-msg-2 a.close, .sorting-mobile-toggle").on( "click", function() {
+							localStorage.setItem("wizard-msg-search", 2);
+							$(".wizard-msg-2").removeClass("show").addClass("hide");
+							setTimeout(function() {
+								$(".wizard-msg-2").remove();
+								$("body").removeClass("wizard");
+								$(".sorting, .sorting-mobile-toggle").removeClass("wizard-msg-show-2");
+							}, 450);
+						});
+					}
 
-						$(".wizard-msg-2").removeClass("show").addClass("hide");
-						setTimeout(function() {
-							$(".wizard-msg-2").remove();
-							$("body").removeClass("wizard");
-							$(".sorting, .sorting-mobile-toggle").removeClass("wizard-msg-show-2");
-						}, 450);
-					});
-				}, 500);
+				}, 1200);
 			}
 		}
 
@@ -98,7 +100,7 @@ $(function() {
 // DEBUG
 $('body').append('<h1 style="cursor:pointer" onclick="javascript:wizReset()">RESET WIZARD</h1>');
 function wizReset () {
-	localStorage.removeItem("wizard-msg-search"); 
+	localStorage.removeItem("wizard-msg-search");
 	console.log("localStorage wizard flag", localStorage.getItem("wizard-msg-search"));
 }
 
