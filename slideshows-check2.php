@@ -20,7 +20,7 @@ FROM file_hashflags fh
 LEFT JOIN file f USING (hashid) 
 LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
 LEFT JOIN file_description fd ON (f.id=fd.file_id) 
-WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND fh.length>1 AND contentType='video' AND fh.hashid < 61153918 
+WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND fh.length>1 AND contentType='video' AND banned=0 
 AND f.status='ok' AND displayStatus = 'safe' AND (name_status IN ('porn', 'illegal') OR description_status IN ('porn', 'illegal'))
 ORDER BY hashid DESC LIMIT 2000;
 							 ")) {
