@@ -21,8 +21,8 @@ LEFT JOIN file f USING (hashid)
 LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
 LEFT JOIN file_description fd ON (f.id=fd.file_id) 
 WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND fh.length>1 AND contentType='video' AND banned=0 
-AND f.status='ok' AND displayStatus = 'safe' AND (name_status IN ('porn', 'illegal') OR description_status IN ('porn', 'illegal'))
-ORDER BY hashid DESC LIMIT 2000;
+AND f.status='ok' AND displayStatus = 'porn' AND (name_status IN ('illegal') OR description_status IN ('illegal'))
+ORDER BY hashid DESC LIMIT 1000;
 							 ")) {
 
     echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><style>button {cursor:crosshair}
@@ -39,13 +39,16 @@ ORDER BY hashid DESC LIMIT 2000;
     /* fetch associative array */
     while ($row = $result->fetch_assoc()) {
         //var_dump($row);
+        if ($row['hashid'] == $lastHashId) {
+            continue; // skip potential duplicities
+        }
     	$tiny = Nodus\Security\IntEncrypt::encrypt($row['id'], 'Nodus');
         $thm = "http://videoth.uloz.to/{$tiny[0]}/{$tiny[1]}/{$tiny[2]}/x{$tiny}.160x120.";
-        echo "<a target=_blank href=https://uloz.to/!{$row['slug']}/>";
+        echo "<a target=_blank href=https://exec.uloz.to/support/files/file-preview?fileId={$row['id']}>";
         for ($i = 0; $i < 10; $i++) {
         	echo "<img src='{$thm}{$i}.jpg' width=100>";
         }
-        echo "<br>{$row['name']}</a> &nbsp; <button type='button' onclick='s(this, \"https://uloz.to/!{$row['slug']}/\")'>Straight</button> or 
+        echo "<br>[{$row['hashid']}] {$row['name']}</a> &nbsp; <button type='button' onclick='s(this, \"https://uloz.to/!{$row['slug']}/\")'>Straight</button> or 
         <button type='button' onclick='g(this, \"https://uloz.to/!{$row['slug']}/\")'>Gay</button><hr>";
         $lastHashId = $row['hashid'];
     }

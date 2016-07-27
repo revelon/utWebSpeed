@@ -20,13 +20,13 @@ FROM file_hashflags fh
 LEFT JOIN file_hash USING (hashid)
 LEFT JOIN file f USING (hashid) 
 LEFT JOIN file_description fd ON (f.id=fd.file_id) 
-WHERE cdnStatus='ok' AND contentType='image' AND banned=0 
+WHERE cdnStatus='ok' AND contentType='image' AND banned=0 AND hashid < 3591496
 AND f.status='ok' AND displayStatus = 'safe' AND (name_status IN ('porn', 'illegal') OR description_status IN ('porn', 'illegal'))
-ORDER BY hashid DESC LIMIT 200;
+ORDER BY hashid DESC LIMIT 1000
 							 ")) {
 
     echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><style>
-        body {-moz-column-count: 2; -webkit-column-count: 2; column-count: 2}
+        body {-moz-column-count: 2; -webkit-column-count: 2; column-count: 2; padding-bottom: 99px;}
         button {cursor:crosshair}
         div.fixed {
             background-color: rgba(255,255,255,.7);
@@ -36,8 +36,8 @@ ORDER BY hashid DESC LIMIT 200;
             width: 50%;
             border: 1px dotted gray;
         }
-        a img {width: 100px; max-height: 200px;}
-        a img:hover {width: 200px;}
+        a img {width: 80px; max-height: 230px;}
+        a img:hover {width: 160px;}
         </style></head><body>';
 	echo "Number of files to check: " . mysqli_num_rows($result) . "\n<style>img {display:inline-block}</style><hr>";
 
