@@ -16,9 +16,9 @@ if ($mysqli->connect_errno) {
 /* Select queries return a resultset */
 if ($result = $mysqli->query("
 select distinct hashid, lower(hex(hash)) hsh from file_hashflags left join file_hash using (hashid) left join file using (hashid) 
-where contentType='image' and pornProbability=2 and status='ok' and public='public' and displayStatus in ('porn', 'maybe_porn') 
-and cdnStatus='ok' and cdnStatusChange > '2016-08-23 14:00:00'
-order by hashid desc limit 5000
+where contentType='image' and pornProbability=1 and status='ok' and displayStatus in ('safe', 'maybe_safe') 
+and cdnStatus='ok' and cdnStatusChange > '2016-09-09 14:00:00'
+order by hashid desc limit 1500
 							 ")) {
 	// first hashID checked: 59024028
 	echo "Number of files: " . mysqli_num_rows($result) . 
