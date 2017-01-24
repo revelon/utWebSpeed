@@ -234,7 +234,9 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 				}
 				break;
 		}
-		echo debugHelper("Request No. {$key} has issue? " . ((!$response || $response->hasIssue) ? "yes" : "no"), $response, $command);
+		echo debugHelper("Request No. {$key} has issue? " . 
+			(( (!$response && $operation !== 'delete') || $response->hasIssue || !$response->related->conversion || !$response->size) 
+				? "maybe (or not ready yet)" : "no"), $response, $command);
 	}
 
 }
@@ -252,6 +254,8 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 	<h3>File IDs available on streaming server (very stupid and slow explorer / helper)</h3>
 	<form method="get">
 		<label><input type="checkbox" name="exploreFiles" value="1"> Yes, please explore the files for me</label>
+		<input type="hidden" name="filesList" value="1">
+		<input type="hidden" name="operation" value="check">
 		<input type="submit">
 	</form>
 
