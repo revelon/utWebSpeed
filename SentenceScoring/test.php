@@ -109,6 +109,7 @@ echo "\nInput 1: " . $argv[1] . ' , Input 2: ' . $argv[2] . "\n";
 
 $in = explode("\n", trim(file_get_contents($argv[1])));
 $report = $asserts = $matches = ['safe' => 0, 'porn' => 0, 'illegal' => 0];
+$problems = [];
 foreach ($in as $value) {
 	$pair = explode("\t", $value);
 	$asserts[$pair[0]]++;
@@ -117,20 +118,25 @@ foreach ($in as $value) {
 	echo 'Hardcore level: ' . $result->getHardcoreLevel() . "\t";
 	echo 'Score: ' . $result->getScore() . "\n";
 	$report[$result->getHardcoreLevel()]++;
-	$matches[$pair[0]] += ($result->getHardcoreLevel() == $pair[0]) ? 1 : 0;
+	if ($result->getHardcoreLevel() == $pair[0]) {
+		$matches[$pair[0]]++;
+	} else {
+		$problems[$pair[0] . ' scored as ' . $result->getHardcoreLevel()][] = $pair[1];
+	}
 }
 
 echo "\n  ============== Detected assert sentences from 'file {$argv[1]}': " . count($in) . "  ==============\n";
 echo "\n  ============== Rules library used for matching from file: " . LocalDictionaryPaths::CSV_FILE_PATH . "  ==============\n\n";
 echo "Report of actual score: " . print_r($report, 1) . "  ==============\n\n";
 echo "Asserts given: " . print_r($asserts, 1) . "  ==============\n\n";
-echo "Matches met: " . print_r($matches, 1) . "  ==============\n\n";
-echo "Percentage of success: safe = " . round($matches['safe']/$asserts['safe'], $precision) . 
-	 " % , porn = " . round($matches['porn']/$asserts['porn'], $precision) . 
-	 " % , illegal = " . round($matches['illegal']/$asserts['illegal'], $precision) .
-	 " %\n\n ========== TOTAL SUCCESS RATE = " . 
+echo "Matches met: " . print_r($matches, 1) . "  ==============\n";
+echo "Problems detected: " . print_r($problems, 1) . "\n\n";
+echo "  ============== Percentage of success: safe = " . round($matches['safe']/$asserts['safe'], $precision)*100 . 
+	 " % of {$asserts['safe']} cases, porn = " . round($matches['porn']/$asserts['porn'], $precision)*100 . 
+	 " % of {$asserts['porn']} cases, illegal = " . round($matches['illegal']/$asserts['illegal'], $precision)*100 .
+	 " % of {$asserts['illegal']} cases  ============== \n\n  ==========  TOTAL SUCCESS RATE = " . 
 	 round(($matches['illegal']/$asserts['illegal'] + $matches['porn']/$asserts['porn'] + $matches['safe']/$asserts['safe'])/3, $precision) . 
-	 " % ==========\n\n";
+	 " %  ============\n\n";
 
 /*
 $result = $scoringService->analyzeSentence($argv[1]);
