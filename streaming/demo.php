@@ -67,8 +67,9 @@ function debugHelper ($name, $jsonObj, $command = null) {
 		<style>
 			body {font-family: sans-serif;}
 			h2 {margin-top: 40px; border-top: 2px solid maroon}
-			label {margin-right: 30px;background-color: beige; pading: 5px;}
-			textarea {width:80%; height:80px;}
+			label {margin-right: 30px; background-color: beige; pading: 5px;}
+			textarea {width: 80%; height: 80px;}
+			video {width: 50%;}
 			summary {cursor: pointer; font-weight: bold; font-style: oblique;}
 			pre {background-color: lightgray; font-size: 9px; font-family: monospace;}
 		</style>
