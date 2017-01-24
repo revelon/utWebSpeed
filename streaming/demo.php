@@ -1,14 +1,61 @@
 <?php
 
+/**
+ * Humble external Skrivy's CDN demo page, client side processing only, without any callbacks
+ */
+
+
+// some basic configurations
+
+// ulozto account with a lot of credit
 $httpBasicCredentials = 'https://srw-test:srwtest123@';
+// api authorization token, editable on CDN admin GUI
 $authToken = 'd45068a3c2f948356b88222182b83807';
+// api base CDN URL path
 $apiBase = 'https://service.ulozto.srw.cz/api/v1';
+// shared secret, shoudl exists nowhere but in source configuration on both sides
+define('STORAGE_SECRET', 'Krakonos666');
+
+/**
+ * Returns array with query params, shared signing algorithm for both sides
+ *
+ * @param $path Path part of the url starting with / (e.g. /view/1234.mp4)
+ * @param $expires Timestamp when the link expires (default: time() + 3600)
+ */
+function getParams($path, $expires = NULL) {
+  	if ($expires == NULL) {
+  		$expires = time() + 3600;
+  	}
+
+  	$hash = $expires . $path . STORAGE_SECRET;
+  	$hash = md5($hash, TRUE);
+  	$hash = base64_encode($hash);
+  	$hash = str_replace([ '+', '/', '=' ], [ '-', '_', '' ], $hash);
+
+  	return [
+    	'expires' => $expires,
+    	'hash' => $hash,
+  	];
+}
+
+/**
+ * Returns string with HTML markup for page output
+ *
+ * @param $name debug name
+ * @param $jsonObj json object to pretty print
+ * @param $command optional command by which was json obtained
+ */
+function debugHelper ($name, $jsonObj, $command = null) {
+	if ($command) {
+		$command .= "\n\n";
+	}
+	return "<br><details><summary>Debug: {$name}</summary><pre>{$command}" . 
+		json_encode($jsonObj, JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT) . 
+		"</pre></details>";
+}
 
 
-
-var_dump('General input debug:', $_REQUEST);
-
-
+// dirty mixed templating and PHP follows, sorry for this mess, but it was very quick to do...
 ?>
 
 <!doctype html>
@@ -18,60 +65,82 @@ var_dump('General input debug:', $_REQUEST);
 		<title>External streaming demo</title>
 
 		<style>
-			textarea {width:90%; height:150px;}
+			body {font-family: sans-serif;}
+			h2 {margin-top: 40px; border-top: 2px solid maroon}
+			label {margin-right: 30px;background-color: beige; pading: 5px;}
+			textarea {width:80%; height:80px;}
+			summary {cursor: pointer; font-weight: bold; font-style: oblique;}
+			pre {background-color: lightgray; font-size: 9px; font-family: monospace;}
 		</style>
 
-		<script>
-		</script>
 	</head>
 	<body>
 
+	<details>
+	  <summary>General request debug:</summary>
+	  <pre>
+<?php print_r($_REQUEST); ?>
+	  </pre>
+	</details>
 
 
-	<!-- step 1 -->
-	<h4>Step 1: get files and request conversion</h4>
+
+
+
+
+
+
+
+
+
+	<!-- step 1, basic inputs, files URLs to send and convert on external CDN-->
+	<h2>Step 1: get files and request conversion</h2>
 	<form method="get">
-		<textarea name="filesToConvert" placeholder="In format of common file detail, each line one file">
-			https://uloz.to/!HCxth9Q3hDrj/v9-caso-magister-negi-magi-dvdrip-xvid-mp3-gb-big5-26-mkv
-			https://uloz.to/!qZT0su2TtAYQ/v9-caso-magister-negi-magi-dvdrip-xvid-mp3-gb-big5-19-mkv
-		</textarea>
+		<textarea name="filesToConvert" placeholder="In format of common file detail, each line one file"
+>https://uloz.to/!HCxth9Q3hDrj/v9-caso-magister-negi-magi-dvdrip-xvid-mp3-gb-big5-26-mkv
+https://uloz.to/!qZT0su2TtAYQ/v9-caso-magister-negi-magi-dvdrip-xvid-mp3-gb-big5-19-mkv</textarea>
 		<input type="submit">
 	</form>
-
-	<hr>
 
 <?php
 
 	$requestIds = [];
-	foreach (explode("\n", $_REQUEST['filesToConvert']) as $val) {
+	foreach (explode("\n", $_REQUEST['filesToConvert']) as $key => $val) {
 		if (!trim($val)) continue;
 		$url = str_replace("https://", $httpBasicCredentials, trim($val));
 		$command = "curl -X POST -d '{\"url\":\"{$url}\",\"project\":1}' -H \"Content-Type: application/json\" -H \"X-Auth-Token: {$authToken}\" {$apiBase}/fetch";
 		$ret = shell_exec($command);
-		$requestIds[] = json_decode($ret)->id;
-		var_dump($ret, '<br>');
+		$response = json_decode($ret);
+		$requestIds[] = $response->id;
+
+		echo debugHelper("Request No. {$key} got id={$response->id}", $response, $command);
 	}
 
 
-// render step 2, conditionally
+
+
+
+
+
+
+
+// render step 2, conditionally, waiting for processing of requested files to finish on remote CDN
 if (count($requestIds) || $_REQUEST['requestIdsTocheck']) {
-	$requestIdsToCheck = $requestIds ? $requestIds : explode("\n", $_REQUEST['requestIdsTocheck'])
+	$requestIdsToCheck = $requestIds ?: explode("\n", $_REQUEST['requestIdsTocheck']);
 ?>
 
-	<h4>Step 2: check requests for conversion status (repeat as long as you get status fail or done)</h4>
+	<h2>Step 2: check requests for conversion status (repeat it as long as you get status fail or done)</h2>
 	<form method="get">
-		<textarea name="requestIdsTocheck">
+		<textarea name="requestIdsTocheck" placeholder="In format of common request ids, each line one file">
 <?php echo implode("\n", $requestIdsToCheck); ?> 
 		</textarea>
 		<input type="submit">
 	</form>
 
-	<hr>
-
 <?php
 
 	$filesCreated = [];
-	foreach ($requestIdsToCheck as $val) {
+	foreach ($requestIdsToCheck as $key => $val) {
 		if (!trim($val)) continue;
 		$command = "curl -H \"X-Auth-Token: {$authToken}\" {$apiBase}/fetch/" . trim($val);
 		$ret = shell_exec($command);
@@ -79,43 +148,134 @@ if (count($requestIds) || $_REQUEST['requestIdsTocheck']) {
 		if ($response->status === 'done') {
 			$filesCreated[] = $response->file;
 		}
-		var_dump($response, '<br>');
+		echo debugHelper("Request No. {$key} got status={$response->status}", $response, $command);
 	}
 
 }
 
 
-// render step 3, conditionally
+
+
+
+
+
+
+
+// render step 3, conditionally, once we have atl least some files converted and ready, we can start playing with them
 if (count($filesCreated) || $_REQUEST['filesList']) {
-	$filesList = $filesCreated ? $filesCreated : explode("\n", $_REQUEST['filesList'])
+	$filesList = $filesCreated ?: explode("\n", $_REQUEST['filesList']);
+	$operation = $_REQUEST['operation'];
 ?>
 
-	<h4>Step 3: manipulate inidvidual files, either delete, check or play</h4>
+	<h2>Step 3: manipulate already processed (done) files, with either check, play or delete</h2>
 	<form method="get">
-		<textarea name="filesList">
+		<textarea name="filesList" placeholder="In format of common file ids, each line one file">
 <?php echo implode("\n", $filesList); ?> 
 		</textarea><br>
-		<label>check<input type="radio" name="operation" value="check" checked></label>
-		<label>play<input type="radio" name="operation" value="play"></label>
-		<label>delete<input type="radio" name="operation" value="delete"></label>
+		<label>check<input type="radio" name="operation" value="check" 
+<?php echo ($operation == "check" || !$operation) ? "checked" : ""; ?>
+			></label> 
+		<label>play<input type="radio" name="operation" value="play"
+<?php echo ($operation == "play") ? "checked" : ""; ?>
+			></label>
+		<label>delete<input type="radio" name="operation" value="delete"
+<?php echo ($operation == "delete") ? "checked" : ""; ?>
+			></label>
 		<input type="submit">
 	</form>
 
-	<hr>
+	<h4>Performing operation: 
+<?php echo $operation; ?>
+	</h5>
 
 <?php
 
 	$filesManipulation = [];
-	foreach ($filesList as $val) {
+	foreach ($filesList as $key => $val) {
 		if (!trim($val)) continue;
 		// check
-		$command = "curl -H \"X-Auth-Token: {$authToken}\" {$apiBase}/files/" . trim($val);
-		$ret = shell_exec($command);
-		$response = json_decode($ret);
-		/*if ($response->status === 'done') {
-			$filesCreated[] = $response->file;
-		}*/
-		var_dump($response, '<hr>');
+		switch ($operation) {
+			case 'check':
+				$command = "curl -H \"X-Auth-Token: {$authToken}\" {$apiBase}/files/" . trim($val);
+				$ret = shell_exec($command);
+				$response = json_decode($ret);
+				break;
+			case 'delete':
+				$command = "curl -X DELETE -H \"X-Auth-Token: {$authToken}\" {$apiBase}/files/" . trim($val);
+				$ret = shell_exec($command);
+				$response = json_decode($ret);
+				break;
+			case 'play':
+				$command = "curl -H \"X-Auth-Token: {$authToken}\" {$apiBase}/files/" . trim($val);
+				$ret = shell_exec($command);
+				$response = json_decode($ret);
+
+				if (!$response->hasIssue) {
+					$playUrl = $response->related->conversion;
+					if (is_object($playUrl)) { // decide available quality
+						$playUrl = (string) $response->related->conversion->{'720'} ?: (string) $response->related->conversion->{'480'};
+					} else if (is_array($playUrl)) {
+						$playUrl = (string) $playUrl[0];
+					}
+					$subtitles = (array) $response->subtitles;
+
+					list($server, $path) = explode('/', $playUrl, 2);
+					$videoPlayableUrl = 'http://' . $playUrl . '?' . http_build_query(getParams('/' . $path));
+					// build player markup
+					$video = "<br><details><summary>Video id={$val} named: {$response->filename}</summary><video crossorigin controls src='{$videoPlayableUrl}'>";
+					foreach ($subtitles as $lang => $subUrl) {
+						list($server, $path) = explode('/', $subUrl, 2);
+						$subPlayableUrl = 'http://' . $subUrl . '?' . http_build_query(getParams('/' . $path));
+						$video .= "<track srclang='{$lang}' kind='subtitles' src='{$subPlayableUrl}' default>";
+					}
+					$video .= "</video></details>";
+					echo $video;
+				}
+				break;
+		}
+		echo debugHelper("Request No. {$key} has issue? " . ((!$response || $response->hasIssue) ? "yes" : "no"), $response, $command);
 	}
 
 }
+
+
+
+
+
+
+
+?>
+
+<!-- dummy file-on-storage explorer, returns IDs, for occasional use only, HEAD calls should be faster, but are they broken? -->
+	<br><br><hr><hr><hr><br><br>
+	<h3>File IDs available on streaming server (very stupid and slow explorer / helper)</h3>
+	<form method="get">
+		<label><input type="checkbox" name="exploreFiles" value="1"> Yes, please explore the files for me</label>
+		<input type="submit">
+	</form>
+
+<?php
+if ($_REQUEST['exploreFiles']) {
+	$fileIdsAvailable = $debugs = "";
+	for ($i = 1; $i < 100; $i++) {
+		echo "."; ob_flush();flush();
+		$command = "curl -H \"X-Auth-Token: {$authToken}\" {$apiBase}/files/" . $i;
+		$ret = shell_exec($command);
+		$response = json_decode($ret);
+		if ($ret && $response && $response->id) {
+			$fileIdsAvailable .= $i . "\n";
+			$debugs .= debugHelper("File No. {$i}", $response, $command);
+		}
+	}
+?>
+
+	<h5>Explored file IDs:</h5>
+	<textarea name="existingFileIds" placeholder="In format of common file ids, each line one file">
+<?php echo $fileIdsAvailable; ?> 
+	</textarea><br>
+
+<?php echo $debugs;
+
+}
+
+
