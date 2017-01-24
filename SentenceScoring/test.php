@@ -7,6 +7,7 @@ define('LIBRARY_TO_USE', '../' . $argv[2]);
 
 include 'ISentenceScoringService.php';
 include 'ScoringService.php';
+include 'ScoringException.php';
 include 'Search/ISearchFactory.php';
 include 'Search/SearchFactory.php';
 include 'Search/ISearch.php';
@@ -121,7 +122,7 @@ foreach ($in as $value) {
 	if ($result->getHardcoreLevel() == $pair[0]) {
 		$matches[$pair[0]]++;
 	} else {
-		$problems[$pair[0] . ' scored as ' . $result->getHardcoreLevel()][] = $pair[1];
+		$problems[$pair[0] . ' scored as ' . $result->getHardcoreLevel()][] = $pair[1] . " : score = " . $result->getScore();
 	}
 }
 
