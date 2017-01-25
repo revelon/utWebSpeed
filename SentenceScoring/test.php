@@ -1,5 +1,7 @@
 <?php
 
+ini_set('memory_limit','500M');
+
 if (!$argv[1] || !$argv[2]) {
 	exit("\nPlease use in format like: test.php  sentences-to-test-file.csv  library-rules-file.csv\n\n");
 }
@@ -128,10 +130,10 @@ foreach ($in as $value) {
 
 echo "\n  ============== Detected assert sentences from 'file {$argv[1]}': " . count($in) . "  ==============\n";
 echo "\n  ============== Rules library used for matching from file: " . LocalDictionaryPaths::CSV_FILE_PATH . "  ==============\n\n";
+echo "Problems detected: " . print_r($problems, 1) . "\n\n";
 echo "Report of actual score: " . print_r($report, 1) . "  ==============\n\n";
 echo "Asserts given: " . print_r($asserts, 1) . "  ==============\n\n";
 echo "Matches met: " . print_r($matches, 1) . "  ==============\n";
-echo "Problems detected: " . print_r($problems, 1) . "\n\n";
 echo "  ============== Percentage of success: safe = " . round($matches['safe']/$asserts['safe'], $precision)*100 . 
 	 " % of {$asserts['safe']} cases, porn = " . round($matches['porn']/$asserts['porn'], $precision)*100 . 
 	 " % of {$asserts['porn']} cases, illegal = " . round($matches['illegal']/$asserts['illegal'], $precision)*100 .
