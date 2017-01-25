@@ -124,7 +124,7 @@ foreach ($in as $value) {
 	if ($result->getHardcoreLevel() == $pair[0]) {
 		$matches[$pair[0]]++;
 	} else {
-		$problems[$pair[0] . ' scored as ' . $result->getHardcoreLevel()][] = $pair[1] . " : score = " . $result->getScore();
+		$problems[$pair[0] . ' scored as ' . $result->getHardcoreLevel()][] = trim($pair[1]) . " : score = " . $result->getScore();
 	}
 }
 
@@ -151,4 +151,11 @@ echo 'Score: ' . $result->getScore() . "\n";
 
 //var_dump($searchFactory->getSearch("hello pretty bitch")->findWordsInCategory('C3'));
 
-
+/*
+L0  single&more words  exact&substring match  (white-list) - substring match on all words
+L1  single words       exact&substring match  (often used common words) - substring match on single words only
+L2  single&more words  exact&substring match  (illegality coeficients) - substring match on single words only
+L3  single&more words  exact&substring match  (typical porno words) - substring match on all words
+L4  single&more words  exact&substring match  (porno labels and pornstars) - substring match on all words
+L5  single&more words  exact&substring match  (ban keywords) - substring match on single words only
+*/
