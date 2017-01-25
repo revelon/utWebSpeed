@@ -69,7 +69,7 @@ function debugHelper ($name, $jsonObj, $command = null) {
 			h2 {margin-top: 40px; border-top: 2px solid maroon}
 			label {margin-right: 30px; background-color: beige; pading: 5px;}
 			textarea {width: 80%; height: 80px;}
-			video {width: 50%;}
+			video {width: 40%;}
 			summary {cursor: pointer; font-weight: bold; font-style: oblique;}
 			pre {background-color: lightgray; font-size: 9px; font-family: monospace;}
 		</style>
@@ -211,7 +211,7 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 				$ret = shell_exec($command);
 				$response = json_decode($ret);
 
-				if (!$response->hasIssue) {
+				if (!$response->hasIssue && $response->related->conversion) {
 					$playUrl = $response->related->conversion;
 					if (is_object($playUrl)) { // decide available quality
 						$playUrl = (string) $response->related->conversion->{'720'} ?: (string) $response->related->conversion->{'480'};
@@ -222,21 +222,21 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 
 					list($server, $path) = explode('/', $playUrl, 2);
 					$videoPlayableUrl = 'http://' . $playUrl . '?' . http_build_query(getParams('/' . $path));
-					// build player markup
+					// build player markup, perhaps prepare lang/iso code mapping...
 					$video = "<br><details><summary>Video id={$val} named: {$response->filename}</summary><video crossorigin controls src='{$videoPlayableUrl}'>";
 					foreach ($subtitles as $lang => $subUrl) {
 						list($server, $path) = explode('/', $subUrl, 2);
 						$subPlayableUrl = 'http://' . $subUrl . '?' . http_build_query(getParams('/' . $path));
-						$video .= "<track srclang='{$lang}' kind='subtitles' src='{$subPlayableUrl}' default>";
+						$video .= "<track srclang='{$lang}' label='{$lang}' kind='subtitles' src='{$subPlayableUrl}' default>";
 					}
 					$video .= "</video></details>";
 					echo $video;
 				}
 				break;
 		}
-		echo debugHelper("Request No. {$key} has issue? " . 
-			(( (!$response && $operation !== 'delete') || $response->hasIssue || !$response->related->conversion || !$response->size) 
-				? "maybe (or not ready yet)" : "no"), $response, $command);
+		$hasIssue =	((!$response && $operation !== 'delete') || $response->hasIssue || !$response->size) ? "YES" : "NO";
+		echo debugHelper("Request No. {$key} has issue? " . $hasIssue . " ... and  is conversion ready? " . 
+			(($hasIssue !== "YES" && $response->related->conversion) ? "YES" : "NOT YET..."), $response, $command);
 	}
 
 }

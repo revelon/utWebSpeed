@@ -136,7 +136,7 @@ echo "  ============== Percentage of success: safe = " . round($matches['safe']/
 	 " % of {$asserts['safe']} cases, porn = " . round($matches['porn']/$asserts['porn'], $precision)*100 . 
 	 " % of {$asserts['porn']} cases, illegal = " . round($matches['illegal']/$asserts['illegal'], $precision)*100 .
 	 " % of {$asserts['illegal']} cases  ============== \n\n  ==========  TOTAL SUCCESS RATE = " . 
-	 round(($matches['illegal']/$asserts['illegal'] + $matches['porn']/$asserts['porn'] + $matches['safe']/$asserts['safe'])/3, $precision) . 
+	 round(($matches['illegal']/$asserts['illegal'] + $matches['porn']/$asserts['porn'] + $matches['safe']/$asserts['safe'])/3, $precision)*100 . 
 	 " %  ============\n\n";
 
 /*
