@@ -99,6 +99,7 @@ class KeywordPrepareAdapter implements \Tools\SentenceScoring\Bridge\IPrepareKey
 }
 
 
+$allCategories = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5'];
 
 $prepareKeywords = new KeywordPrepareAdapter();
 $dictPaths = new LocalDictionaryPaths();
@@ -115,6 +116,9 @@ $report = $asserts = $matches = ['safe' => 0, 'porn' => 0, 'illegal' => 0];
 $problems = [];
 foreach ($in as $value) {
 	$pair = explode("\t", $value);
+	if (count($pair)===1) { // try comma instead, as second option as delimiter between asset realm and filename
+		$pair = explode(",", $value);
+	}
 	$asserts[$pair[0]]++;
 	$result = $scoringService->analyzeSentence($pair[1]);
 	echo 'Input: ' . $pair[1] . "\t";
@@ -124,7 +128,20 @@ foreach ($in as $value) {
 	if ($result->getHardcoreLevel() == $pair[0]) {
 		$matches[$pair[0]]++;
 	} else {
-		$problems[$pair[0] . ' scored as ' . $result->getHardcoreLevel()][] = trim($pair[1]) . " : score = " . $result->getScore();
+
+		$l = $searchFactory->getSearch($pair[1]);
+		$levels = "";
+		foreach ($allCategories as $cat) {
+			$words = $l->findWordsInCategory($cat);
+			if (count($words)) {
+				$levels .= " [" . $cat . " = ";
+				foreach($words as $w) {
+					$levels .= $w->getWord()->getWord() . ":" . $w->getWord()->getMatchType() . " ";
+				}
+				$levels .= "]";
+			}
+		}
+		$problems[$pair[0] . ' scored as ' . $result->getHardcoreLevel()][] = trim($pair[1]) . " : score = " . $result->getScore() . $levels;
 	}
 }
 
@@ -159,3 +176,7 @@ L3  single&more words  exact&substring match  (typical porno words) - substring 
 L4  single&more words  exact&substring match  (porno labels and pornstars) - substring match on all words
 L5  single&more words  exact&substring match  (ban keywords) - substring match on single words only
 */
+
+// potiz s rozdelovanim:  ATKGirlfriends  orgasm1 ATKHairy
+// exgirlfriends.17.01.06.nika[N1C].mp4 : score = 4 [C1 = nika:2 girl:1 girlfriend:1 exgirlfriend:1
+
