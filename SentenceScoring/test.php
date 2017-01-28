@@ -151,11 +151,11 @@ echo "Problems detected: " . print_r($problems, 1) . "\n\n";
 echo "Report of actual score: " . print_r($report, 1) . "  ==============\n\n";
 echo "Asserts given: " . print_r($asserts, 1) . "  ==============\n\n";
 echo "Matches met: " . print_r($matches, 1) . "  ==============\n";
-echo "  ============== Percentage of success: safe = " . round($matches['safe']/$asserts['safe'], $precision)*100 . 
-	 " % of {$asserts['safe']} cases, porn = " . round($matches['porn']/$asserts['porn'], $precision)*100 . 
-	 " % of {$asserts['porn']} cases, illegal = " . round($matches['illegal']/$asserts['illegal'], $precision)*100 .
+echo "  ============== Percentage of success: safe = " . round($matches['safe']/($asserts['safe']?:1), $precision)*100 . 
+	 " % of {$asserts['safe']} cases, porn = " . round($matches['porn']/($asserts['porn']?:1), $precision)*100 . 
+	 " % of {$asserts['porn']} cases, illegal = " . round($matches['illegal']/($asserts['illegal']?:1), $precision)*100 .
 	 " % of {$asserts['illegal']} cases  ============== \n\n  ==========  TOTAL SUCCESS RATE = " . 
-	 round(($matches['illegal']/$asserts['illegal'] + $matches['porn']/$asserts['porn'] + $matches['safe']/$asserts['safe'])/3, $precision)*100 . 
+	 round(($matches['illegal']/($asserts['illegal']?:1) + $matches['porn']/($asserts['porn']?:1) + $matches['safe']/($asserts['safe']?:1))/3, $precision)*100 . 
 	 " %  ============\n\n";
 
 /*
@@ -179,4 +179,5 @@ L5  single&more words  exact&substring match  (ban keywords) - substring match o
 
 // potiz s rozdelovanim:  ATKGirlfriends  orgasm1 ATKHairy
 // exgirlfriends.17.01.06.nika[N1C].mp4 : score = 4 [C1 = nika:2 girl:1 girlfriend:1 exgirlfriend:1
+// a tak sex zlobi  teen  young
 
