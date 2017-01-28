@@ -1,5 +1,7 @@
 <?php
 
+// aneb mezi kategoriemi dochazi k procisteni badwordu, ale v ramci jedne kategorie to je problem!!
+
 $cats = [];
 $rows = explode("\n", file_get_contents('./v6.csv'));
 

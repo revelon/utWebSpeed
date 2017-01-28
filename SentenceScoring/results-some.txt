@@ -1,0 +1,43 @@
+php test.php random-test-set-2017-01-25-2.csv v6.csv 
+Percentage of success: safe = 99.9 % of 8603 cases, porn = 65 % of 1396 cases, illegal = 100 % of 1 cases    ==========  TOTAL SUCCESS RATE = 88.3 %  ============
+
+php test.php random-test-set-2017-01-25-2.csv Data/porncheckData.5.csv
+Percentage of success: safe = 99.9 % of 8603 cases, porn = 59.5 % of 1396 cases, illegal = 100 % of 1 cases  ==========  TOTAL SUCCESS RATE = 86.5 %  ============
+
+
+
+
+php test.php random-test-set-2017-01-25.csv v6.csv 
+Percentage of success: safe = 99.8 % of 8670 cases, porn = 64.7 % of 1330 cases, illegal = 100 % of 1 cases  ==========  TOTAL SUCCESS RATE = 88.2 %  ============
+
+php test.php random-test-set-2017-01-25.csv Data/porncheckData.5.csv
+Percentage of success: safe = 99.9 % of 8670 cases, porn = 49.8 % of 1330 cases, illegal = 100 % of 1 cases  ==========  TOTAL SUCCESS RATE = 83.2 %  ============
+
+
+
+
+php test.php kotrbi-orig-test-set.csv v6.csv
+Percentage of success: safe = 81.8 % of 253 cases, porn = 97.9 % of 656 cases, illegal = 88.2 % of 17 cases    ==========  TOTAL SUCCESS RATE = 89.3 %  ============
+
+php test.php kotrbi-orig-test-set.csv Data/porncheckData.5.csv
+Percentage of success: safe = 87.4 % of 253 cases, porn = 97.4 % of 656 cases, illegal = 88.2 % of 17 cases  ==========  TOTAL SUCCESS RATE = 91 %  ============
+
+
+
+
+php test.php marek-new-test-set.csv v6.csv 
+Percentage of success: safe = 99.8 % of 451 cases, porn = 88 % of 991 cases, illegal = 100 % of 19 cases  ==========  TOTAL SUCCESS RATE = 95.9 %  ============
+
+php test.php marek-new-test-set.csv Data/porncheckData.5.csv
+Percentage of success: safe = 99.8 % of 451 cases, porn = 66.6 % of 991 cases, illegal = 5.3 % of 19 cases  ==========  TOTAL SUCCESS RATE = 57.2 %  ============
+
+
+
+
+php test.php random-test-set-2017-01-27-1.csv v6.csv
+Percentage of success: safe = 99.5 % of 9103 cases, porn = 83.2 % of 897 cases, illegal = 100 % of 1 cases  ==========  TOTAL SUCCESS RATE = 94.2 %  ============
+
+php test.php random-test-set-2017-01-27-1.csv Data/porncheckData.5.csv
+Percentage of success: safe = 99.6 % of 9103 cases, porn = 66.9 % of 897 cases, illegal = 100 % of 1 cases  ==========  TOTAL SUCCESS RATE = 88.8 %  ============
+
+
