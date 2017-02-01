@@ -154,8 +154,12 @@ echo "Matches met: " . print_r($matches, 1) . "  ==============\n";
 echo "  ============== Percentage of success: safe = " . round($matches['safe']/($asserts['safe']?:1), $precision)*100 . 
 	 " % of {$asserts['safe']} cases, porn = " . round($matches['porn']/($asserts['porn']?:1), $precision)*100 . 
 	 " % of {$asserts['porn']} cases, illegal = " . round($matches['illegal']/($asserts['illegal']?:1), $precision)*100 .
-	 " % of {$asserts['illegal']} cases  ============== \n\n  ==========  TOTAL SUCCESS RATE = " . 
-	 round(($matches['illegal']/($asserts['illegal']?:1) + $matches['porn']/($asserts['porn']?:1) + $matches['safe']/($asserts['safe']?:1))/3, $precision)*100 . 
+	 " % of {$asserts['illegal']} cases  ============== \n\n  ==========  TOTAL SUCCESS RATE = "; 
+$how = 0;
+if ($asserts['safe']) $how++;
+if ($asserts['porn']) $how++;
+if ($asserts['illegal']) $how++;
+echo round(($matches['illegal']/($asserts['illegal']?:1) + $matches['porn']/($asserts['porn']?:1) + $matches['safe']/($asserts['safe']?:1))/$how, $precision)*100 . 
 	 " %  ============\n\n";
 
 /*
@@ -181,3 +185,6 @@ L5  single&more words  exact&substring match  (ban keywords) - substring match o
 // exgirlfriends.17.01.06.nika[N1C].mp4 : score = 4 [C1 = nika:2 girl:1 girlfriend:1 exgirlfriend:1
 // a tak sex zlobi  teen  young    neparsujeme czech-cabins-73.wmv
 
+
+# command will printout lines in the range [18000, 18200], if you want, you can redirect the output to a new file
+# sed -n 18000,18199p file.txt > result.txt

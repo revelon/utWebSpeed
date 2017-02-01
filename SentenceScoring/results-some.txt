@@ -26,7 +26,7 @@ Percentage of success: safe = 87.4 % of 253 cases, porn = 97.4 % of 656 cases, i
 
 
 php test.php marek-new-test-set.csv v6.csv 
-Percentage of success: safe = 99.8 % of 451 cases, porn = 88 % of 991 cases, illegal = 100 % of 19 cases  ==========  TOTAL SUCCESS RATE = 95.9 %  ============
+Percentage of success: safe = 99.8 % of 451 cases, porn = 88 % of 991 cases, illegal = 100 % of 19 cases  ==============  TOTAL SUCCESS RATE = 95.9 %
 
 php test.php marek-new-test-set.csv Data/porncheckData.5.csv
 Percentage of success: safe = 99.8 % of 451 cases, porn = 66.6 % of 991 cases, illegal = 5.3 % of 19 cases  ==========  TOTAL SUCCESS RATE = 57.2 %  ============
@@ -35,9 +35,46 @@ Percentage of success: safe = 99.8 % of 451 cases, porn = 66.6 % of 991 cases, i
 
 
 php test.php random-test-set-2017-01-27-1.csv v6.csv
-Percentage of success: safe = 99.5 % of 9103 cases, porn = 83.2 % of 897 cases, illegal = 100 % of 1 cases  ==========  TOTAL SUCCESS RATE = 94.2 %  ============
+Percentage of success: safe = 99.4 % of 9103 cases, porn = 83.4 % of 897 cases, illegal = 100 % of 1 cases  ============== TOTAL SUCCESS RATE = 94.3 %
 
 php test.php random-test-set-2017-01-27-1.csv Data/porncheckData.5.csv
 Percentage of success: safe = 99.6 % of 9103 cases, porn = 66.9 % of 897 cases, illegal = 100 % of 1 cases  ==========  TOTAL SUCCESS RATE = 88.8 %  ============
 
 
+
+
+php test.php xvid1.csv v6.csv
+Percentage of success: safe = 0 % of 0 cases, porn = 69.4 % of 9625 cases, illegal = 0 % of 0 cases  ==========  TOTAL SUCCESS RATE = 69.4 %  ============
+
+php test.php xvid1.csv Data/porncheckData.5.csv
+Percentage of success: safe = 0 % of 0 cases, porn = 67 % of 9625 cases, illegal = 0 % of 0 cases  ==============  TOTAL SUCCESS RATE = 67 %
+
+
+php test.php xvid2.csv v6.csv
+Percentage of success: safe = 0 % of 0 cases, porn = 66.5 % of 9542 cases, illegal = 0 % of 0 cases  ==============  TOTAL SUCCESS RATE = 66.5 %
+
+php test.php xvid2.csv Data/porncheckData.5.csv
+Percentage of success: safe = 0 % of 0 cases, porn = 64 % of 9542 cases, illegal = 0 % of 0 cases  ==============  TOTAL SUCCESS RATE = 64 %
+
+
+php test.php xvid3.csv v6.csv
+Percentage of success: safe = 0 % of 0 cases, porn = 63.7 % of 9548 cases, illegal = 0 % of 0 cases  ==============  TOTAL SUCCESS RATE = 63.7 %  
+
+php test.php xvid3.csv Data/porncheckData.5.csv
+Percentage of success: safe = 0 % of 0 cases, porn = 61.2 % of 9548 cases, illegal = 0 % of 0 cases  ==============  TOTAL SUCCESS RATE = 61.2 %
+
+
+
+php test.php xvid5.csv v6.csv
+Percentage of success: safe = 0 % of 0 cases, porn = 61.9 % of 9589 cases, illegal = 0 % of 0 cases  ==============  TOTAL SUCCESS RATE = 61.9 %  
+
+php test.php xvid5.csv Data/porncheckData.5.csv
+Percentage of success: safe = 0 % of 0 cases, porn = 58.7 % of 9589 cases, illegal = 0 % of 0 cases  ==============  TOTAL SUCCESS RATE = 58.7 %  
+
+
+
+php test.php xvid6.csv v6.csv
+Percentage of success: safe = 0 % of 0 cases, porn = 70.9 % of 9584 cases, illegal = 0 % of 0 cases  ==============  TOTAL SUCCESS RATE = 70.9 %  
+
+php test.php xvid6.csv Data/porncheckData.5.csv
+Percentage of success: safe = 0 % of 0 cases, porn = 67.7 % of 9584 cases, illegal = 0 % of 0 cases  ============== TOTAL SUCCESS RATE = 67.7 %  

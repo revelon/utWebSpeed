@@ -1,0 +1,63 @@
+h2. Markuv 2. nastrel
+
+* cron, doplnujici kredit uzivateli "srw-test", kazdy den, aspon na 1 TB, refundy (pres nej budou stahovat jako VIP)
+* jinak spustime cron co 6 hodin, a pullujeme data (aneb jsme jen client)
+* vse pres HTTPS (API i WEB je mozno)
+** implementovat stranu serveru staci jen pro neplanovane mazani souboru z jejich strany, ale vlastne to neni hned potreba (nebot vzdy pri vydavani download linku overujeme ze je file OK, a kdyz nebudeme, nevydame a muzeme si jej oznacit jako KO -> alespon docasne, viz dale)
+
+* filtrujeme jen videa, ktera neumime streamovat naprimo, nemame je jeste oznaceny, ze uz zkonvertovany pro novy system externalStreaming, maji:
+** jen 1 zvuk. stopu a 1 audio stopu
+** mame vygenerovanu slideshow
+** jsou starsi nez 12 hodin ale soubor neni uploadovan dele nez 14 dnu
+** delsi nez 30 minut
+** maji alespon 22 FPS
+** maji sirku vetsi nez vysku
+** jsou alespon 480p a vice
+** jsou pouze typu mkv nebo avi (vyhledove pridame i wmv a mp4, ale musime vedet ze my jej streamovat neumime!)
+** jen public soubory, vyhledatelne, nezaheslovane a majici alespon 6 stazeni
+** jsou jen na UT (tedy zkontrolovane na safe, aspon pro zacatek)
+** hash nema zadny ban
+
+* poslame jim je one-by-one zadosti o konverzi, ukladame do tabulky do stavu queued s request_id
+** ve tvaru na HTTP Basic auth na stazeni souboru
+
+* mame tabulku file_hash_external_streaming_queue (se sloupci)
+** hashid
+** ctreated (timestamp)
+** external_request_id (int, null)
+** external_id (int, null) vracene id, muzeme si jej zapisovat, volitelne, ale neni to nutne
+** status (enum, new, sent, failed)
+
+* aneb dynamicky budeme umet posilat pouze nove soubory, prubezne, ale jednorazovymi inserty primo do DB bysme chteli umet pripravit i starsi zajimave soubory pro external streaming !!
+** cron tedy krome odesilani novych odesila i zde pripravene hashe ve statusu new
+
+* mame tabulku file_hash_external_streaming (se sloupci)
+** hashid
+** created (timestamp)
+** external_id (int, null)
+** quality (enum, 1080, 720, 480)  (neni ale vlastne nutne je mit!)
+** status (enum, processing, ok, ko, del)
+** views (int) ?? volitelne, at se nam to nemota s nasimi stats na files na souborech
+** last_problem_detected_at (timestamp)
+** problems_count (tinyint)
+
+# pravidelne kontrolujeme vsechny requesty a dokud nedostaneme soubor i vcetne conversion sekce, nemuzeme jej oznacit jako ok
+
+# na frontendu se k videim v searchi chovame stejne jako k VIP STREAMINGU (ikona a ve filtru prehratelne)
+# na detailu souboru musime ukazovat ale jiny text/chovani/zmena i do FAQ
+
+# po volbe PLAY streamingu uzivatelem 
+#* zavolame API info o jejich souboru
+#** pokud selze a nemame data o souboru/konverzi, preskakujeme jej a streaming nenabizime jej po dalsi 2h + navysujeme error_counter
+#** pokud se po 3 vyskytech chyba nespravi, oznacujeme jej trvalym ko statusem a se souborem "koncime"
+#* vygenerujeme video element do stranky, ajaxem, s multi-titulky, bezny html5 format, jako uz pouzivame (pokud je nektery z dostupnych jazyku titulku cze, volime jej jako default, jinak prvni)
+#* pokud je k dispozici vice kvalit videa, snazime se pouzit jako default 720, jinak prepinani nabizime stejne jako na LIVE
+#* zauctujeme do uzivatele_kreditminus bezny STREAMING, ihned, za plnou cenu (asi neni potreba STREAMING2)
+#** poznamka: velikost nahledu nezname a vychazime tedy z velikosti originalniho souboru (bohuzel pro uzivatele, ale mohou si jej pak stahnout uz zdarma, cili to neni nefer)
+#** navysime counter views na danem souboru (+ i na externim hashi tedy)
+#* prilepime do linku i userId, pro mozne reklamace, bez IP zabezpeceni (prozatim)
+#* link na streaming i titulky ma platnost NOW()+3h, ale v dalsich 48h je zdarma vygenerujeme bez dalsiho zauctovavani klidne dalsi (tedy z hlediska uzivatele podobne chovani, jako dnes)
+
+* cron take kontroluje, zda se nam na nekterem z hashu neobjevil jakykoliv ban, a pokud ano, posilame jim DELETE zadost a oznacujeme si zaznam jako del
+
+* volitelny PING ze strany uzivatelskeho browseru, zda se na jejich servery user vubec dostane - how???

@@ -98,8 +98,7 @@ function debugHelper ($name, $jsonObj, $command = null) {
 	<h2>Step 1: get files and request conversion</h2>
 	<form method="get">
 		<textarea name="filesToConvert" placeholder="In format of common file detail, each line one file"
->https://uloz.to/!HCxth9Q3hDrj/v9-caso-magister-negi-magi-dvdrip-xvid-mp3-gb-big5-26-mkv
-https://uloz.to/!qZT0su2TtAYQ/v9-caso-magister-negi-magi-dvdrip-xvid-mp3-gb-big5-19-mkv</textarea>
+></textarea>
 		<input type="submit">
 	</form>
 
@@ -168,7 +167,7 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 	$operation = $_REQUEST['operation'];
 ?>
 
-	<h2>Step 3: manipulate already processed (done) files, with either check, play or delete</h2>
+	<h2>Step 3: manipulate processed (done) files, with either check, play or delete / wait for conversion</h2>
 	<form method="get">
 		<textarea name="filesList" placeholder="In format of common file ids, each line one file">
 <?php echo implode("\n", $filesList); ?> 
