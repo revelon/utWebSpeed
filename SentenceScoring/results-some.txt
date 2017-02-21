@@ -78,3 +78,30 @@ Percentage of success: safe = 0 % of 0 cases, porn = 70.9 % of 9584 cases, illeg
 
 php test.php xvid6.csv Data/porncheckData.5.csv
 Percentage of success: safe = 0 % of 0 cases, porn = 67.7 % of 9584 cases, illegal = 0 % of 0 cases  ============== TOTAL SUCCESS RATE = 67.7 %  
+
+
+php test.php redtube-sample1.csv v6.csv
+71 %
+php test.php redtube-sample1.csv Data/porncheckData.5.csv
+68.3 %
+
+php test.php redtube-sample2.csv v6.csv
+64.7 %
+php test.php redtube-sample2.csv Data/porncheckData.5.csv
+
+
+php test.php redtube-sample3.csv v6.csv
+68.2 %
+php test.php redtube-sample3.csv Data/porncheckData.5.csv
+60.7 %
+
+php test.php redtube-sample4.csv v6.csv
+68.2 %
+php test.php redtube-sample4.csv Data/porncheckData.5.csv
+65.8 %
+
+php test.php ebux.csv v6.csv
+99.8 %
+php test.php ebux.csv Data/porncheckData.5.csv
+99.8 %
+

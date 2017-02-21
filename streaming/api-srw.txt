@@ -22,8 +22,13 @@ curl -X POST -d '{"url":"https://srw-test:srwtest123@uloz.to/!84tIsJtL3Fm0/skoge
 
 
 https://uloz.to/!84tIsJtL3Fm0/skogen-gunslinger-girl-il-teatrino-cz-subtitles-13-mkv
+https://uloz.to/!FuVrD8lVtGYv/shooter-s01e09-balistic-advantage-amzn-1080p-webrip-dd5-1-x264-cz-sub-dracula-mkv
+https://uloz.to/!4EVvOPOEdl8a/six-s01e01-1080p-web-dl-aac2-0-h-264-rarbg-cz-sub-mkv
+https://uloz.to/!Jv8nDtWAUnuz/hawaii-five-0-s07e14-1080p-web-dl-dd5-1-h-264-cz-sub-ntb-mkv
 https://uloz.to/!SMbWnmouH5tv/sprti-history-boys-the-2006-dvdtoh265-mkv
-curl --connect-timeout 60 -O -L --basic --user srw-test:srwtest123 'https://uloz.to/!SMbWnmouH5tv/sprti-history-boys-the-2006-dvdtoh265-mkv'
+curl --connect-timeout 60 -O -L --basic --user srw-test:srwtest123 'https://ulozto.test.nds/!FZEckGlLxBLJ/www-ebux-cz-xml'
+curl --connect-timeout 60 -O -L --basic --user votingmachine:abcdef321 'https://ulozto.test.nds/!FZEckGlLxBLJ/www-ebux-cz-xml'
+
 
 curl -X POST -d '{"url":"https://srw-test:srwtest123@uloz.to/!xu3eX46T/lana-del-rey-ride-2012-cz-sub-mkv","project":1,"params":"abcdefg"}' -H "Content-Type: application/json" -H "X-Auth-Token: d45068a3c2f948356b88222182b83807" https://service.ulozto.srw.cz/api/v1/fetch
 

@@ -1,6 +1,6 @@
 <?php
 
-ini_set('memory_limit','500M');
+ini_set('memory_limit','1500M');
 
 if (!$argv[1] || !$argv[2]) {
 	exit("\nPlease use in format like: test.php  sentences-to-test-file.csv  library-rules-file.csv\n\n");
@@ -114,7 +114,11 @@ echo "\nInput 1: " . $argv[1] . ' , Input 2: ' . $argv[2] . "\n";
 $in = explode("\n", trim(file_get_contents($argv[1])));
 $report = $asserts = $matches = ['safe' => 0, 'porn' => 0, 'illegal' => 0];
 $problems = [];
-foreach ($in as $value) {
+$problemsOff = (count($in) > 11000) ? true: false;
+$maxSentenceLimit = 30000;
+
+foreach ($in as $kk => $value) {
+	if ($kk > $maxSentenceLimit) break;
 	$pair = explode("\t", $value);
 	if (count($pair)===1) { // try comma instead, as second option as delimiter between asset realm and filename
 		$pair = explode(",", $value);
@@ -127,8 +131,7 @@ foreach ($in as $value) {
 	$report[$result->getHardcoreLevel()]++;
 	if ($result->getHardcoreLevel() == $pair[0]) {
 		$matches[$pair[0]]++;
-	} else {
-
+	} else if (!$problemsOff) {
 		$l = $searchFactory->getSearch($pair[1]);
 		$levels = "";
 		foreach ($allCategories as $cat) {
@@ -143,6 +146,7 @@ foreach ($in as $value) {
 		}
 		$problems[$pair[0] . ' scored as ' . $result->getHardcoreLevel()][] = trim($pair[1]) . " : score = " . $result->getScore() . $levels;
 	}
+	if (!$kk%2000) gc_collect_cycles();
 }
 
 echo "\n  ============== Detected assert sentences from 'file {$argv[1]}': " . count($in) . "  ==============\n";

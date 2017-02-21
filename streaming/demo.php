@@ -96,7 +96,7 @@ function debugHelper ($name, $jsonObj, $command = null) {
 
 	<!-- step 1, basic inputs, files URLs to send and convert on external CDN-->
 	<h2>Step 1: get files and request conversion</h2>
-	<form method="get">
+	<form method="post">
 		<textarea name="filesToConvert" placeholder="In format of common file detail, each line one file"
 ></textarea>
 		<input type="submit">
@@ -191,6 +191,7 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 <?php
 
 	$filesManipulation = [];
+	$md5s = [];
 	foreach ($filesList as $key => $val) {
 		if (!trim($val)) continue;
 		// check
@@ -233,10 +234,12 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 				}
 				break;
 		}
+		if (!$response->hasIssue && $response->related->conversion) $md5s[] = $response->md5;
 		$hasIssue =	((!$response && $operation !== 'delete') || $response->hasIssue || !$response->size) ? "YES" : "NO";
 		echo debugHelper("Request No. {$key} has issue? " . $hasIssue . " ... and  is conversion ready? " . 
 			(($hasIssue !== "YES" && $response->related->conversion) ? "YES" : "NOT YET..."), $response, $command);
 	}
+	echo "MD5s available: '", implode("','", $md5s), "'\n";
 
 }
 
