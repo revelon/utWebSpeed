@@ -1,3 +1,5 @@
+project 3
+
 <?php
 
 /**
@@ -11,6 +13,10 @@
 $httpBasicCredentials = 'https://srw-test:srwtest123@';
 // api authorization token, editable on CDN admin GUI
 $authToken = 'd45068a3c2f948356b88222182b83807';
+// project id
+$project = 1;
+$authToken = 'fsvda345676i5rhe23456t7866uy4567t67itu34ye534y5r56rye4y';
+$project = 3;
 // api base CDN URL path
 $apiBase = 'https://service.ulozto.srw.cz/api/v1';
 // shared secret, shoudl exists nowhere but in source configuration on both sides
@@ -21,21 +27,22 @@ define('STORAGE_SECRET', 'Krakonos666');
  *
  * @param $path Path part of the url starting with / (e.g. /view/1234.mp4)
  * @param $expires Timestamp when the link expires (default: time() + 3600)
+ * @param $ip optional current IP address of the user
  */
-function getParams($path, $expires = NULL) {
-  	if ($expires == NULL) {
-  		$expires = time() + 3600;
-  	}
+function getParams($path, $expires = NULL, $ip = NULL) {
+  if ($expires == NULL) $expires = time() + 3600;
 
-  	$hash = $expires . $path . STORAGE_SECRET;
-  	$hash = md5($hash, TRUE);
-  	$hash = base64_encode($hash);
-  	$hash = str_replace([ '+', '/', '=' ], [ '-', '_', '' ], $hash);
+  $hash = $expires . $path . STORAGE_SECRET . ($ip !== NULL ? $ip : '');
+  $hash = md5($hash, TRUE);
+  $hash = base64_encode($hash);
+  $hash = str_replace([ '+', '/', '=' ], [ '-', '_', '' ], $hash);
 
-  	return [
-    	'expires' => $expires,
-    	'hash' => $hash,
-  	];
+  $result = [
+    'expires' => $expires,
+    'hash' => $hash,
+  ];
+  if ($ip) $result['ip'] = $ip;
+  return $result;
 }
 
 /**
@@ -108,7 +115,7 @@ function debugHelper ($name, $jsonObj, $command = null) {
 	foreach (explode("\n", $_REQUEST['filesToConvert']) as $key => $val) {
 		if (!trim($val)) continue;
 		$url = str_replace("https://", $httpBasicCredentials, trim($val));
-		$command = "curl -X POST -d '{\"url\":\"{$url}\",\"project\":1}' -H \"Content-Type: application/json\" -H \"X-Auth-Token: {$authToken}\" {$apiBase}/fetch";
+		$command = "curl -X POST -d '{\"url\":\"{$url}\",\"project\":{$project}}' -H \"Content-Type: application/json\" -H \"X-Auth-Token: {$authToken}\" {$apiBase}/fetch";
 		$ret = shell_exec($command);
 		$response = json_decode($ret);
 		$requestIds[] = $response->id;
@@ -168,7 +175,7 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 ?>
 
 	<h2>Step 3: manipulate processed (done) files, with either check, play or delete / wait for conversion</h2>
-	<form method="get">
+	<form method="post">
 		<textarea name="filesList" placeholder="In format of common file ids, each line one file">
 <?php echo implode("\n", $filesList); ?> 
 		</textarea><br>
@@ -234,13 +241,17 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 				}
 				break;
 		}
-		if (!$response->hasIssue && $response->related->conversion) $md5s[] = $response->md5;
+		if (!$response->hasIssue && $response->related->conversion) $md5s[trim($val)] = $response->md5;
+		//if (!$response->hasIssue) $md5s[] = $response->md5;
 		$hasIssue =	((!$response && $operation !== 'delete') || $response->hasIssue || !$response->size) ? "YES" : "NO";
 		echo debugHelper("Request No. {$key} has issue? " . $hasIssue . " ... and  is conversion ready? " . 
 			(($hasIssue !== "YES" && $response->related->conversion) ? "YES" : "NOT YET..."), $response, $command);
 	}
-	echo "MD5s available: '", implode("','", $md5s), "'\n";
-
+	echo "MD5s available: '", implode("','", $md5s), "'\n<br>\n Key/MD5 pairs<pre>";
+	foreach ($md5s as $key => $value) {
+		echo $key . ',' . $value . "\n";
+	}
+	echo "</pre>";
 }
 
 

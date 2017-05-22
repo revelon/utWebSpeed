@@ -22,7 +22,7 @@ LEFT JOIN file_flags ff ON (f.id=ff.file_id)
 LEFT JOIN file_description fd ON (f.id=fd.file_id) 
 WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND fh.length>1 AND contentType='video' AND banned=0 
 AND f.status='ok' AND displayStatus = 'safe' AND (name_status IN ('illegal', 'porn') OR description_status IN ('illegal', 'porn'))
-ORDER BY hashid DESC LIMIT 1000;
+ORDER BY hashid DESC LIMIT 2000;
 							 ")) {
 
     echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><style>button {cursor:crosshair}

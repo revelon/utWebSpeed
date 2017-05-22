@@ -111,21 +111,23 @@ $porns =
 
 ];
 
+$porns = ['https://imageth.uloz.to/e/3/1/e31971b8006d7e6fb2b3e1c329ebf843.640x360.jpg'];
 
 
 foreach ($porns as $f) {
 	$addr = json_encode(['image' => $f]);
-	$addr = '"' . $f . '"';
+	//$addr = '"' . $f . '"';
 
     $a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' https://api.recallmi.com/module/adult");
     echo "recall-api -> " . $a;
     $reply = json_decode($a);
-    if (isset($reply->confidence)) {
-        if ($reply->nude) $recall['nude'][] = $addr;
+    if (isset($reply->result)) {
+        if ($reply->result->nude) $recall['nude'][] = $addr;
         else $recall['notnude'][] = $addr;
     } else {
         $recall['fails'] += 1;
     }
+
 
     $a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' -H 'Authorization: Simple simELXZ6Dab23/2W+KD+e3zA7cr1' https://api.algorithmia.com/v1/algo/sfw/NudityDetectioni2v/0.2.3");
     echo "algo-v2 -> " . $a;
@@ -136,6 +138,7 @@ foreach ($porns as $f) {
     } else {
         $v2['fails'] += 1;
     }
+    
 }
 
 echo "\nV2 :"; var_dump($v2);
