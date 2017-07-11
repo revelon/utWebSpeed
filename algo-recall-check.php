@@ -19,7 +19,12 @@ foreach ($files as $f) {
     //$addr = '"' . $addr . '"';
     $addr = json_encode(['image' => $addr]);
 
-    $a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' https://api.recallmi.com/module/adult");
+
+//curl -X POST -d 'https://videoth.uloz.to/i/K/U/xiKUTXYh.640x360.8.jpg' -H 'Content-Type: application/json' http://nudity1.farm.int.nds:8080/api/v1/adult
+
+//curl -XPOST -d'{"image":"https://videoth.uloz.to/i/J/U/xiJU4pcE.640x360.2.jpg"}' -H "Content-Type: application/json"  http://nudity1.farm.int.nds:8080/api/v1/adult
+
+    $a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' http://nudity1.farm.int.nds:8080/api/v1/adult");
     echo "recall-api -> " . $a;
     $reply = json_decode($a);
     if (isset($reply->result)) {

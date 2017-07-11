@@ -13,12 +13,19 @@
   		font-family: "Open Sans",sans-serif;
   	}
     #prace {
-    	background: white url(superheroes.png) 2px 20px no-repeat;
+    	background: white url(reverie-small.jpg) 2px 20px no-repeat;
+      background-size: contain;
     	width: 745px;
     	height: 100px;
     	border: 0 solid black;
     	padding: 0;
     	margin: 0;
+      -webkit-animation: grayscale-anim 5s linear;
+      -webkit-animation-direction: alternate;
+      -webkit-animation-iteration-count: infinite;
+      animation: grayscale-anim 5s linear;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
     }
     h2 {
     	color: #000;
@@ -34,7 +41,7 @@
     li {
     	text-align: left;
     	line-height: 120%;
-    	font-size: 14px;
+    	font-size: 12px;
       list-style-type: square;
     }
     a {
@@ -46,18 +53,23 @@
     span.fil {
       color: #990f6b;
     }
+    @-webkit-keyframes grayscale-anim {
+      from { -webkit-filter: grayscale(0); filter: grayscale(0); }
+      to   { -webkit-filter: grayscale(1); filter: grayscale(1); }
+    }
   </style>
 </head>
 
 <body>
   <div id="prace">
-  	<h2>Pracuj pro <span class="fil">Ulož.to</span>:</h2>
+  	<h2>Pracuj pro <a href="https://uloz.to/kariera" style="text-decoration: none;"><span class="fil">Ulož.to</span></a>:</h2>
   	<ul>
       <li><a href="https://uloz.to/kariera#carrier-linux" target="_top">IT Operations Teamleader</a>
-      <li><a href="https://uloz.to/kariera#carrier-cdn" target="_top">Vývojář CDN</a>
-      <li><a href="https://uloz.to/kariera#carrier-linux-senior" target="_top">Senior Linux administrátor</a>
-      <li><a href="https://uloz.to/kariera#carrier-php" target="_top">Webový vývojář</a>
-      <li><a href="https://uloz.to/kariera#carrier-produkt" target="_top">Senior produktový manažer</a>
+      <li><a href="https://uloz.to/kariera#carrier-produkt" target="_top">Produktový manažer</a>
+      <li><a href="https://uloz.to/kariera#carrier-cdn" target="_top">Python vývojář pro CDN</a>
+      <li><a href="https://uloz.to/kariera#carrier-mkt" target="_top">Marketingový specialista</a>
+      <li><a href="https://uloz.to/kariera#carrier-linux-senior" target="_top">Linux administrátor</a>
+      <li><a href="https://uloz.to/kariera#carrier-php" target="_top">Webový vývojář v PHP/JS</a>
   	</ul>
   </div>
 </body>
