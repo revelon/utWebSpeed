@@ -15,38 +15,60 @@ if ($mysqli->connect_errno) {
 
 /* Select queries return a resultset */
 if ($result = $mysqli->query("
-SELECT name, slug, hashid, lower(hex(hash)) hsh
+SELECT * 
 FROM file_hashflags fh 
-LEFT JOIN file_hash USING (hashid)
 LEFT JOIN file f USING (hashid) 
-LEFT JOIN file_description fd ON (f.id=fd.file_id) 
-WHERE cdnStatus='ok' AND contentType='image' AND f.upload_date > '2017-07-26 16:00:00' AND pornProbability=1 and fh.hashid<100728828 
-ORDER BY hashid DESC LIMIT 5000
+LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
+WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND contentType='archive' AND banned=0 AND ff.thumbSlideshowCount>0 
+AND f.status='ok' AND displayStatus='maybe_safe' 
+ORDER BY hashid DESC LIMIT 2000;
 							 ")) {
 
-    echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><style>
-        body {-moz-column-count: 2; -webkit-column-count: 2; column-count: 2; padding-bottom: 99px;}
-        button {cursor:crosshair}
+/* 
+# dangerous only
+SELECT *
+FROM file_hashflags fh 
+LEFT JOIN file f USING (hashid) 
+LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
+LEFT JOIN file_description fd ON (f.id=fd.file_id) 
+WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND contentType='archive' AND banned=0 AND ff.thumbSlideshowCount>0 
+AND f.status='ok' AND displayStatus IN ('safe', 'maybe_safe') AND (name_status IN ('illegal', 'porn') OR description_status IN ('illegal', 'porn'))
+ORDER BY hashid DESC LIMIT 2000;
+
+# all maybe safe
+SELECT *
+FROM file_hashflags fh 
+LEFT JOIN file f USING (hashid) 
+LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
+WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND fh.length>1 AND contentType='archive' AND banned=0 AND ff.thumbSlideshowCount>0 
+AND f.status='ok' AND displayStatus='maybe_safe' 
+ORDER BY hashid DESC LIMIT 2000;
+*/
+
+    echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><style>button {cursor:crosshair}
         div.fixed {
             background-color: rgba(255,255,255,.7);
             position: fixed;
             bottom: 0;
             right: 0;
             width: 50%;
-            border: 1px dotted gray;
-        }
-        a img {width: 120px; max-height: 230px;}
-        a imgg:hover {width: 160px;}
-        </style></head><body>';
+            border: 1px dotted gray;}</style></head><body>';
 	echo "Number of files to check: " . mysqli_num_rows($result) . "\n<style>img {display:inline-block}</style><hr>";
 
     $lastHashId = 0;
     /* fetch associative array */
     while ($row = $result->fetch_assoc()) {
         //var_dump($row);
-        $thm = "http://imageth.uloz.to/{$row['hsh'][0]}/{$row['hsh'][1]}/{$row['hsh'][2]}/{$row['hsh']}.640x360.jpg";
-        echo "<a href=$thm download=$thm/><img src=$thm>";
-        echo "<br>{$row['name']}</a> &nbsp; <button type='button' onclick='s(this, \"https://uloz.to/!{$row['slug']}/\")'>Straight</button> or 
+        if ($row['hashid'] == $lastHashId) {
+            continue; // skip potential duplicities
+        }
+    	$tiny = Nodus\Security\IntEncrypt::encrypt($row['id'], 'Nodus');
+        $thm = "http://videoth.uloz.to/{$tiny[0]}/{$tiny[1]}/{$tiny[2]}/x{$tiny}.160x120.";
+        echo "<a target=_blank href=https://exec.uloz.to/support/files/file-preview?fileId={$row['id']}>";
+        for ($i = 0; $i < $row['thumbSlideshowCount']; $i++) {
+        	echo "<img src='{$thm}{$i}.jpg' width=100>";
+        }
+        echo "<br>[{$row['hashid']}] {$row['name']}</a> &nbsp; <button type='button' onclick='s(this, \"https://uloz.to/!{$row['slug']}/\")'>Straight</button> or 
         <button type='button' onclick='g(this, \"https://uloz.to/!{$row['slug']}/\")'>Gay</button><hr>";
         $lastHashId = $row['hashid'];
     }
