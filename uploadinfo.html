@@ -35,7 +35,7 @@ var reportToSend = '', reportReady = false, alreadySent = false;
 
 function updateSize() {
   var f = document.getElementById("uploadInput").files;
-  reportToSend += "username=" + $('em.t-navigation-user-name').text() + "&filename=" + encodeURI(f[0].name) + "&size=" + f[0].size  + "&type=" + f[0].type + "&md5=";
+  reportToSend += "&username=" + $('em.t-navigation-user-name').text() + "&filename=" + encodeURI(f[0].name) + "&size=" + f[0].size  + "&type=" + f[0].type + "&md5=";
   if (f[0].size < 500000000) {
     var reader = new FileReader();
     reader.onload = function(e) {
@@ -52,7 +52,7 @@ function updateSize() {
 }
 function sendData() {
   if (reportReady) {
-    document.getElementById('uploadReport').innerHTML = "<h4>Děkujeme za nahlášení!</h4><img width=1 src='https://zachowajto.pl/upload?issueReport?" + reportToSend + "'>";
+    document.getElementById('uploadReport').innerHTML = "<h4>Děkujeme za nahlášení!</h4><img width=1 src='https://zachowajto.pl/upload?issueReport=" + reportToSend + "'>";
     alreadySent = true;
     $('#uploadReport').toggle(3000);
   }
