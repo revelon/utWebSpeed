@@ -24,7 +24,7 @@ foreach ($files as $f) {
 
 //curl -XPOST -d'{"image":"https://videoth.uloz.to/i/J/U/xiJU4pcE.640x360.2.jpg"}' -H "Content-Type: application/json"  http://nudity1.farm.int.nds:8080/api/v1/adult
 
-    $a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' http://nudity1.farm.int.nds:8080/api/v1/adult");
+    $a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' http://nudity.farm.int.nds:8080/api/v1/adult");
     echo "recall-api -> " . $a;
     $reply = json_decode($a);
     if (isset($reply->result)) {

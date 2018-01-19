@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta charset="utf-8">
+<title>Word Cloud Generator</title>
+<style>
+body {
+  position: relative;
+  font-family: "Helvetica Neue", sans-serif;
+  width: 960px;
+  margin: auto;
+  margin-bottom: 1em;
+  margin-top: 20px;
+}
+#presets a { border-left: solid #666 1px; padding: 0 10px; }
+#presets a.first { border-left: none; }
+#keyword { width: 300px; }
+#fetcher { width: 500px; }
+#keyword, #go { font-size: 1.5em; }
+#text { width: 100%; height: 100px; }
+p.copy { font-size: small; }
+#form { font-size: small; position: relative; }
+hr { border: none; border-bottom: solid #ccc 1px; }
+a.active { text-decoration: none; color: #000; font-weight: bold; cursor: text; }
+#angles line, #angles path, #angles circle { stroke: #666; }
+#angles text { fill: #333; }
+#angles path.drag { fill: #666; cursor: move; }
+#angles { text-align: center; margin: 0 auto; width: 350px; }
+#angles input, #max { width: 42px; }
+</style>
+
+</head><body><div id="vis"></div>
+
+<form id="form">
+
+<p style="position: absolute; right: 0px; top: 0px; display: none;" id="status">202/202</p>
+
+<div style="text-align: center">
+  <div id="presets"></div>
+  <div id="custom-area">
+    <p><textarea id="text">
+uloz.to;www.uloz.to;www.uloz.to;www.uloz.to;www.uloz.to;ulozto.cz;www.ulozto.cz;ulozto.sk;ulozto.sk;www.ulozto.sk;ulozto.net;www.ulozto.net;ulozto.pl;www.ulozto.pl;zachowajto.pl;www.zachowajto.pl;
+rychlé stahování;rychlé stahování;pomalé stahování;kredit;kredit;credit;LIVE;LIVE;video;video;video;audio;audio;audio;archivy;archivy;dokumenty;dokumenty a četba;dokumenty a četba;obrázky;fotky;fotky;foto;foto;prezentace;prezentace;vyhledat;vyhledat;stáhnout;stáhnout;nahrát;nahrát;dobít;darovat;
+vivala;titul.in;titul.in;31s;partnerské programy;aplikace;aplikace;android;android;iOS;iOS;windows;windows;linux;macOS;cloudová kancelář;
+neomezená data;neomezená data;české uložiště;české uložiště;rychlost;data;rychlost;data;rychlá data;vzpomínky;zážitky z dovolené;
+sdílení;soukromí;cloud;cloud;pro veřejnost;přes odkaz;jenpro mě;CreditBack;CreditBack;web;internet;síť;pošta;statistiky;moje soubory;oblíbené;soubory;soubory;výplaty;přihlášení;miliony souborů;ochrana dat;hesla;
+bezpečnost;česká služba;parametry;fotogalerie;komentáře;dostupnost;streaming;streaming;zdarma;GB;GB;TB;TB;MB;MB;KB;PB;SMS;ČR;SK;
+účet;VIP;dostupnost;mobilní;přístupnost;hlasování;soutěže;práce;zábava;záloha;24h;fulltext;souborový manager;rodina;přátelé;kamarádi;složky;backup;zálohování;
+    </textarea>
+    <button id="go" type="submit">Go!</button>
+  </p></div>
+</div>
+
+<hr>
+
+<div style="float: right; text-align: right">
+  <p><label for="max">Number of words:</label> <input value="250" min="1" id="max" type="number">
+  </p><p><label for="per-line"><input id="per-line" type="checkbox"> One word per line</label>
+  <!--<p><label for="colours">Colours:</label> <a href="#" id="random-palette">get random palette</a>-->
+  </p><p><label>Download:</label>
+    <button id="download-svg">SVG</button><!-- |
+    <a id="download-png" href="#">PNG</a>-->
+</p></div>
+
+<div style="float: left">
+  <p><label>Spiral:</label>
+    <label for="archimedean"><input name="spiral" id="archimedean" value="archimedean" type="radio"> Archimedean</label>
+    <label for="rectangular"><input name="spiral" id="rectangular" value="rectangular" checked="checked" type="radio"> Rectangular</label>
+  </p><p><label for="scale">Scale:</label>
+    <label for="scale-log"><input name="scale" id="scale-log" value="log" checked="checked" type="radio"> log n</label>
+    <label for="scale-sqrt"><input name="scale" id="scale-sqrt" value="sqrt" type="radio"> √n</label>
+    <label for="scale-linear"><input name="scale" id="scale-linear" value="linear" type="radio"> n</label>
+  </p><p><label for="font">Font:</label> <input id="font" value="Impact" type="text">
+</p></div>
+
+<div id="angles">
+  <p><input id="angle-count" value="5" min="1" type="number"> <label for="angle-count">orientations</label>
+    <label for="angle-from">from</label> <input id="angle-from" value="-60" min="-90" max="90" type="number"> °
+    <label for="angle-to">to</label> <input id="angle-to" value="60" min="-90" max="90" type="number"> °
+</p><svg width="151" height="70.5"><g transform="translate(75.5,60.5)"><path style="fill: none;" d="M -40.5 0 A 40.5 40.5 0 0 1 40.5 0"></path><line x1="-47.5" x2="47.5"></line><line y2="-47.5"></line><text dy=".3em" text-anchor="end" transform="rotate(0)translate(-50.5)rotate(0)translate(2)">-90°</text><text text-anchor="middle" transform="rotate(90)translate(-50.5)rotate(-90)translate(2)">0°</text><text dy=".3em" text-anchor="start" transform="rotate(180)translate(-50.5)rotate(-180)translate(2)">90°</text><path class="angle" style="fill: rgb(255, 204, 0);" d="M-35.07402885326976,-20.250000000000014A40.5,40.5 0 0,1 35.074028853269766,-20.25L0,0Z"></path><line class="angle" transform="rotate(30)" x2="-45.5"></line><line class="angle" transform="rotate(60)" x2="-40.5"></line><line class="angle" transform="rotate(90)" x2="-40.5"></line><line class="angle" transform="rotate(120)" x2="-40.5"></line><line class="angle" transform="rotate(150)" x2="-45.5"></line><path class="drag" d="M-9.5,0L-3,3.5L-3,-3.5Z" transform="rotate(30)translate(-40.5)"></path><path class="drag" d="M-9.5,0L-3,3.5L-3,-3.5Z" transform="rotate(150)translate(-40.5)"></path></g></svg></div>
+
+<hr style="clear: both">
+
+<p style="float: right"><a href="https://www.jasondavies.com/wordcloud/about/">How the Word Cloud Generator Works</a>.
+</p><p style="float: left">Copyright © <a href="http://www.jasondavies.com/">Jason Davies</a> | <a href="https://www.jasondavies.com/privacy/">Privacy Policy</a>. The generated word clouds may be used for any purpose.
+
+</p></form>
+
+<script src="d3.js"></script>
+<script src="cloudx.js"></script>
+</body></html>

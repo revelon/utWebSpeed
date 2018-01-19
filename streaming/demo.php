@@ -1,11 +1,9 @@
-project 3
-
 <?php
 
 /**
  * Humble external Skrivy's CDN demo page, client side processing only, without any callbacks
  */
-
+ini_set('memory_limit', '1012M');
 
 // some basic configurations
 
@@ -15,8 +13,9 @@ $httpBasicCredentials = 'https://srw-test:srwtest123@';
 $authToken = 'd45068a3c2f948356b88222182b83807';
 // project id
 $project = 1;
-$authToken = 'fsvda345676i5rhe23456t7866uy4567t67itu34ye534y5r56rye4y';
-$project = 3;
+//$authToken = 'fsvda345676i5rhe23456t7866uy4567t67itu34ye534y5r56rye4y';
+$authToken = 'd45068a3c2f948356b88222182b83807';
+//$project = 3;
 // api base CDN URL path
 $apiBase = 'https://service.ulozto.srw.cz/api/v1';
 // shared secret, shoudl exists nowhere but in source configuration on both sides
@@ -30,7 +29,7 @@ define('STORAGE_SECRET', 'Krakonos666');
  * @param $ip optional current IP address of the user
  */
 function getParams($path, $expires = NULL, $ip = NULL) {
-  if ($expires == NULL) $expires = time() + 3600;
+  $expires = ($expires == NULL) ? (time() + 3600) : (time() + $expires);
 
   $hash = $expires . $path . STORAGE_SECRET . ($ip !== NULL ? $ip : '');
   $hash = md5($hash, TRUE);
@@ -228,12 +227,22 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 					$subtitles = (array) $response->subtitles;
 
 					list($server, $path) = explode('/', $playUrl, 2);
+
 					$videoPlayableUrl = 'http://' . $playUrl . '?' . http_build_query(getParams('/' . $path));
+
 					// build player markup, perhaps prepare lang/iso code mapping...
 					$video = "<br><details><summary>Video id={$val} named: {$response->filename}</summary><video crossorigin controls src='{$videoPlayableUrl}'>";
 					foreach ($subtitles as $lang => $subUrl) {
 						list($server, $path) = explode('/', $subUrl, 2);
 						$subPlayableUrl = 'http://' . $subUrl . '?' . http_build_query(getParams('/' . $path));
+						$video .= "<track srclang='{$lang}' label='{$lang}' kind='subtitles' src='{$subPlayableUrl}' default>";
+					}
+					// preview hacked in
+					$videoPreviewUrl = 'http://' . str_replace('/view/', '/preview/', $playUrl) . '?' . http_build_query(getParams('/pre' . $path, 120));
+					$video .= "</video><h5>Preview</h5><video crossorigin controls src='{$videoPreviewUrl}'>";
+					foreach ($subtitles as $lang => $subUrl) {
+						list($server, $path) = explode('/', $subUrl, 2);
+						$subPlayableUrl = 'http://' . $subUrl . '?' . http_build_query(getParams('/' . $path, 120));
 						$video .= "<track srclang='{$lang}' label='{$lang}' kind='subtitles' src='{$subPlayableUrl}' default>";
 					}
 					$video .= "</video></details>";
@@ -275,7 +284,7 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 <?php
 if ($_REQUEST['exploreFiles']) {
 	$fileIdsAvailable = $debugs = "";
-	for ($i = 1; $i < 100; $i++) {
+	for ($i = 1; $i < 40; $i++) {
 		echo "."; ob_flush();flush();
 		$command = "curl -H \"X-Auth-Token: {$authToken}\" {$apiBase}/files/" . $i;
 		$ret = shell_exec($command);

@@ -20,7 +20,7 @@ FROM file_hashflags fh
 LEFT JOIN file_hash USING (hashid)
 LEFT JOIN file f USING (hashid) 
 LEFT JOIN file_description fd ON (f.id=fd.file_id) 
-WHERE cdnStatus='ok' AND contentType='image' AND f.upload_date > '2017-07-26 16:00:00' AND pornProbability=1 and fh.hashid<100728828 
+WHERE cdnStatus='ok' AND contentType='image' AND f.upload_date > '2017-09-01 00:00:01' AND pornProbability=1 
 ORDER BY hashid DESC LIMIT 5000
 							 ")) {
 

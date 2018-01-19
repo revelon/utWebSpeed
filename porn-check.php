@@ -16,15 +16,75 @@ if ($mysqli->connect_errno) {
 /* Select queries return a resultset */
 if ($result = $mysqli->query("
 SELECT * 
-FROM file_hashflags fh 
-LEFT JOIN file f USING (hashid) 
+FROM file f 
+LEFT JOIN file_origins fo ON (id=file_id) 
+LEFT JOIN file_description fd ON (id=fd.file_id) 
+LEFT JOIN file_hashflags fh USING (hashid) 
 LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
-WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND contentType='video' AND banned=0 AND ff.thumbSlideshowCount>0 
-AND f.status='ok' AND displayStatus='maybe_safe' AND pornProbability=1 
-ORDER BY hashid DESC LIMIT 2000;
+WHERE origin_file_id IS NULL AND thumbSlideshowCount>0 and pornProbability=2 AND contentType IN ('video', 'archive', 'image') 
+AND displayStatus IN ('maybe_porn', 'maybe_illegal', 'illegal') AND banned=0 AND status='ok' AND cdnStatus='ok' 
+AND name_status in ('safe','') 
+GROUP BY f.hashid
+ORDER BY f.hashid DESC 
+LIMIT 2000;
 							 ")) {
 
 /*
+
+// porno dle scoringu na UT
+SELECT * 
+FROM file f 
+LEFT JOIN file_origins fo ON (id=file_id) 
+LEFT JOIN file_description fd ON (id=fd.file_id) 
+LEFT JOIN file_hashflags fh USING (hashid) 
+LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
+WHERE origin_file_id IS NULL AND thumbSlideshowCount>0 and contentType IN ('video', 'archive', 'image') 
+AND displayStatus IN ('maybe_safe', 'safe') AND banned=0 AND status='ok' AND cdnStatus='ok' AND name_status IN ('', 'porn', 'illegal') 
+AND upload_date>'2017-08-31' 
+GROUP BY f.hashid
+ORDER BY f.hashid DESC 
+LIMIT 2000;
+
+//dotaz na neshody mezi AI
+SELECT * 
+FROM file f 
+LEFT JOIN file_description fd ON (id=fd.file_id) 
+LEFT JOIN file_hashflags fh USING (hashid) 
+LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
+WHERE thumbSlideshowCount>0 AND 
+((pornProbability=2 AND name_status='safe') OR (pornProbability=1 AND name_status IN ('porn', 'illegal'))) 
+AND contentType IN ('video', 'archive', 'image') AND banned=0 AND status='ok' AND cdnStatus='ok'  
+GROUP BY f.hashid
+ORDER BY f.hashid DESC 
+LIMIT 500;
+
+// obecne neshody dobre funknci, mozna i duplicitni, ke kontrolam !!!!
+SELECT * 
+FROM file f 
+LEFT JOIN file_origins fo ON (id=file_id) 
+LEFT JOIN file_description fd ON (id=fd.file_id) 
+LEFT JOIN file_hashflags fh USING (hashid) 
+LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
+WHERE origin_file_id IS NULL AND thumbSlideshowCount>0 and pornProbability=2 AND contentType IN ('video', 'archive', 'image') 
+AND displayStatus IN ('maybe_porn', 'maybe_illegal', 'illegal') AND banned=0 AND status='ok' AND cdnStatus='ok' 
+AND name_status in ('safe','') 
+GROUP BY f.hashid
+ORDER BY f.hashid DESC 
+LIMIT 2000;
+
+// vsechny nebezpecne zavery v nahledovych formatech
+SELECT * 
+FROM file f 
+LEFT JOIN file_origins fo ON (id=file_id) 
+LEFT JOIN file_description fd ON (id=fd.file_id) 
+LEFT JOIN file_hashflags fh USING (hashid) 
+LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
+WHERE origin_file_id IS NULL AND thumbSlideshowCount>0 and pornProbability=2 AND contentType IN ('archive','video','image') 
+AND displayStatus IN ('maybe_porn', 'maybe_illegal', 'illegal') AND banned=0 AND status='ok' AND cdnStatus='ok' 
+GROUP BY f.hashid
+ORDER BY id DESC 
+LIMIT 1000;
+
 // maybe_safe with pornProbability=1 pro archivy
 SELECT * 
 FROM file_hashflags fh 
@@ -62,7 +122,10 @@ ORDER BY hashid DESC LIMIT 2000;
             right: 0;
             width: 50%;
             border: 1px dotted gray;}
-        img {max-width:300px; max-height:300px}</style></head><body>';
+        textarea {font-size: 9px}
+        img {max-width:300px; max-height:300px}
+        body {font-family: sans-serif; font-size: 11px}
+        </style></head><body>';
 	echo "Number of files to check: " . mysqli_num_rows($result) . "\n<style>img {display:inline-block}</style><hr>";
 
     $lastHashId = 0;
@@ -78,7 +141,9 @@ ORDER BY hashid DESC LIMIT 2000;
         for ($i = 0; $i < $row['thumbSlideshowCount']; $i++) {
         	echo "<img src='{$thm}{$i}.jpg' width=100>";
         }
-        echo "<br>[{$row['hashid']}] {$row['name']}</a> pornProbability={$row['pornProbability']}, pornProbabilityImage={$row['pornProbabilityImage']} &nbsp; <button type='button' onclick='s(this, \"https://uloz.to/!{$row['slug']}/\")'>Straight</button> or 
+        echo "<br>[{$row['hashid']}] {$row['name']}</a> pornProb={$row['pornProbability']}, porn%={$row['pornProbabilityImage']}, dispStatus={$row['displayStatus']}, 
+        nameStat={$row['name_status']}, descStat={$row['description_status']}, PHC1={$row['pornHumanCheck1']}, PHC2={$row['pornHumanCheck2']}, PHC={$row['pornHumanCheck']} 
+        &nbsp; <button type='button' onclick='s(this, \"https://uloz.to/!{$row['slug']}/\")'>Straight</button> or 
         <button type='button' onclick='g(this, \"https://uloz.to/!{$row['slug']}/\")'>Gay</button><hr>";
         $lastHashId = $row['hashid'];
     }

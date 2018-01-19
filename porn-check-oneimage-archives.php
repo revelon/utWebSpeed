@@ -16,43 +16,16 @@ if ($mysqli->connect_errno) {
 /* Select queries return a resultset */
 if ($result = $mysqli->query("
 SELECT * 
-FROM file_hashflags fh 
-LEFT JOIN file f USING (hashid) 
+FROM file f 
+LEFT JOIN file_origins fo ON (id=file_id) 
+LEFT JOIN file_description fd ON (id=fd.file_id) 
+LEFT JOIN file_hashflags fh USING (hashid) 
 LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
-WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND contentType='video' AND banned=0 AND ff.thumbSlideshowCount>0 
-AND f.status='ok' AND displayStatus='maybe_safe' AND pornProbability=1 
-ORDER BY hashid DESC LIMIT 2000;
+WHERE origin_file_id IS NULL AND thumbSlideshowCount=1 and pornProbability=1 AND contentType IN ('video', 'archive') AND status='ok' AND cdnStatus='ok'  
+GROUP BY f.hashid
+ORDER BY f.hashid DESC 
+LIMIT 5000;
 							 ")) {
-
-/*
-// maybe_safe with pornProbability=1 pro archivy
-SELECT * 
-FROM file_hashflags fh 
-LEFT JOIN file f USING (hashid) 
-LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
-WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND contentType='archive' AND banned=0 AND ff.thumbSlideshowCount>0 
-AND f.status='ok' AND displayStatus='maybe_safe' AND pornProbability=1 
-ORDER BY hashid DESC LIMIT 5000;
-
-# dangerous only
-SELECT *
-FROM file_hashflags fh 
-LEFT JOIN file f USING (hashid) 
-LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
-LEFT JOIN file_description fd ON (f.id=fd.file_id) 
-WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND contentType='archive' AND banned=0 AND ff.thumbSlideshowCount>0 
-AND f.status='ok' AND displayStatus IN ('safe', 'maybe_safe') AND (name_status IN ('illegal', 'porn') OR description_status IN ('illegal', 'porn'))
-ORDER BY hashid DESC LIMIT 2000;
-
-# all maybe safe
-SELECT *
-FROM file_hashflags fh 
-LEFT JOIN file f USING (hashid) 
-LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
-WHERE cdnStatus='ok' AND ff.thumbSlideshow!='' AND fh.length>1 AND contentType='archive' AND banned=0 AND ff.thumbSlideshowCount>0 
-AND f.status='ok' AND displayStatus='maybe_safe' 
-ORDER BY hashid DESC LIMIT 2000;
-*/
 
     echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><style>button {cursor:crosshair}
         div.fixed {
@@ -62,7 +35,10 @@ ORDER BY hashid DESC LIMIT 2000;
             right: 0;
             width: 50%;
             border: 1px dotted gray;}
-        img {max-width:300px; max-height:300px}</style></head><body>';
+        textarea {font-size: 9px}
+        img {max-width:300px; max-height:300px}
+        body {font-family: sans-serif; font-size: 11px}
+        </style></head><body>';
 	echo "Number of files to check: " . mysqli_num_rows($result) . "\n<style>img {display:inline-block}</style><hr>";
 
     $lastHashId = 0;
@@ -74,11 +50,13 @@ ORDER BY hashid DESC LIMIT 2000;
         }
     	$tiny = Nodus\Security\IntEncrypt::encrypt($row['id'], 'Nodus');
         $thm = "http://videoth.uloz.to/{$tiny[0]}/{$tiny[1]}/{$tiny[2]}/x{$tiny}.160x120.";
-        echo "<a target=_blank href=https://exec.uloz.to/support/files/file-preview?fileId={$row['id']}>";
+        echo "<a href={$thm}0.jpg download={$thm}0.jpg>";
         for ($i = 0; $i < $row['thumbSlideshowCount']; $i++) {
         	echo "<img src='{$thm}{$i}.jpg' width=100>";
         }
-        echo "<br>[{$row['hashid']}] {$row['name']}</a> pornProbability={$row['pornProbability']}, pornProbabilityImage={$row['pornProbabilityImage']} &nbsp; <button type='button' onclick='s(this, \"https://uloz.to/!{$row['slug']}/\")'>Straight</button> or 
+        echo "<br>[{$row['hashid']}] {$row['name']}</a> pornProb={$row['pornProbability']}, porn%={$row['pornProbabilityImage']}, dispStatus={$row['displayStatus']}, 
+        nameStat={$row['name_status']}, descStat={$row['description_status']}, PHC1={$row['pornHumanCheck1']}, PHC2={$row['pornHumanCheck2']}, PHC={$row['pornHumanCheck']} 
+        &nbsp; <button type='button' onclick='s(this, \"https://uloz.to/!{$row['slug']}/\")'>Straight</button> or 
         <button type='button' onclick='g(this, \"https://uloz.to/!{$row['slug']}/\")'>Gay</button><hr>";
         $lastHashId = $row['hashid'];
     }
