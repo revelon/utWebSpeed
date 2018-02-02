@@ -1,0 +1,14 @@
+* myslim, ze do toho budeme muset zapojit do contentType , nebot jen pro video, archive, image mame nejakou sanci, ze se pornProbability dockame, jinak vubec
+* pracovne pocitejme, ze obrazky se z archivu/videa vygneruji do max. 15 minut a max. dalsich 15 minut budeme mit pornProbability
+* u nazvu pocitejme, ze alespon jeden z nazvu/desc je vyhodnocen jako porn/illegal
+
+
+
+SELECT count(distinct f.hashid), pornProbability, name_status, description_status, displayStatus, pornHumanCheck1, pornHumanCheck2, pornHumanCheck
+FROM file f 
+LEFT JOIN file_origins fo ON (id=file_id) 
+LEFT JOIN file_description fd ON (id=fd.file_id) 
+LEFT JOIN file_hashflags fh USING (hashid) 
+LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
+WHERE origin_file_id IS NULL AND thumbSlideshowCount>0 AND banned=0 AND status='ok' AND cdnStatus='ok' AND f.upload_date>'2017-01-01 00:00:01' 
+GROUP BY pornProbability, name_status, description_status, displayStatus, pornHumanCheck1, pornHumanCheck2, pornHumanCheck;

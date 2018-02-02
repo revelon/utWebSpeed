@@ -11,9 +11,11 @@
 
 <body>
 
-<div id="upload_slots">
-  <input name="upfile_0" data-uploadslot="1" class="uploadfile" size="40" value="" multiple="multiple" type="file">
-</div>
+
+
+
+
+
 
 
 <style>
@@ -25,9 +27,6 @@
   <p>Pošli nam o tom zprávu, pokusíme se s tím něco udělat. Vyber problematický soubor, prosím.<br><br><input id="uploadInput" type="file" onchange="updateSize()"></p>
 </form>
 
-var imported = document.createElement('script');
-imported.src = 'https://static.uloz.to/content/spark-md5.min.js';
-document.head.appendChild(imported);
 
 <script>
 $.getScript('https://static.uloz.to/content/spark-md5.min.js');
@@ -61,8 +60,12 @@ function skipData() {
     alreadySent = true;
     $('#uploadReport').toggle(1000);
 }
-setTimeout(function() { if (!alreadySent) $('#uploadReport').show(1000) }, 4000);
+setTimeout(function() { if (!alreadySent) $('#uploadReport').show(1000) }, 1000);
 </script>
+
+
+
+
 
 
 </body>
