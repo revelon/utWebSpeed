@@ -16,7 +16,7 @@ if ($mysqli->connect_errno) {
 }
 
 $reports = [
-    "SELECT date(NOW()) datum, 'velikost a pocet vsech OK hashu' report, COUNT(*) pocet, ROUND(SUM(size)/1000/1000/1000/1000) TB FROM file_hashflags WHERE cdnStatus='ok'",
+    /*"SELECT date(NOW()) datum, 'velikost a pocet vsech OK hashu' report, COUNT(*) pocet, ROUND(SUM(size)/1000/1000/1000/1000) TB FROM file_hashflags WHERE cdnStatus='ok'",
     "SELECT date(NOW()) datum, 'pocet vsech OK souboru' report, COUNT(*) pocet, SUM(IF(public='public',1,0)) verejnych, SUM(IF(flags2 LIKE '%searchable%'),1,0) nevyhledatelnych FROM file WHERE status='ok'",
     "SELECT date(NOW()) datum, 'velikost a pocet vsech OK kopii' report, COUNT(*) pocet, ROUND(SUM(size)/1000/1000/1000/1000) TB FROM file_origins fo LEFT JOIN file f ON (f.id=fo.file_id) LEFT JOIN file_hashflags USING (hashid) WHERE f.status='ok'",
     "SELECT date(NOW()) datum, 'velikost a pocet vsech OK hashu dle contentType' report, contentType, COUNT(*) pocet, ROUND(SUM(size)/1000/1000/1000) GB FROM file_hashflags WHERE cdnStatus='ok' GROUP BY contentType",
@@ -27,12 +27,10 @@ $reports = [
     "SELECT date(NOW()) datum, 'velikost a pocet OK hashu interniho streamingu delsich 10 minut dle realmu' report, displayStatus, COUNT(*), ROUND(SUM(size)/1000/1000/1000/1000) TB FROM file_hash_multimedia fhm JOIN file_hashflags USING (hashid) WHERE streamable=1 AND cdnStatus='ok' AND length>600 GROUP BY displayStatus",
     "SELECT date(NOW()) datum, 'velikost a pocet OK hashu OK externiho streamingu delsich 10 minut dle realmu' report, displayStatus, COUNT(*), ROUND(SUM(size)/1000/1000/1000/1000) TB FROM external_stream_file JOIN file_hashflags ON (file_hashid=hashid) WHERE cdnStatus='ok' AND status='ok' AND length>600 GROUP BY displayStatus",
     "SELECT date(NOW()) datum, 'velikost a pocet OK hashu bez jakychkoliv OK souboru' report, COUNT(*), ROUND(SUM(size)/1000/1000/1000/1000) TB FROM file_hashflags fh LEFT JOIN file f ON (f.hashid=fh.hashid AND f.status='ok') WHERE cdnStatus='ok' AND banned<2 AND f.id IS NULL",
-    "SELECT date(NOW()) datum, 'velikost a pocet OK hashu s nejakymi OK souboru' report, COUNT(*), ROUND(SUM(size)/1000/1000/1000/1000) TB FROM file_hashflags fh JOIN file f ON (f.hashid=fh.hashid AND f.status='ok') WHERE cdnStatus='ok' AND banned<2",
-    "SELECT date(NOW()) datum, 'velikost a pocet OK video, archive ci image souboru s nahledy' report, contentType, COUNT(*) pocet, IF((contentType='image' AND thumbImage='') OR (contentType IN ('video','archive') AND thumbSlideshow=''),0,1) s_nahledy, ROUND(SUM(size)/1000/1000/1000/1000) TB FROM file f JOIN file_flags ff ON (f.id=ff.file_id) LEFT JOIN file_hashflags USING (hashid) WHERE cdnStatus='ok' AND f.status='ok' AND contentType IN ('video','archive','image') GROUP BY contentType",
+    "SELECT date(NOW()) datum, 'velikost a pocet OK hashu s nejakymi OK souboru' report, COUNT(*), ROUND(SUM(size)/1000/1000/1000/1000) TB FROM file_hashflags fh JOIN file f ON (f.hashid=fh.hashid AND f.status='ok') WHERE cdnStatus='ok' AND banned<2",*/
+    "SELECT date(NOW()) datum, 'velikost a pocet OK video, archive ci image souboru s nahledy' report, contentType, COUNT(*) pocet, SUM(IF((contentType='image' AND thumbImage='') OR (contentType IN ('video','archive') AND thumbSlideshow=''),0,1)) s_nahledy, ROUND(SUM(size)/1000/1000/1000/1000) TB FROM file f JOIN file_flags ff ON (f.id=ff.file_id) LEFT JOIN file_hashflags USING (hashid) WHERE cdnStatus='ok' AND f.status='ok' AND contentType IN ('video','archive','image') GROUP BY contentType",
 
 ];
-
-
 
 
 foreach ($reports as $statement) {
