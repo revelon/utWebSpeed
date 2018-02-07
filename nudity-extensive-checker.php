@@ -32,11 +32,11 @@ LEFT JOIN file_origins fo ON (id=file_id)
 LEFT JOIN file_description fd ON (id=fd.file_id) 
 LEFT JOIN file_hashflags fh USING (hashid) 
 LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
-WHERE origin_file_id IS NULL AND thumbSlideshowCount>0 and pornProbability=2 AND contentType IN ('video', 'archive') 
-AND status='ok' AND cdnStatus='ok' AND displayStatus IN ('porn', 'maybe_porn', 'illegal', 'maybe_illegal') and f.hashid<112383026
+WHERE origin_file_id IS NULL AND thumbSlideshowCount>0 AND contentType IN ('video') AND extension IN ('MP4', 'mp4') 
+AND status='ok' AND cdnStatus='ok' AND displayStatus IN ('porn', 'maybe_porn', 'illegal', 'maybe_illegal') AND hashid<115231327 
 GROUP BY f.hashid
 ORDER BY f.hashid DESC 
-LIMIT 50;
+LIMIT 100;
 ")) {
 
     $lastHashId = 0;
