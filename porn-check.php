@@ -18,15 +18,13 @@ if ($result = $mysqli->query("
 SELECT * 
 FROM file f 
 LEFT JOIN file_origins fo ON (id=file_id) 
-LEFT JOIN file_description fd ON (id=fd.file_id) 
 LEFT JOIN file_hashflags fh USING (hashid) 
 LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
-WHERE origin_file_id IS NULL AND thumbSlideshowCount>0 and pornProbability=2 AND contentType IN ('video', 'archive', 'image') 
-AND displayStatus IN ('maybe_porn', 'maybe_illegal', 'illegal') AND banned=0 AND status='ok' AND cdnStatus='ok' 
-AND name_status in ('safe','') 
+WHERE origin_file_id IS NULL AND thumbSlideshowCount>0 AND contentType IN ('video', 'archive') 
+AND displayStatus IN ('safe', 'maybe_safe') AND banned=0 AND status='ok' AND cdnStatus='ok' AND f.hashid>100000000
 GROUP BY f.hashid
 ORDER BY f.hashid DESC 
-LIMIT 2000;
+LIMIT 500;
 							 ")) {
 
 /*
@@ -137,10 +135,11 @@ ORDER BY hashid DESC LIMIT 2000;
         }
     	$tiny = Nodus\Security\IntEncrypt::encrypt($row['id'], 'Nodus');
         $thm = "http://videoth.uloz.to/{$tiny[0]}/{$tiny[1]}/{$tiny[2]}/x{$tiny}.160x120.";
-        echo "<a target=_blank href=https://exec.uloz.to/support/files/file-preview?fileId={$row['id']}>";
         for ($i = 0; $i < $row['thumbSlideshowCount']; $i++) {
-        	echo "<img src='{$thm}{$i}.jpg' width=100>";
+            echo "<a href={$thm}{$i}.jpg download={$thm}{$i}.jpg class=safe>";
+            echo "<img src='{$thm}{$i}.jpg' width=200></a>";
         }
+        echo "<a target=_blank href=https://exec.uloz.to/support/files/file-preview?fileId={$row['id']}>";        
         echo "<br>[{$row['hashid']}] {$row['name']}</a> pornProb={$row['pornProbability']}, porn%={$row['pornProbabilityImage']}, dispStatus={$row['displayStatus']}, 
         nameStat={$row['name_status']}, descStat={$row['description_status']}, PHC1={$row['pornHumanCheck1']}, PHC2={$row['pornHumanCheck2']}, PHC={$row['pornHumanCheck']} 
         &nbsp; <button type='button' onclick='s(this, \"https://uloz.to/!{$row['slug']}/\")'>Straight</button> or 

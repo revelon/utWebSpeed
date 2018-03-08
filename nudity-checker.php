@@ -4,7 +4,8 @@
 
 echo "\n\n\n";
 
-$dir = '/Users/xrevelon/Downloads/batrla-nudity-fails2';
+$dir = '/Users/xrevelon/Downloads/batrla-nudity-fails4';
+//$dir = '/Users/xrevelon/Downloads/safes-to-check';
 
 $files  = scandir($dir);
 $res   = [];
@@ -21,7 +22,8 @@ foreach ($files as $f) {
 
     // alternativni pristup
     $addr = json_encode(['image' => base64_encode(file_get_contents($dir.'/'.$f))]);
-    $a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' http://nudity.farm.int.nds:8080/api/v1/adult_by_content");
+    //$a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' http://nudity.farm.test.nds:8080/api/v1/adult_by_content");
+    $a = shell_exec("curl -X POST -d '{$addr}' -H 'Content-Type: application/json' http://0.0.0.0:9999/api/v1/adult_by_content");
 
     echo "recall-api -> " . $a;
     $reply = json_decode($a);
@@ -41,10 +43,24 @@ echo "\n\nFinished\n";
 
 /*
 
-Vzorek 4
-Not nudes: 1007    Nudes: 171  Fails: 1
+Vzorek 4 mixed
+Old ver
+Not nudes: 190    Nudes: 19
+New ver
+Not nudes: 53    Nudes: 156
 
-Finished
+Vzorek 3
+New ver
+Not nudes: 1001    Nudes: 179
 
+Vzorek 2
+New ver
+Not nudes: 2240    Nudes: 384
+
+Safes
+New ver
+Not nudes: 138    Nudes: 32
+Old ver
+Not nudes: 164    Nudes: 6
 
 */
