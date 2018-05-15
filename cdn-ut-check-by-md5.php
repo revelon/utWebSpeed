@@ -39,7 +39,7 @@ for ($i=1; $i<1200; $i++) {
             }
         }
     }
-    $result->close();
+    if (is_object($result)) $result->close();
     flush();
 }
 

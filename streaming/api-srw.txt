@@ -47,3 +47,5 @@ zkusit hooky...
 utm_source = ulozto, utm_medium = search, utm_campaign = keywordMatch
 
 
+
+curl -H "X-Auth-Token: d45068a3c2f948356b88222182b83807" https://service.ulozto.srw.cz/api/v2/files/1

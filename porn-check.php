@@ -15,6 +15,43 @@ if ($mysqli->connect_errno) {
 
 /* Select queries return a resultset */
 if ($result = $mysqli->query("
+SELECT *, lower(hex(hash)) hsh  
+FROM file f 
+LEFT JOIN file_origins fo ON (id=file_id) 
+LEFT JOIN file_hash USING (hashid) 
+LEFT JOIN file_hashflags fh USING (hashid) 
+LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
+WHERE origin_file_id IS NULL AND pornProbability=2 AND contentType IN ('video', 'archive', 'image') 
+AND displayStatus IN ('maybe_safe', 'safe') AND banned=0 AND status='ok' AND cdnStatus='ok' 
+GROUP BY f.hashid
+ORDER BY f.hashid DESC 
+LIMIT 3000;
+							 ")) {
+
+/*
+
+
+// neshody podle upload davek s nejakym pornem
+SELECT *, lower(hex(hash)) hsh  
+FROM file fx 
+LEFT JOIN file_origins fo ON (fx.id=fo.file_id) 
+LEFT JOIN file_hash USING (hashid)
+LEFT JOIN file_hashflags fhh USING (hashid) 
+LEFT JOIN file_flags ff ON (fx.id=ff.file_id) 
+LEFT JOIN upload_batch_file ubfx ON (fx.id=ubfx.file_id)  
+WHERE fo.origin_file_id IS NULL AND ff.thumbSlideshowCount>0 AND fhh.contentType IN ('video, archive') 
+AND fhh.displayStatus IN ('safe', 'maybe_safe') AND fhh.banned=0 AND fx.status='ok' AND fhh.cdnStatus='ok' AND ubfx.upload_batch_id > 0 
+AND ubfx.upload_batch_id IN (
+
+select ubf.upload_batch_id davkaid 
+from upload_batch_file ubf left join file f on (f.id=ubf.file_id) left join upload_batch ub on (ub.id=ubf.upload_batch_id) left join file_hashflags fh using (hashid) 
+where ub.status='confirmed' group by ubf.upload_batch_id having sum(if(fh.displayStatus in ('porn','maybe_porn','maybe_illegal'),1,0)) > 0 and ((count(*) - sum(if(fh.displayStatus in ('porn','maybe_porn','maybe_illegal'),1,0))) > 0) and count(*) > 2 
+
+) GROUP BY fx.hashid
+ORDER BY fx.hashid ASC 
+LIMIT 2500;
+
+
 SELECT * 
 FROM file f 
 LEFT JOIN file_origins fo ON (id=file_id) 
@@ -25,9 +62,7 @@ AND displayStatus IN ('safe', 'maybe_safe') AND banned=0 AND status='ok' AND cdn
 GROUP BY f.hashid
 ORDER BY f.hashid DESC 
 LIMIT 500;
-							 ")) {
 
-/*
 
 // porno dle scoringu na UT
 SELECT * 
@@ -56,16 +91,14 @@ GROUP BY f.hashid
 ORDER BY f.hashid DESC 
 LIMIT 500;
 
-// obecne neshody dobre funknci, mozna i duplicitni, ke kontrolam !!!!
+// obecne neshody AI a lidi
 SELECT * 
 FROM file f 
 LEFT JOIN file_origins fo ON (id=file_id) 
-LEFT JOIN file_description fd ON (id=fd.file_id) 
 LEFT JOIN file_hashflags fh USING (hashid) 
 LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
-WHERE origin_file_id IS NULL AND thumbSlideshowCount>0 and pornProbability=2 AND contentType IN ('video', 'archive', 'image') 
-AND displayStatus IN ('maybe_porn', 'maybe_illegal', 'illegal') AND banned=0 AND status='ok' AND cdnStatus='ok' 
-AND name_status in ('safe','') 
+WHERE origin_file_id IS NULL AND pornProbability=2 AND contentType IN ('video', 'archive', 'image') 
+AND displayStatus IN ('maybe_safe', 'safe') AND banned=0 AND status='ok' AND cdnStatus='ok' 
 GROUP BY f.hashid
 ORDER BY f.hashid DESC 
 LIMIT 2000;
@@ -138,6 +171,10 @@ ORDER BY hashid DESC LIMIT 2000;
         for ($i = 0; $i < $row['thumbSlideshowCount']; $i++) {
             echo "<a href={$thm}{$i}.jpg download={$thm}{$i}.jpg class=safe>";
             echo "<img src='{$thm}{$i}.jpg' width=200></a>";
+        }
+        if ($row['contentType']==='image' && $row['thumbImage']) {
+            echo "<a href=http://imageth.uloz.to/{$row['hsh'][0]}/{$row['hsh'][1]}/{$row['hsh'][2]}/{$row['hsh']}.160x120.jpg download={$row['hsh']}.640x360.jpg>";
+            echo "<img src=http://imageth.uloz.to/{$row['hsh'][0]}/{$row['hsh'][1]}/{$row['hsh'][2]}/{$row['hsh']}.160x120.jpg></a>";
         }
         echo "<a target=_blank href=https://exec.uloz.to/support/files/file-preview?fileId={$row['id']}>";        
         echo "<br>[{$row['hashid']}] {$row['name']}</a> pornProb={$row['pornProbability']}, porn%={$row['pornProbabilityImage']}, dispStatus={$row['displayStatus']}, 

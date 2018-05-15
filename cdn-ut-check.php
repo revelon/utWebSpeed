@@ -3,7 +3,7 @@
 require ('/Users/xrevelon/git/ulozto-web/Nodus/Security/IntEncrypt.php');
 require ('/Users/xrevelon/cnf.php');
 require ('/Users/xrevelon/cnfcdn.php');
-$chunk = 200000000;
+$chunk = 10000000;
 echo "\n\n\n";
 
 $mysqli = new mysqli($cnf['h'], $cnf['u'], $cnf['p'], $cnf['d']);
@@ -20,7 +20,7 @@ if ($mysqlicdn->connect_errno) {
 }
 
 echo "\nPocet OK hashu v obou DB po rozsazich o $chunk hashid\n\n";
-for ($i=1; $i<2; $i++) {
+for ($i=1; $i<13; $i++) {
     $range = "" . ($i-1)*$chunk . " AND " . $i*$chunk;
     $ut = -1; $cdn = -1;
     if ($result = $mysqli->query("SELECT count(*) pocet FROM file_hashflags WHERE cdnStatus='ok' AND hashid BETWEEN " . $range)) {

@@ -1,5 +1,11 @@
 <?php
 
+include '../../link-generator/src/ILinkGenerator.php';
+include '../../link-generator/src/LinkGeneratorException.php';
+include '../../link-generator/src/LinkGenerator.php';
+
+use Videohostingcz\LinkGenerator;
+
 /**
  * Humble external Skrivy's CDN demo page, client side processing only, without any callbacks
  */
@@ -13,13 +19,12 @@ $httpBasicCredentials = 'https://srw-test:srwtest123@';
 $authToken = 'd45068a3c2f948356b88222182b83807';
 // project id
 $project = 1;
-//$authToken = 'fsvda345676i5rhe23456t7866uy4567t67itu34ye534y5r56rye4y';
-$authToken = 'd45068a3c2f948356b88222182b83807';
-//$project = 3;
 // api base CDN URL path
 $apiBase = 'https://service.ulozto.srw.cz/api/v1';
-// shared secret, shoudl exists nowhere but in source configuration on both sides
+$apiBase2 = 'https://service.ulozto.srw.cz/api/v2';
+// shared secret, should exists nowhere but in source configuration on both sides
 define('STORAGE_SECRET', 'Krakonos666');
+define('STORAGE_SECRET2', 'xeeb6eJ5cah7OoviaoPhi1eieHocha7v');
 
 /**
  * Returns array with query params, shared signing algorithm for both sides
@@ -231,21 +236,44 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 					$videoPlayableUrl = 'http://' . $playUrl . '?' . http_build_query(getParams('/' . $path));
 
 					// build player markup, perhaps prepare lang/iso code mapping...
-					$video = "<br><details><summary>Video id={$val} named: {$response->filename}</summary><video crossorigin controls src='{$videoPlayableUrl}'>";
+					$video = "<br><details><summary>Video id={$val} named: {$response->filename}</summary><fieldset><legend>Full video</legend><video crossorigin controls src='{$videoPlayableUrl}'>";
 					foreach ($subtitles as $lang => $subUrl) {
 						list($server, $path) = explode('/', $subUrl, 2);
 						$subPlayableUrl = 'http://' . $subUrl . '?' . http_build_query(getParams('/' . $path));
 						$video .= "<track srclang='{$lang}' label='{$lang}' kind='subtitles' src='{$subPlayableUrl}' default>";
 					}
+
 					// preview hacked in
-					$videoPreviewUrl = 'http://' . str_replace('/view/', '/preview/', $playUrl) . '?' . http_build_query(getParams('/pre' . $path, 120));
-					$video .= "</video><h5>Preview</h5><video crossorigin controls src='{$videoPreviewUrl}'>";
+					/*$videoPreviewUrl = 'http://' . str_replace('/view/', '/preview/', $playUrl) . '?' . http_build_query(getParams('/pre' . $path, 120));
+					$video .= "</video></fieldset><fieldset><legend>Old Preview</legend><video crossorigin controls src='{$videoPreviewUrl}'>";
 					foreach ($subtitles as $lang => $subUrl) {
 						list($server, $path) = explode('/', $subUrl, 2);
 						$subPlayableUrl = 'http://' . $subUrl . '?' . http_build_query(getParams('/' . $path, 120));
 						$video .= "<track srclang='{$lang}' label='{$lang}' kind='subtitles' src='{$subPlayableUrl}' default>";
 					}
-					$video .= "</video></details>";
+					$video .= "</video></fieldset></details>";*/
+
+					$command2 = "curl -H \"X-Auth-Token: {$authToken}\" {$apiBase2}/files/" . trim($val);
+					$ret2 = shell_exec($command2);
+					$response2 = json_decode($ret2);
+					$sizelimit = floor($response2->video->conversion[0]->size/10);
+					//var_dump('<pre>', $response2, '</pre>');
+					$generator = new LinkGenerator();
+					$urlp = $generator->generate($response2->video->conversion[0]->uri, 
+						[	'limitsize' => $sizelimit, 
+							'limitid' => uniqid(), 
+							'rate' => '400k', 
+							'expires' => time(null) + 60, 
+							'sparams' => 'path'], 
+							STORAGE_SECRET2);
+					$video .= "</video></fieldset><fieldset><legend>New Preview, 60 sec and 1/10 of filesize (${sizelimit} B)</legend><video crossorigin controls src='{$urlp}'>";
+					/*foreach ($subtitles as $lang => $subUrl) {
+						list($server, $path) = explode('/', $subUrl, 2);
+						$subPlayableUrl = 'http://' . $subUrl . '?' . http_build_query(getParams('/' . $path, 120));
+						$video .= "<track srclang='{$lang}' label='{$lang}' kind='subtitles' src='{$subPlayableUrl}' default>";
+					}*/
+					$video .= '</video></fieldset><svg><rect width="200" height="10" fill="orange"><animate attributeName="width" from="200" to="1" begin="0" dur="60s" fill="freeze"/></rect></svg></details>';
+
 					echo $video;
 				}
 				break;
