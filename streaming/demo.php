@@ -257,7 +257,7 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 					$ret2 = shell_exec($command2);
 					$response2 = json_decode($ret2);
 					$sizelimit = floor($response2->video->conversion[0]->size/10);
-					//var_dump('<pre>', $response2, '</pre>');
+					var_dump('<pre>', $response2, '</pre>');
 					$generator = new LinkGenerator();
 					$urlp = $generator->generate($response2->video->conversion[0]->uri, 
 						[	'limitsize' => $sizelimit, 

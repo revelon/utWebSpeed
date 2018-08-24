@@ -1,0 +1,78 @@
+<html>
+<head>
+</head>
+<body>
+
+<script>
+
+var links = [
+'http://localhost/local.example.com/down.php?name=BBB',
+'http://localhost/local.example.com/down.php?name=CCC',
+'http://localhost/local.example.com/down.php?name=DDD'
+]
+
+function downloadAll(urls) {
+  var link = document.createElement('a');
+
+  link.setAttribute('download','download');
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  for (var i = 0; i < 100; i++) {
+    link.setAttribute('href', 'down.php?name=AAA'+i);
+    link.click();
+  }
+  document.body.removeChild(link);
+}
+</script>
+
+<button onclick="downloadAll(window.links)">Test 100 downloads (method A)</button>
+
+<hr>
+
+<script>
+/**
+ * Download a list of files.
+ * @author speedplane
+ */
+function download_files(files) {
+  function download_next(i) {
+    if (i >= files.length) {
+      return;
+    }
+    var a = document.createElement('a');
+    a.href = files[i].download;
+    a.target = '_parent';
+    // Use a.download if available, it prevents plugins from opening.
+    if ('download' in a) {
+      a.download = files[i].filename;
+    }
+    // Add a to the doc for click to work.
+    (document.body || document.documentElement).appendChild(a);
+    if (a.click) {
+      a.click(); // The click method is supported by most browsers.
+    } else {
+      $(a).click(); // Backup using jquery
+    }
+    // Delete the temporary link.
+    a.parentNode.removeChild(a);
+    // Download the next file with a small timeout. The timeout is necessary
+    // for IE, which will otherwise only download the first file.
+    setTimeout(function() {
+      download_next(i + 1);
+    }, 500);
+  }
+  // Initiate the first download.
+  download_next(0);
+}
+
+  // Here's a live example that downloads three test text files:
+  function do_dl() {
+    download_files([
+      { download: "http://www.nt.az/reg.txt", filename: "regs.txt" },
+      { download: "https://www.w3.org/TR/PNG/iso_8859-1.txt", filename: "standards.txt" },
+      { download: "http://qiime.org/_static/Examples/File_Formats/Example_Mapping_File.txt", filename: "example.txt" },
+    ]);
+  };
+</script>
+<button onclick="do_dl();">Test downloading 3 text files (method B)</button>
+

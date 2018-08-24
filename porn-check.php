@@ -15,21 +15,39 @@ if ($mysqli->connect_errno) {
 
 /* Select queries return a resultset */
 if ($result = $mysqli->query("
-SELECT *, lower(hex(hash)) hsh  
-FROM file f 
-LEFT JOIN file_origins fo ON (id=file_id) 
-LEFT JOIN file_hash USING (hashid) 
-LEFT JOIN file_hashflags fh USING (hashid) 
+SELECT  *, lower(hex(hash)) hsh, f.id fid 
+FROM file f LEFT JOIN file_upload_data fud ON (fud.file_id=f.id)
+LEFT JOIN user_agent ua ON (fud.uploader_useragent_id=ua.id)
+LEFT JOIN file_origins fo ON (f.id=fo.file_id)
 LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
-WHERE origin_file_id IS NULL AND pornProbability=2 AND contentType IN ('video', 'archive', 'image') 
-AND displayStatus IN ('maybe_safe', 'safe') AND banned=0 AND status='ok' AND cdnStatus='ok' 
-GROUP BY f.hashid
-ORDER BY f.hashid DESC 
-LIMIT 3000;
+LEFT JOIN file_hashflags fh USING (hashid)
+LEFT join uzivatele u ON (f.owner=u.id)
+LEFT JOIN file_hash USING (hashid) 
+LEFT JOIN file_mimetypes fm ON (fm.id=fh.mimetypeId)
+LEFT JOIN file_description fd ON (f.id=fd.file_id)
+WHERE contentType IN ('video', 'image', 'archive') AND origin_file_id IS NULL AND displayStatus='illegal' AND public='public' AND cdnStatus='ok' 
+AND banned=2 GROUP BY f.hashid ORDER BY fud.upload_date DESC LIMIT 2000;
 							 ")) {
 
 /*
 
+
+// obsah podle ID davek
+SELECT *, lower(hex(hash)) hsh  
+FROM upload_batch_file ubf 
+JOIN file f ON (ubf.file_id=f.id) 
+LEFT JOIN file_origins fo ON (f.id=fo.file_id) 
+LEFT JOIN file_hash USING (hashid) 
+LEFT JOIN file_hashflags fh USING (hashid) 
+LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
+WHERE origin_file_id IS NULL AND contentType IN ('video', 'archive', 'image') 
+AND displayStatus IN ('maybe_safe', 'safe') AND banned!=2 AND cdnStatus='ok' AND ubf.upload_batch_id IN (
+1372191,
+1699566
+)
+GROUP BY f.hashid
+ORDER BY f.hashid DESC 
+LIMIT 3000;
 
 // neshody podle upload davek s nejakym pornem
 SELECT *, lower(hex(hash)) hsh  
@@ -166,17 +184,17 @@ ORDER BY hashid DESC LIMIT 2000;
         if ($row['hashid'] == $lastHashId) {
             continue; // skip potential duplicities
         }
-    	$tiny = Nodus\Security\IntEncrypt::encrypt($row['id'], 'Nodus');
-        $thm = "http://videoth.uloz.to/{$tiny[0]}/{$tiny[1]}/{$tiny[2]}/x{$tiny}.160x120.";
+    	$tiny = Nodus\Security\IntEncrypt::encrypt($row['fid'], 'Nodus');
+        $thm = "https://thumbs.uloz.to/{$tiny[0]}/{$tiny[1]}/{$tiny[2]}/x{$tiny}.160x120.";
         for ($i = 0; $i < $row['thumbSlideshowCount']; $i++) {
             echo "<a href={$thm}{$i}.jpg download={$thm}{$i}.jpg class=safe>";
             echo "<img src='{$thm}{$i}.jpg' width=200></a>";
         }
-        if ($row['contentType']==='image' && $row['thumbImage']) {
-            echo "<a href=http://imageth.uloz.to/{$row['hsh'][0]}/{$row['hsh'][1]}/{$row['hsh'][2]}/{$row['hsh']}.160x120.jpg download={$row['hsh']}.640x360.jpg>";
-            echo "<img src=http://imageth.uloz.to/{$row['hsh'][0]}/{$row['hsh'][1]}/{$row['hsh'][2]}/{$row['hsh']}.160x120.jpg></a>";
+        if ($row['contentType']==='image' && $row['hasThumbImage']) {
+            echo "<a href=https://thumbs.uloz.to/{$row['hsh'][0]}/{$row['hsh'][1]}/{$row['hsh'][2]}/{$row['hsh']}.160x120.jpg download={$row['hsh']}.640x360.jpg>";
+            echo "<img src=https://thumbs.uloz.to/{$row['hsh'][0]}/{$row['hsh'][1]}/{$row['hsh'][2]}/{$row['hsh']}.160x120.jpg></a>";
         }
-        echo "<a target=_blank href=https://exec.uloz.to/support/files/file-preview?fileId={$row['id']}>";        
+        echo "<a target=_blank href=https://exec.uloz.to/support/files/file-preview?fileId={$row['fid']}>";        
         echo "<br>[{$row['hashid']}] {$row['name']}</a> pornProb={$row['pornProbability']}, porn%={$row['pornProbabilityImage']}, dispStatus={$row['displayStatus']}, 
         nameStat={$row['name_status']}, descStat={$row['description_status']}, PHC1={$row['pornHumanCheck1']}, PHC2={$row['pornHumanCheck2']}, PHC={$row['pornHumanCheck']} 
         &nbsp; <button type='button' onclick='s(this, \"https://uloz.to/!{$row['slug']}/\")'>Straight</button> or 

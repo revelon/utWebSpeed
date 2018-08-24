@@ -27,7 +27,7 @@ $mysqlicdn->query("SET SESSION group_concat_max_len = 1000000");
 $rozdilu = 0;
 echo "\nSrovnani hashu v obou DB po blocich za predpokladu ze nam sedi hashid, majici hashida\n\n";
 echo "cdn_hash\tcdn_hashid\tcdn_status\tcdn_size\tut_hash_\tut_hashid\tut_status\tut_size\n";
-for ($i=1; $i<30000; $i++) {
+for ($i=0; $i<36000; $i++) {
     $range = "" . ($i-1)*$chunk . " AND " . $i*$chunk;
     // get list of hashids
     $res = $mysqlicdn->query("SELECT GROUP_CONCAT(hashid SEPARATOR ',') hashids FROM file_hashcounter WHERE hashid BETWEEN " . $range);

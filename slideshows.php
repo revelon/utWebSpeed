@@ -3,6 +3,9 @@
 require ('/Users/xrevelon/git/ulozto-web/Nodus/Security/IntEncrypt.php');
 require ('/Users/xrevelon/cnf.php');
 
+var_dump(Nodus\Security\IntEncrypt::encrypt(664003, 'NodusVoucher'));
+die;
+
 echo "\n\n\n";
 
 $mysqli = new mysqli($cnf['h'], $cnf['u'], $cnf['p'], $cnf['d']);
