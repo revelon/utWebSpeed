@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set('display_errors',1);
 ini_set('memory_limit','1500M');
 
 if (!$argv[1] || !$argv[2]) {
@@ -124,6 +126,7 @@ foreach ($in as $kk => $value) {
 		$pair = explode(",", $value);
 	}
 	$asserts[$pair[0]]++;
+	//$result = $scoringService->analyzeSentence($searchFactory->stripToKeywords($pair[1]));
 	$result = $scoringService->analyzeSentence($pair[1]);
 	echo 'Input: ' . $pair[1] . "\t";
 	echo 'Hardcore level: ' . $result->getHardcoreLevel() . "\t";
