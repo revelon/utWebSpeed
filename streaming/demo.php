@@ -208,7 +208,7 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 		// check
 		switch ($operation) {
 			case 'check':
-				$command = "curl -H \"X-Auth-Token: {$authToken}\" {$apiBase}/files/" . trim($val);
+				$command = "curl -H \"X-Auth-Token: {$authToken}\" {$apiBase2}/files/" . trim($val); // TMP HACK $apiBase2
 				$ret = shell_exec($command);
 				$response = json_decode($ret);
 				break;
@@ -236,7 +236,7 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 					$videoPlayableUrl = 'http://' . $playUrl . '?' . http_build_query(getParams('/' . $path));
 
 					// build player markup, perhaps prepare lang/iso code mapping...
-					$video = "<br><details><summary>Video id={$val} named: {$response->filename}</summary><fieldset><legend>Full video</legend><video crossorigin controls src='{$videoPlayableUrl}'>";
+					$video = "<br><details><summary>Video id={$val} named: {$response->filename}</summary><fieldset><legend>Full video</legend><video crossorigin preload='none' controls src='{$videoPlayableUrl}'>";
 					foreach ($subtitles as $lang => $subUrl) {
 						list($server, $path) = explode('/', $subUrl, 2);
 						$subPlayableUrl = 'http://' . $subUrl . '?' . http_build_query(getParams('/' . $path));
@@ -262,11 +262,11 @@ if (count($filesCreated) || $_REQUEST['filesList']) {
 					$urlp = $generator->generate($response2->video->conversion[0]->uri, 
 						[	'limitsize' => $sizelimit, 
 							'limitid' => uniqid(), 
-							'rate' => '400k', 
+							'rate' => '800k', 
 							'expires' => time(null) + 60, 
 							'sparams' => 'path'], 
 							STORAGE_SECRET2);
-					$video .= "</video></fieldset><fieldset><legend>New Preview, 60 sec and 1/10 of filesize (${sizelimit} B)</legend><video crossorigin controls src='{$urlp}'>";
+					$video .= "</video></fieldset><fieldset><legend>New Preview, 60 sec and 1/10 of filesize (${sizelimit} B)</legend><video crossorigin preload='none' controls src='{$urlp}'>";
 					/*foreach ($subtitles as $lang => $subUrl) {
 						list($server, $path) = explode('/', $subUrl, 2);
 						$subPlayableUrl = 'http://' . $subUrl . '?' . http_build_query(getParams('/' . $path, 120));

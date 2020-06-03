@@ -42,21 +42,21 @@ if ($result = $mysqli->query("select * from external_stream_file where status='i
 //if ($result = $mysqli->query("select * from external_stream_file where status='ok' order by file_hashid desc limit 5")) {
 //if ($result = $mysqli->query("select * from external_stream_file where external_file_id in (668420,668383,681437)")) {
     while ($row = $result->fetch_assoc()) {
-        /*
+        
         $command = "curl -H \"X-Auth-Token: {$authToken}\" {$apiBase}/files/" . $row['external_file_id'];
         $ret = shell_exec($command);
         $response = json_decode($ret);
-        //var_dump('V1', $response);
+        var_dump('V1', $response);
         if ($response->hasIssue || !$response->related->conversion) {
             $fails1[$row['external_file_id']] = $response;
         } else {
             $oks1[] = $row['external_file_id'];
-        }      */      
+        }      
 
         $command2 = "curl -H \"X-Auth-Token: {$authToken}\" {$apiBase2}/files/" . $row['external_file_id'];
         $ret2 = shell_exec($command2);
         $response2 = json_decode($ret2);
-        //var_dump('V2', $response2, $ret2);
+        var_dump('V2', $response2, $ret2);
         if ($response2->hasIssue || !$response2->video->conversion[0]->uri) {
             $fails2[$row['external_file_id']] = $response2;
         } else {

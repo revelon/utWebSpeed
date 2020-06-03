@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebCrypto 0.9 Demo s AES-GCM Blob</title>
+    <script type="text/javascript" src="js/common.js"></script>
+    <script src="js/lzutf8.js"></script>
+    <script src="js/ponyfill.min.js"></script>
+    <script src="js/Blob.js"></script>
+    <script src="StreamSaver/StreamSaver.js"></script>
+
+    <style>
+        input[type="number"] {width: 100px;}
+        body {font-family: sans-serif; font-size: 10px;}
+        button {background-color: lightgray; margin: 1px 5px 1px 2px; padding: 2px; font-size: 10px;}
+        img {max-height: 256px; max-width: 256px;}
+        table {width: 100%; margin-bottom: 4px;}
+        table tr.purse td {background-color: linen;}
+        table tr.copy td {background-color: lavender;}
+        table td {background-color: beige; padding: 1px 2px; font-size: 9px;}
+        pre {font-size: 8px; max-width: 50%; max-height: 240px; overflow: scroll; background-color: #efe; margin: 0;}
+        div#purseHolder {float: right; width: 50%;}
+        #obfusUrl {width: 63%; font-size: 10px;}
+    </style>
+
+<body>
+
+Login:<input id='userlogin' type='text' placeholder='Vypln poprve!'> Password:<input id='userpass' type='text' placeholder='Vypln poprve!'> <button onclick="init(userlogin.value, userpass.value)">LOGIN</button> <button onclick="helper_logout()">LOGOUT/CLEAR</button><br> ChunkSize Bytes:<input id='chunkSize' type='number' value='1000000' min='500000' max='8000000' step="500000">
+ActiveBatch:<input id='activeBatchOne' type='text' value='' onchange="activeBatch=this.value"><hr>
+<input type="file" id="file2upload" onchange='fileInit()'>
+slug:<input id='slugger' type='text' value='' onchange="slug=this.value"> 
+iv:<input id='ivec' type='text' value='' onchange='helper_ivec(this.value)'> 
+key:<input id='keyec' type='text' value='' onchange='helper_keyec(this.value)'> 
+<button onclick="chunkedUpload(file2upload, chunkSize.value)">CRYPT & UPLOAD</button> <br>
+Obfuscated URL:<input id='obfusUrl' type='text' value='' onchange='helper_deobfuscate(this.value)' onfocus='this.select()'><button onclick="fileReceiver()">GET & DECRYPT & SAVE</button><hr>
+<button onclick="importPurse(mainPurseId)">IMPORT MAIN PURSE</button> <button onclick="helper_activeBatch('batch'+Math.random().toString(36).substring(5, 15), Math.random().toString(36).substring(2, 15), Math.random().toString(36).substring(2, 15), false)">ADD NEW PURSE</button>
+<hr>
+<div id="purseHolder"></div>
+<pre id="log">
+</pre>
+
+<script>
+    // globals
+    var dbg = true;
+    var log = document.getElementById('log'); // helper div na logovani
+    // uzivatelske heslo, mel by zadat jen 1x a ulozit si pak v lokalStorage master klic
+    // login slouzi de facto jen jako prefix main penezenky tohoto prototypu
+    var userIV = 1587039519; // nonce, musi byt staticky a perzistovany, timestamp registrace nebo user id??
+    var salt = new TextEncoder().encode('123456123456'); // asi by mel byt taky jiny pokazde? nez pro soubory!?! nebo ne?
+    var purses = new Map(); // store na ruzne klicenky, nejen uzivatelovu
+    var mainPurseId = 'main';
+
+    // two localStorage keys are in use: login, masterKey
+
+    // file based, pro kazdy soubor budou jine
+    var iv; // arrayBuffer
+    var key; // arrayBuffer
+    var keyData; // objekt Key
+    var slug = '';// string slug
+    var activeBatch = '';
+
+    init(); // pokus o import z localStorage
+
+    // inicializace primarni klicenky uzivatele
+    async function init(login='',pass='') {
+        if (login) window.localStorage.login = login;
+        const res = await preparePurseWrapper(mainPurseId, userIV, pass);
+        if (res) importPurse(mainPurseId);
+    }
+
+    // inicializace, klice, nonce a slugu pro novy soubor
+    async function fileInit() {
+        const ivStr = Math.random().toString(36).substring(2, 15);
+        iv = new TextEncoder().encode(ivStr);
+        const keyStr = Math.random().toString(36).substring(2, 15);
+        key = new TextEncoder().encode(keyStr);
+        keyData = await deriveKey(key, salt);
+        slug = Math.random().toString(36).substring(5, 15); // random string
+        helper_applyData(slug, ivStr, keyStr)
+    }
+
+    // funkce na inicializaci jakekoliv penezenky, s nejakou vyjimkou pro main pass
+    async function preparePurseWrapper(id, ivString, passwordString='') {
+        log.prepend(`creating purse wrapper id: ${id}\n`);
+        let newPurse = {id: id, digest: 'empty', ivStr: ivString}
+        newPurse.iv = new TextEncoder().encode(ivString);
+        newPurse.passwordStr = passwordString; // should be reset/cleared/not necessary for mainPurseId, key must suffice 
+
+        // import klice
+        if (window.localStorage.masterKey && window.localStorage.login) {
+            const importRawKey = hexStringToUint8Array(window.localStorage.masterKey);
+            newPurse.key = await importKey(importRawKey);
+            log.prepend(`masterKey for login '${window.localStorage.login}' imported from local\n`);
+
+        // vytvoreni klice
+        } else if (passwordString && window.localStorage.login) {
+            log.prepend(`deriving masterKey from password: ${passwordString}\n`);
+            newPurse.key = await deriveKey(passwordString, salt); // aka masterKey for user
+            const masterKeyRaw = await crypto.subtle.exportKey('raw', newPurse.key);
+            const masterKeyHex = bytesToHexString(masterKeyRaw);
+            window.localStorage.masterKey = masterKeyHex; // store it for next time
+            if (dbg) console.log('exportable derived masterKey saved:', masterKeyHex, window.localStorage);
+
+        } else {
+            log.prepend(`missing masterKey or password\n`)
+            return false;
+        }
+
+        newPurse.secrets = new Map();
+        // specialni pripad, kdy si ulozime jako zaznam do penezenky u uzivatelovo heslo, pro recovery
+        if (id==mainPurseId) {
+            if (passwordString) newPurse.secrets.set(window.localStorage.login, {type:'root', iv: ivString, key: passwordString});
+        } else {
+            // ve vsech ostatnich pripadech si musime poznamenat credentials novych penezenek do one hlavni, at o ne neprijdeme!
+            addToPurse(id, ivString, passwordString, 'purse');
+        }
+        if (dbg) console.log('purse created', newPurse, 'purses', window.purses);
+        window.purses.set(id, newPurse);
+        helper_renderPurses();
+
+        // always try importing it immediatelly, if available?
+        // await importPurse(id);
+        return true;
+    }
+
+    // helper pro odvozovani klice z hesla/stringu
+    async function getKeyMaterial(password) {
+      return window.crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(password),
+        "PBKDF2",
+        false,
+        ["deriveBits", "deriveKey"]
+      );
+    }
+
+    // funkcne na generovani klice z daneho hesla/stringu
+    async function deriveKey(password, salt) {
+      const keyMaterial = await getKeyMaterial(password);
+      const derivedKey = await window.crypto.subtle.deriveKey(
+        {
+          "name": "PBKDF2",
+          salt: salt,
+          "iterations": 10000,
+          "hash": "SHA-256"
+        },
+        keyMaterial,
+        { "name": "AES-GCM", "length": 256},
+        true,
+        [ "encrypt", "decrypt" ]
+      );
+      log.prepend("key derived\n");
+      return derivedKey;
+    }
+
+    // funkcne na import raw exportovaneho klice
+    async function importKey(rawKeyData) {
+      const importedKey = await window.crypto.subtle.importKey(
+        'raw',
+        rawKeyData,
+        { "name": "AES-GCM", "length": 256},
+        true,
+        [ "encrypt", "decrypt" ]
+      );
+      log.prepend("key importer\n");
+      return importedKey;
+    }
+
+    // pridavani souboru do klicenek, vse stringy
+    async function addToPurse(id, iv, key, type='file') {
+        // pridame uzivateli kazdy jeho novy soubor do hlavni klicenky
+        window.purses.get(window.mainPurseId).secrets.set(id, {'type': type, 'iv': iv, 'key': key});
+        //await exportPurse(window.mainPurseId);
+        // a pridame i do davky/folderu/extra klicenky/ je-li nejaka aktivni
+        if (window.activeBatch) {
+            window.purses.get(window.activeBatch).secrets.set(id, {'type': type, 'iv': iv, 'key': key});
+            //await exportPurse(window.activeBatch);
+        }
+    }
+
+    // odebirani polozek z klicenek - vc. autosave??
+    async function removeFromPurse(id) {
+        // odebrat uzivateli soubor z hlavni klicenky zamerne skipujeme, ztratil by k nemu pristup
+        // a odebereme ale z davky/folderu/extra klicenky/ je-li v nejake aktivni
+        if (window.activeBatch) {
+            if (window.purses.get(window.activeBatch).secrets.delete(id)) {
+                //await exportPurse(window.activeBatch);
+            }
+        }
+    }
+
+    // funkce pripravujici chunky pro narezani souboru
+    function sliceFile(file, chunkSize) {
+        let byteIndex = 0;
+        let chunks = [];      
+        while (byteIndex<(file.size)) {  
+            const byteEnd = ((byteIndex+chunkSize)<file.size) ? byteIndex+chunkSize : file.size+1;
+            chunks.push(file.slice(byteIndex, byteEnd));
+            byteIndex = byteEnd;
+        }
+        return chunks;
+    }
+
+    // spusteni provedeni nahrani vsech chunku souboru
+    async function chunkedUpload(fileInput, chunkBytes) {
+        if (!fileInput.files[0]) {
+            return log.prepend("select some file first...\n");    
+        }
+        const input = fileInput.files[0]; // zajima nas samotny soubor
+        log.prepend("Chunked Upload of "+input.name+", fileSize: "+input.size+" B\n");
+        const slices = sliceFile(input, parseInt(chunkBytes));
+
+        log.prepend("No. of slices: "+slices.length+"\n");
+        if (dbg) console.log('chunked upload data:', input, fileInput, chunkBytes, input.size, slices);
+
+        addToPurse(slug, new TextDecoder().decode(iv), new TextDecoder().decode(key));
+        helper_renderPurses();
+
+        const digestSign = await digester(new TextEncoder().encode(slug), iv, key);
+
+        slices.forEach((item, index) => {
+            let reader = new FileReader();
+
+            reader.onload = async function(e) {
+              if (dbg) console.log(index, e.target.result);
+              const data2send = await AES_GCM_enc(e.target.result, iv, keyData);
+              sender(data2send, index, digestSign, input, chunkBytes);
+            }
+
+            reader.readAsArrayBuffer(item);
+        });
+    }
+
+    // pomocna funkce nahravajici jeden chunk souboru
+    async function sender(data, index, digestSign, inputFile, chunkBytes) {
+        log.prepend(`sending chunk no: ${index}\n`);
+        const response = await fetch('upload.php?sign='+digestSign+'&chunkSize='+chunkBytes+'&slug='+slug+'&part='+index+'&fileName='+inputFile.name+'&size='+inputFile.size+'&mime='+inputFile.type, 
+            {method: 'POST', body: new Blob([data])});
+        if (dbg) console.log('odpoved zapisu', index, response, response.text());
+    }
+
+
+    // vypocet "podpisu pravosti" pozadvku na zaklade znalosti spravnych klicu a vektoru, pro soubory i klicenky
+    // in: arraybuff, arraybuff, arraybuff
+    async function digester(slug, iv, key) {
+        if (dbg) console.log('digester inputs:', slug, iv, key);
+        const combined = new Uint8Array([...slug, ...iv, ...key]);
+        const digestSign = await window.crypto.subtle.digest('SHA-1', combined);
+        const hexSign = bytesToHexString(digestSign);
+        if (dbg) console.log('digestSign', hexSign);
+        return hexSign;
+    }
+
+    // zasifrovani
+    async function AES_GCM_enc(dataBytes, iv, key) {
+        log.prepend("AES_GCM_encrypt\n");
+        const cryptedChunk = await window.crypto.subtle.encrypt({name: "aes-gcm", iv: iv}, key, dataBytes);
+        if (dbg) console.log(cryptedChunk);
+        return cryptedChunk;
+    }
+
+    // odsifrovani
+    async function AES_GCM_dec(dataBytes, iv, key) {
+        log.prepend("AES_GCM_decrypt\n");
+        if (dbg) console.log('decrypt begin', dataBytes)
+        const decryptedChunk = await window.crypto.subtle.decrypt({name: "aes-gcm", iv: iv}, key, dataBytes);
+        if (dbg) console.log(decryptedChunk);
+        return decryptedChunk;
+    }
+
+    // ridici funkce pro stazeni (ne paralelni zatim!) ale postupne vsech chunku souboru a jeho desifraci
+    async function fileReceiver() {
+        if (!slug || !key || !iv) {
+            return log.prepend("no file selected...\n");
+        }
+        log.prepend("fileReceiver of file started\n");
+        const digestSign = await digester(new TextEncoder().encode(slug), iv, key);
+        const response = await fetch('downloadInfo.php?slug='+slug+'&sign='+digestSign);
+        const obj = await response.json();
+        if (dbg) console.log('odpoved jsonu', response, obj);
+
+        if (obj.status!='ok') {
+            log.prepend(`file info failed: ${obj.reason}\n`);
+            return false;
+        }
+
+        const fileStream = streamSaver.createWriteStream(obj.fileName, {
+              size: obj.fileSize // Makes the procentage visible in the download, if real number given
+        });
+        if (dbg) console.log('bereme file', obj.fileName, slug, fileStream, obj.mime.indexOf('image'));
+        log.prepend(`receiving file: ${obj.fileName} of size: ${obj.fileSize}\n`);
+
+        const dbg2 = (obj.mime.indexOf('image')==0) ? true : false; // helper for img file types displaying
+        let debugBuffer = '';
+
+        // Write (pipe) manually, crossbrowser - there is faster stream way for Chrome etc.!! optimize later
+        window.writer = fileStream.getWriter();
+
+        for (let i=0 ; i<obj.chunks; i++) {
+            const resp = await receive(slug, i, digestSign);
+            if (dbg) console.log('data', i, resp);
+            if (!resp) {
+                log.prepend("file download failed!! aborting...\n");
+                window.writer.close();
+                return false;
+            }
+
+            const data = await AES_GCM_dec(resp, iv, keyData);
+            if (dbg) console.log('decr. data', data);
+            if (dbg2) debugBuffer += bytesToHexString(data);
+
+            // write it to the filesystem
+            let readableStream = new Blob([data]).stream();
+
+            let reader = readableStream.getReader();
+            const pump = async () => reader.read()
+              .then(res => res.done
+                ? console.log('koncime zapis chunku')
+                : window.writer.write(res.value).then(pump));
+
+            await pump();
+
+            // close file in the end
+            if ((i+1)==obj.chunks) {
+                window.writer.close();
+                log.prepend("Write done\n");
+                if (dbg2) helper_render('img', obj.mime, hexToBase64(debugBuffer));
+            }
+        }
+    }
+
+    // pomocna funkce pro stahovani jednotlivych chunku souboru
+    async function receive(slugik, index, sign) {
+        log.prepend(`chunk id no: ${index} download\n`);
+
+        let response = await fetch(`download.php?slug=${slugik}&part=${index}&sign=${sign}`);
+        if (dbg) console.log('odpoved', response, response.status);
+
+        if (response.status!=200) {
+            let json = await response.json();
+            log.prepend(`chunk ${index} download failed: ${json.reason}\n`);
+            return false;
+        }
+
+        return await response.arrayBuffer();
+    }
+
+    // funkce zapisujici aktualni keyStore/penezenku/purse a server, v jedinem souboru!!
+    // potencialne nebezpecne!!, pred zapisem je treba overit, ze vychazime z aktualni verze ze serveru!!! mega to dela jen pojednom entry (asi); zatim jen provizorni reseni
+    async function exportPurse(id) {
+        log.prepend(`exporting purse id: ${id}\n`);
+        const purse = window.purses.get(id);
+        const purseJson = JSON.stringify([...purse.secrets]);
+        const purseCompressed = LZUTF8.compress(purseJson);
+        if (dbg) console.log('purse out', id, purse, purseJson, purseCompressed);
+        const crypted = await AES_GCM_enc(purseCompressed, purse.iv, purse.key);
+
+        const digest = await window.crypto.subtle.digest('SHA-1', crypted); // otisk aktualniho souboru tajemstvi
+        const digestHex = bytesToHexString(digest);
+        // podpis desifrovacich klicu - je nutne pracobvat s hexa master klicem a ne heslem, protoze to nemusi byt k dispozici!!
+        const digestSign = await digester(new TextEncoder().encode(id), purse.iv, new TextEncoder().encode(window.localStorage.masterKey));
+        if (dbg) console.log('purse digest', digestHex, digest, 'purse sign hex:', digestSign, purse.digest);
+
+        const purseName = (id==mainPurseId) ? id+window.localStorage.login : id; // at muze pouzivat prototyp vice uzivatelu najednou
+        const response = await fetch(`purse.php?action=put&id=${purseName}&digest=${digestHex}&sign=${digestSign}&initialDigest=${purse.digest}`, 
+            {method: 'POST', body: new Blob([crypted])});
+        if (response.ok) {
+            purse.digest = digestHex; // priradime si novy digest
+        }
+        if (dbg) console.log('odpoved exportu', window.purses, response);
+        // TODO osereni chybovych stavu response, lepe
+    }
+
+    // funkce ziskani penezenky/keyStore ze serveru
+    // pracovne bez jakychkoliv session/ownership zabezpeceni
+    async function importPurse(id) {
+        if (!window.localStorage.masterKey) {
+            return log.prepend(`not possible without masterKey\n`);
+        }
+        log.prepend(`trying to import purse id: ${id}\n`);
+        const purse = window.purses.get(id); // mel by byt ready wrapper
+
+        // podpis desifrovacich klicu - je nutne pracobvat s hexa master klicem a ne heslem, protoze to nemusi byt k dispozici!!
+        const digestSign = await digester(new TextEncoder().encode(id), purse.iv, new TextEncoder().encode(window.localStorage.masterKey));
+        if (dbg) console.log('purse sign:', digestSign);
+
+        const purseName = (id==mainPurseId) ? id+window.localStorage.login : id; // at muze pouzivat prototyp vice uzivatelu najednou
+        let response = await fetch(`purse.php?action=get&id=${purseName}&sign=${digestSign}`);
+        if (!response.ok) {
+            log.prepend(`import of purse ${id} failed with code: ${response.status}\n`);
+            return false;
+        }
+        let data = await response.arrayBuffer();
+        // beware, response.headers is not debuggable / not showing in console.log, but direct get() for property is working
+        if (dbg) console.log('purse in:', response, data, 'custom headers:', response.headers.get('PurseDigest'));
+        purse.digest = response.headers.get('PurseDigest');
+
+        if (dbg) {
+            const digest = await window.crypto.subtle.digest('SHA-1', data);
+            console.log('computed digest of incoming file', bytesToHexString(digest));
+        }
+
+        const decrypted = await AES_GCM_dec(data, purse.iv, purse.key);
+        if (dbg) console.log(decrypted);
+        const uncompressed = LZUTF8.decompress(new Uint8Array(decrypted));
+        const secrets = new Map(JSON.parse(uncompressed));
+        if (dbg) console.log('purse secrets imported: ', decrypted, uncompressed, secrets);
+        purse.secrets = secrets;
+        window.purses.set(id, purse);
+        helper_renderPurses();
+    }
+
+    // key and iv obfuscator
+    function obfuscate(slug, iv, key) {
+        const reversedSlug = slug.split("").reverse().join("").substring(4); // take 4 chars from reversed slug
+        // add 3 chars from left and right, random ones
+        const txt = Math.random().toString(36).substring(5, 8)+iv+reversedSlug+key+Math.random().toString(36).substring(5, 8); 
+        const encodedData = str_rot13(window.btoa(txt).substring());
+        if (dbg) console.log('obfuscate', reversedSlug, txt, encodedData);
+        return encodedData;
+    }
+
+    // key and iv deobfuscator
+    function deobfuscate(slug, encodedData) {
+        const reversedSlug = slug.split("").reverse().join("").substring(4);
+        const decodedData = window.atob(str_rot13(encodedData));
+        const splited = decodedData.split(reversedSlug);
+        const iv = splited[0].substring(3);
+        const key = splited[1].substring(0, splited[1].length-3);
+        if (dbg) console.log('deobfuscate', reversedSlug, decodedData, splited, iv, key);
+        return {'iv':iv, 'key':key};
+    }
+
+
+    /**
+    * only helper functions below are supposed to manipulate directly with DOM elements
+    */
+
+    // helper: vykresluje obsah purses na screen
+    function helper_renderPurses() {
+        let html = "";
+        window.purses.forEach((purse, index) => {
+            html += `<table><caption>Purse (keystore) id: ${index} &nbsp; <button onclick="exportPurse('${index}')">EXPORT</button></caption>`;
+            purse.secrets.forEach((v, i) => { 
+                if (v.type==='file' || v.type==='copy') {
+                    html += `<tr class="${v.type}"><td>type: ${v.type}</td><td>slug: ${i}</td><td>iv: ${v.iv}</td>
+                    <td>key: ${v.key}</td><td><button onclick="helper_applyData('${i}','${v.iv}','${v.key}', true)">Download</button>`;
+                    if (v.type!=='copy') {
+                        html += `<button onclick="helper_duplicateFile('${i}','${v.iv}','${v.key}')">Duplicate</button>`;
+                    }
+                    if (index!==mainPurseId) {
+                        html += `<button onclick="helper_removeFile('${i}')">Remove</button>`;
+                    }
+                    html += `</td></tr>`;
+                } else if (v.type==='purse') {
+                    html += `<tr class="purse"><td>type: ${v.type}</td><td>slug: ${i}</td><td>iv: ${v.iv}</td>
+                    <td>key: ${v.key}</td><td><button onclick="helper_activeBatch('${i}','${v.iv}','${v.key}', true)">ACTIVATE</button></td></tr>`;
+                } else {
+                    html += `<tr><td>type: ${v.type}</td><td>slug: ${i}</td><td>iv: ${v.iv}</td><td>key: ${v.key}</td><td>n/a</td></tr>`;
+                }
+            });
+            html += "</table>";
+        });
+        document.getElementById("purseHolder").innerHTML = html;
+    }
+
+    // helper: aplikuje data z purse do formulare pro pouziti
+    function helper_applyData(slugik, iv, key, download=false) {
+        document.getElementById('ivec').value = iv;
+        helper_ivec(iv);
+        document.getElementById('keyec').value = key;
+        helper_keyec(key);
+        document.getElementById('slugger').value = slugik;
+        slug = slugik;
+        document.getElementById('obfusUrl').value = `/file/${slugik}#!${obfuscate(slug, iv, key)}`;
+
+        // trigger autodownload
+        if (download) fileReceiver();
+    }
+
+    // helper: resi rucni zmenu / prepis nonce
+    async function helper_ivec(val) {
+        iv = new TextEncoder().encode(val);
+        keyData = await deriveKey(key, salt);
+    }
+
+    // helper: resi rucni zmenu / prepis klice souboru
+    async function helper_keyec(val) {
+        key = new TextEncoder().encode(val);
+        keyData = await deriveKey(key, salt);
+    }
+
+    // helper: activate alternative purse/batch/folder for file credentials append
+    async function helper_activeBatch(id, iv, key, importExisting) {
+        if (!window.purses.size) {
+            return log.prepend(`not possible now...\n`);
+        }
+        log.prepend(`setting active batch/folder id: ${id}\n`);
+        document.getElementById("activeBatchOne").value = id;
+        await preparePurseWrapper(id, iv, key);
+        window.activeBatch = id;
+        if (importExisting) await importPurse(id);
+        helper_renderPurses();
+    }
+
+    // helper: file clonning
+    async function helper_duplicateFile(id, iv, key) {
+        const slug = Math.random().toString(36).substring(5, 15); // random string
+        log.prepend(`duplicating file: ${id} to ${slug}\n`);
+        await addToPurse(slug, iv, key, 'copy');
+        log.prepend(`creating symlink\n`);
+        let response = await fetch(`symlink.php?from=${id}&to=${slug}`); // simple hack
+        helper_renderPurses();
+    }
+
+    // helper: file credentials remove
+    async function helper_removeFile(id) {
+        log.prepend(`removing file id: ${id}\n`);
+        await removeFromPurse(id);
+        helper_renderPurses();
+    }
+
+    // helper: parse and deobfuscate file url
+    // e.g. /file/y126azt#!NWJveDFhcndvZjh4MWIyMXlvbnMyY2FmZjJwYW1i
+    function helper_deobfuscate(path) {
+        log.prepend(`parsing and deobfuscating url\n`);
+        const url = new URL(path, 'https://uloz.to/');
+        const slug = url.pathname.substring("/file/".length);
+        const encoded = url.hash.substring("#!".length);
+        if (dbg) console.log ('parse&deobfuscate', path, url, slug, encoded);
+        const data = deobfuscate(slug, encoded);
+        helper_applyData(slug, data.iv, data.key);
+    }
+
+    // helper renderer, for dbg purposes
+    function helper_render(tag, mime, base64data) {
+        let obj = document.createElement(tag);
+        obj.src = 'data:'+mime+';base64,' + base64data;
+        if (dbg) console.log('renderuju', tag, mime, obj);
+        document.body.appendChild(obj);
+    }
+
+    // helper logout
+    function helper_logout() {
+        window.localStorage.clear();
+        window.location.reload();
+    }
+
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,78 @@
+<html>
+
+<body>
+
+<input type="file" id="fff" onchange="aaa(this)"><button onclick="bbb()">test</button>
+
+<script>
+
+//The content of file_encrypted.txt. It is encoded in base64
+//var opensslEncryptedData = atob(`U2FsdGVkX19NC+vvG9Kr+1foBANmwMxQpE9RiRx60LLW9nu4gmf64Y+iV9Ns6Km`);
+//Encrypted data removing salt and converted to arraybuffer
+//var encryptedData = convertStringToArrayBufferView(opensslEncryptedData.substr(16,opensslEncryptedData.length));
+var encryptedData;
+
+//key and IV. salt would be needed to derive key from password
+var IV = convertStringToArrayBufferView (hex2a ('285B3EF7AF2611C7A4A0F277FDF34EDD'));
+var key = convertStringToArrayBufferView (hex2a ('507342B9C6EFCA9705F17483C16121018B94479C900112E1351BF03C4D643DCA'));
+//var salt = convertStringToArrayBufferView (hex2a ('886DBE2C626D6112'));
+
+// zda se, ze to funguje i s 16B hlavickou!!!
+async function aaa(fileInput) {
+    let reader = new FileReader();
+
+    reader.onload = async function(e) {
+      console.log(e.target.result);
+      encryptedData = e.target.result;
+    }
+
+    reader.readAsArrayBuffer(fileInput.files[0]);
+}
+
+async function bbb() {
+	crypto.subtle.importKey("raw", key, {name: "AES-CBC"}, false, ["encrypt", "decrypt"]). then (function (cryptokey){
+
+	    return crypto.subtle.decrypt({ name: "AES-CBC", iv: IV }, cryptokey, encryptedData).then(function(result){
+	        var decrypted_data = new Uint8Array(result);
+	        var res =  convertArrayBufferViewtoString(decrypted_data);
+	        console.log(res);
+	    }).catch (function (err){
+	        console.log(err);
+	    }); 
+
+	}).catch (function (err){
+	    console.log(err);
+	});   
+}
+
+function hex2a(hexx) {
+    var hex = hexx.toString();//force conversion
+    var str = '';
+    for (var i = 0; i < hex.length; i += 2)
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    return str;
+}
+
+function convertStringToArrayBufferView(str){
+    var bytes = new Uint8Array(str.length);
+    for (var iii = 0; iii < str.length; iii++) {
+        bytes[iii] = str.charCodeAt(iii);
+    }
+
+    return bytes;
+}
+
+function convertArrayBufferViewtoString(buffer){
+    var str = "";
+    for (var iii = 0; iii < buffer.byteLength; iii++) {
+        str += String.fromCharCode(buffer[iii]);
+    }
+
+    return str;
+}
+
+
+</script>
+</body>
+</html>
+

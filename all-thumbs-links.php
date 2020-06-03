@@ -7,6 +7,7 @@ ini_set('memory_limit','2048M');
 /*  
    Script to generate entries to all thumbnails we should have
    Mandatory is PHP source code of Uloz.to IntEncrypt library and access to ulozto db
+   Optimized to avoid duplicates on images
 */
 
 /* path to IntEncrypt library */
@@ -34,37 +35,44 @@ fwrite(STDERR, "Progress: ");
 
 /* iterate by millions, to 260, should cover everything
    downside of this process is that we are generating duplica images more times (minor issue) */
-for ($lim=0; $lim<260; $lim++) {
+for ($lim=0; $lim<262; $lim++) {
 
-    $q = "SELECT lower(hex(hash)) hsh, contentType, hasThumbImage, thumbSlideshowCount, f.id fid 
-    FROM file f 
-    LEFT JOIN file_flags ff ON (f.id=ff.file_id) 
-    LEFT JOIN file_hashflags fh USING (hashid) 
+    $q = "SELECT thumbSlideshowCount, file_id 
+    FROM file_flags
+    WHERE thumbSlideshowCount>0 AND (file_id BETWEEN ".($lim*1000000)." AND ".(($lim+1)*1000000).")";
+    /* Select queries return a resultset */
+    if ($result = $mysqli->query($q)) {
+        /* fetch associative array */
+        while ($row = $result->fetch_assoc()) {
+            /* print all videos, archives, documents */
+            for ($i = 0; $i < $row['thumbSlideshowCount']; $i++) {
+                echo Nodus\Security\IntEncrypt::encrypt($row['file_id'], 'Nodus') . ".{$i}\n";
+            }
+        }
+        /* free result set */
+        $result->close();
+    }
+
+    $q = "SELECT lower(hex(hash)) hsh  
+    FROM file_hashflags fh 
     LEFT JOIN file_hash USING (hashid) 
-    WHERE (thumbSlideshowCount>0 or hasThumbImage) AND (f.id BETWEEN ".($lim*1000000)." AND ".(($lim+1)*1000000).") AND 
-    contentType IN ('image','archive','video','document')";
+    WHERE hasThumbImage=1 AND (fh.hashid BETWEEN ".($lim*1000000)." AND ".(($lim+1)*1000000).") AND contentType='image'";
     /* Select queries return a resultset */
     if ($result = $mysqli->query($q)) {
         /* fetch associative array */
         while ($row = $result->fetch_assoc()) {
             /* print images */
-            if ($row['contentType']==='image' && $row['hasThumbImage']) {
-                echo "{$row['hsh']}\n";
-            } else {
-                /* print all videos, archives, documents */
-                for ($i = 0; $i < $row['thumbSlideshowCount']; $i++) {
-                    echo Nodus\Security\IntEncrypt::encrypt($row['fid'], 'Nodus') . ".{$i}\n";
-                }
-            }
+            echo "{$row['hsh']}\n";
         }
-        /* be memory consumption aware */
-        flush();
-        gc_collect_cycles();
-        /* progress indicator */
-        fwrite(STDERR, "$lim ");
         /* free result set */
         $result->close();
     }
+
+    /* be memory consumption aware */
+    flush();
+    gc_collect_cycles();
+    /* progress indicator */
+    fwrite(STDERR, "$lim ");
 
 }
 
